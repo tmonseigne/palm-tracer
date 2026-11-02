@@ -165,6 +165,15 @@ class BaseSettingType:
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 
 	# --------------------------------------------------
+	def connect_after(self, f: Any):
+		"""
+		Connecte une notification après les callbacks ordinaires du paramètre.
+
+		:param f: Fonction ou slot appelé avec :obj:`None` après adaptation des paramètres dépendants.
+		"""
+		self._signal.connect_after(f)
+
+	# --------------------------------------------------
 	def disconnect(self, f: Any | None = None) -> int:
 		"""
 		Déconnecte ``f`` si fourni, sinon tous les slots. Renvoie le nombre de slots déconnectés.

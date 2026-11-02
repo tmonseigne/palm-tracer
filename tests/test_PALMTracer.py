@@ -868,6 +868,22 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 # ==================================================
 # region Filtrage
 # ==================================================
+@pytest.mark.parametrize("last", [True, False], ids=["latest-results", "original-results"])
+def test_update_filtered_publishes_once(pt, monkeypatch, last):
+	"""Vérifie que les résultats de tous les filtres sont publiés ensemble après leur mise à jour."""
+	data = pd.DataFrame({"Value": [1, 2]})
+	for key in ("loc", "trc", "MSD", "InD", "Fit"): pt.results[key] = data.copy()
+	monkeypatch.setattr(pt.filtering, "localization", lambda frame: frame.iloc[:1].copy())
+	monkeypatch.setattr(pt.filtering, "tracking", lambda frame: frame.iloc[:1].copy())
+	monkeypatch.setattr(pt.filtering, "track_analysis", lambda tracks, msd, ind, fit: (tracks, msd, ind, fit))
+	monkeypatch.setattr(pt, "save_setting_group", Mock())
+	states: list[tuple[int, int]] = []
+	pt.results.connect(lambda _: states.append((len(pt.results["f_loc"]), len(pt.results["f_trc"]))))
+	pt.update_filtered(last)
+	assert states == [(1, 1)]
+
+
+# --------------------------------------------------
 def test_reset_filtered(capsys, pt):
 	"""Vérifie la suppréssion des tableaux filtrés."""
 

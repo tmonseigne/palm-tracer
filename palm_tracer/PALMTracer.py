@@ -190,7 +190,8 @@ class PALMTracer:
 		"""
 		if self._loading: return
 		self._loading = True
-		try: self._load_results(path)
+		try:
+			with self.results.signal_blocked(): self._load_results(path)
 		finally: self._loading = False
 
 	# --------------------------------------------------
@@ -218,7 +219,8 @@ class PALMTracer:
 			return
 
 		print(f"Loading setting file '{settings_filename}'.")
-		with self.settings.signal_blocked():
+		# Les résultats notifiés à la fin du chargement déclenchent le rendu sur la nouvelle pile.
+		with self.settings.signal_blocked(emit_last=False):
 			cfg = FileIO.open_json(settings_filename)
 			self.settings.update_from_compact_dict(cfg)
 			self.settings.localization["Preview"].value = False
@@ -582,25 +584,26 @@ class PALMTracer:
 
 		:param last: Utilise les dernières versions des DataFrames si ``True``, sinon les données brutes seront utilisées.
 		"""
-		df = {}
-		for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
-			df[key] = self.results[key] if self.results[f"f_{key}"].empty or not last else self.results[f"f_{key}"]
+		with self.results.signal_blocked():
+			df = {}
+			for key in ["loc", "dft", "trc", "blk", "MSD", "InD", "Fit"]:
+				df[key] = self.results[key] if self.results[f"f_{key}"].empty or not last else self.results[f"f_{key}"]
 
-		self.results["f_loc"] = self.filtering.localization(df["loc"])
-		self.results["f_dft"] = self.filtering.localization(df["dft"])
-		self.results["f_trc"] = self.filtering.tracking(df["trc"])
-		self.results["f_blk"] = self.filtering.tracking(df["blk"])
+			self.results["f_loc"] = self.filtering.localization(df["loc"])
+			self.results["f_dft"] = self.filtering.localization(df["dft"])
+			self.results["f_trc"] = self.filtering.tracking(df["trc"])
+			self.results["f_blk"] = self.filtering.tracking(df["blk"])
 
-		o_name = "f_trc" if self.results["f_blk"].empty else "f_blk"
-		self.results[o_name], self.results["f_MSD"], self.results["f_InD"], self.results["f_Fit"] \
-			= self.filtering.track_analysis(self.results.tracks, df["MSD"], df["InD"], df["Fit"])
+			o_name = "f_trc" if self.results["f_blk"].empty else "f_blk"
+			self.results[o_name], self.results["f_MSD"], self.results["f_InD"], self.results["f_Fit"] \
+				= self.filtering.track_analysis(self.results.tracks, df["MSD"], df["InD"], df["Fit"])
 
-		for key in ["loc", "dft", "trc", "blk"]:
-			f_key = f"f_{key}"
-			if len(self.results[key]) == len(self.results[f_key]): self.results[f_key] = pd.DataFrame()
+			for key in ["loc", "dft", "trc", "blk"]:
+				f_key = f"f_{key}"
+				if len(self.results[key]) == len(self.results[f_key]): self.results[f_key] = pd.DataFrame()
 
-		if self.settings.filters["Save"].value: self.save_filtered()
-		self.save_setting_group("Filters")
+			if self.settings.filters["Save"].value: self.save_filtered()
+			self.save_setting_group("Filters")
 
 	# --------------------------------------------------
 	def save_filtered(self):

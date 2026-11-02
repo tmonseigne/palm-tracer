@@ -96,12 +96,13 @@ class Graph(BaseSettingGroup):
 		self._settings["Source B"].show() if mode == 2 else self._settings["Source B"].hide()
 		for key in ("Bins", "Cumul", "Count", "Gauss Mix"): self.display[key].show() if mode == 0 else self.display[key].hide()
 		for key in ("Gauss", "KDE", "Poiss", "Exp"): self.display[key].hide() if mode == 1 else self.display[key].show()
-		self.display["Limits"].value = mode != 1
+		# Le changement de mode notifie le groupe après l'adaptation des options dépendantes.
+		with self.display["Limits"].signal_blocked(emit_last=False): self.display["Limits"].value = mode != 1
 		self._update_src()
 
 	# --------------------------------------------------
 	def _update_src(self):
-		"""Actualise les sources en conservant les libellés disponibles, sinon sélectionne le premier choix."""
+		"""Actualise silencieusement les sources ; le changement de domaine ou de mode notifie ensuite le groupe."""
 		# Liste de base
 		if self._settings["Type"].value == 0: src = DATA_SRC["Localization"]
 		elif self._settings["Mode"].value == 1: src = DATA_SRC["Tracking Scatter"]
@@ -115,7 +116,7 @@ class Graph(BaseSettingGroup):
 			source = cast(Combo, self._settings[key])
 			if source.items == src: continue
 			selected = source.current_text
-			with source.signal_blocked():
+			with source.signal_blocked(emit_last=False):
 				source.items = src
 				source.value = src.index(selected) if selected in src else 0
 		self.toggle_src()

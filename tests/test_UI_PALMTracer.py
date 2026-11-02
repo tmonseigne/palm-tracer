@@ -382,6 +382,25 @@ def test_get_actual_image(qtbot, input_stack):
 
 
 # --------------------------------------------------
+def test_auto_threshold_groups_preview_and_save(qtbot, monkeypatch):
+	"""Vérifie qu'un seuil automatique et son changement de valeur déclenchent une seule preview et sauvegarde."""
+	preview, save = Mock(), Mock()
+	monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
+	monkeypatch.setattr(PALMTracerWidget, "_preview", preview)
+	monkeypatch.setattr(PALMTracerWidget, "_on_change_setting", save)
+	widget = PALMTracerWidget(ViewerModel())
+	qtbot.addWidget(widget)
+	monkeypatch.setattr(widget, "_get_actual_image", lambda offset=0: np.zeros((4, 4), dtype=np.uint16))
+	monkeypatch.setattr(widget.pt.palm, "auto_threshold", lambda *args: 123.0)
+	preview.reset_mock()
+	save.reset_mock()
+	widget.pt.settings.localization["Auto Threshold"].emit()
+	assert widget.pt.settings.localization["Threshold"].value == 123.0
+	preview.assert_called_once()
+	save.assert_called_once()
+
+
+# --------------------------------------------------
 def test_preview(capsys, qtbot, input_stack):
 	"""Vérifie le clic sur le bouton preview."""
 	viewer = ViewerModel()

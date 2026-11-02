@@ -172,6 +172,22 @@ class PALMTracerWidget(BaseNapariWidget):
 
 		# Update de preview en changeant de plan
 		self.viewer.dims.events.current_step.connect(self._preview)
+		self._preview_connected = True
+
+	# --------------------------------------------------
+	def closeEvent(self, event):
+		"""
+		Retire les observateurs de cette interface avant sa fermeture.
+
+		:param event: Événement de fermeture Qt.
+		"""
+		if getattr(self, "_preview_connected", False):
+			self.pt.settings.localization.disconnect(self._preview)
+			self.pt.settings.filters.disconnect(self._preview)
+			self.viewer.dims.events.current_step.disconnect(self._preview)
+			self.pt.settings.disconnect(self._on_change_setting)
+			self._preview_connected = False
+		super().closeEvent(event)
 
 	# --------------------------------------------------
 	def _on_startup(self):
@@ -281,37 +297,39 @@ class PALMTracerWidget(BaseNapariWidget):
 	# --------------------------------------------------
 	def _reset_layer(self):
 		"""Lors de la mise à jour du batch, le fichier en preview dans Napari est mis à jour."""
-		self.pt.settings.localization["Preview"].value = False
-		self.pt.settings.filters.deactivate_filters()
-		selected_file = cast(FileList, self.pt.settings.batch["Files"]).current_text
-		if not selected_file:
-			self._current_stack = self.EMPTY_STACK
-			self.last_file = ""
-			self._clean_layer()
-			self.pt.results.reset()  # .	   On nettoie les résultats.
-			self.pt.results.stack_name = ""  # On supprime le nom courant.
-			return
+		with self.pt.results.signal_blocked(), self.pt.settings.signal_blocked(emit_last=False):
+			self.pt.settings.localization["Preview"].value = False
+			self.pt.settings.filters.deactivate_filters()
+			self._preview()  # Nettoie l'aperçu sans publier les adaptations intermédiaires des paramètres.
+			selected_file = cast(FileList, self.pt.settings.batch["Files"]).current_text
+			if not selected_file:
+				self._current_stack = self.EMPTY_STACK
+				self.last_file = ""
+				self._clean_layer()
+				self.pt.results.reset()  # .	   On nettoie les résultats.
+				self.pt.results.stack_name = ""  # On supprime le nom courant.
+				return
 
-		if self.last_file == selected_file: return
-		else: self.last_file = selected_file
+			if self.last_file == selected_file: return
+			else: self.last_file = selected_file
 
-		# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer
-		try:
-			self._current_stack = FileIO.open_tif(selected_file)
-			_, height, width = self._current_stack.shape
-			self.pt.settings.rois.set_size(width, height)
-			self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
-			self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()  # .			   Réinitialisation du contrast si la Pile Change
-			self.viewer.reset_view()  # .											   Recentrer et ajuster la vue
-			self.pt.load(str(Path(selected_file).with_suffix("")) + "_PALM_Tracer")  # load() attend le dossier des résultats, et non le chemin du TIFF.
+			# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer
 			try:
-				self.viewer.layers.selection.active = self._layers["Raw"]
-				self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)
-			except Exception as e: self.notify_error(f"Error during layer selection: {e}")
-			self.notify_info(f"Loaded {selected_file} {self._current_stack.shape} into Napari viewer.")
+				self._current_stack = FileIO.open_tif(selected_file)
+				_, height, width = self._current_stack.shape
+				self.pt.settings.rois.set_size(width, height)
+				self.update_layer(self._layers[self.LAYERS_NAME[0]], self._current_stack)
+				self._layers[self.LAYERS_NAME[0]].reset_contrast_limits()  # .			   Réinitialisation du contrast si la Pile Change
+				self.viewer.reset_view()  # .											   Recentrer et ajuster la vue
+				self.pt.load(str(Path(selected_file).with_suffix("")) + "_PALM_Tracer")  # load() attend le dossier des résultats, et non le chemin du TIFF.
+				try:
+					self.viewer.layers.selection.active = self._layers["Raw"]
+					self.viewer.dims.set_current_step(0, (self._current_stack.shape[0] - 1) // 2)
+				except Exception as e: self.notify_error(f"Error during layer selection: {e}")
+				self.notify_info(f"Loaded {selected_file} {self._current_stack.shape} into Napari viewer.")
 
-		except Exception as e:
-			self.notify_error(f"Error loading {selected_file}: {e}")
+			except Exception as e:
+				self.notify_error(f"Error loading {selected_file}: {e}")
 
 	# --------------------------------------------------
 	def _add_preview_layers(self):
@@ -429,7 +447,9 @@ class PALMTracerWidget(BaseNapariWidget):
 		threshold = self.pt.palm.auto_threshold(image, self.pt.settings.localization.get_fit_params())  # Calcul du seuil automatique
 		print(f"Auto Threshold: {threshold:.2f}")
 		# La prévisualisation conserve les diagnostics dans la console pour ne pas multiplier les notifications.
-		self.pt.settings.localization["Threshold"].value = threshold  # .								  Changement du seuil dans les settings
+		# Le bouton Auto Threshold notifie ensuite le groupe ; le changement du seuil reste silencieux.
+		with self.pt.settings.localization["Threshold"].signal_blocked(emit_last=False):
+			self.pt.settings.localization["Threshold"].value = threshold
 
 	# ==================================================
 	# endregion Fonctions de rappel des calques

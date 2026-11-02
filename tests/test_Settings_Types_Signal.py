@@ -20,6 +20,16 @@ def sw() -> SignalWrapper:
 # ==================================================
 # region Connexion et déconnexion
 # ==================================================
+def test_group_notification_follows_regular_callbacks(sw: SignalWrapper):
+	"""Vérifie qu'une notification de groupe reste après les adaptations, quel que soit l'ordre de connexion."""
+	events: list[str] = []
+	sw.connect_after(lambda _: events.append("group"))
+	sw.connect(lambda _: events.append("adaptation"))
+	sw.emit()
+	assert events == ["adaptation", "group"]
+
+
+# --------------------------------------------------
 def test_connect_and_emit_direct(sw: SignalWrapper):
 	"""Vérifie la connexion d'un slot Python et émission immédiate."""
 	received: list[Any] = []

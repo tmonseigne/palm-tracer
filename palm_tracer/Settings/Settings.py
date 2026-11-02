@@ -21,7 +21,7 @@ from palm_tracer.Settings.Groups.Localization import Localization
 from palm_tracer.Settings.Groups.TrackAnalysis import TrackAnalysis
 from palm_tracer.Settings.Groups.Tracking import Tracking
 from palm_tracer.Settings.ROIManager import ROIManager
-from palm_tracer.Settings.Types import CheckInt, SpinInt
+from palm_tracer.Settings.Types import CheckInt, SignalWrapper, SpinInt
 from palm_tracer.Tools import Ui
 
 
@@ -38,6 +38,8 @@ class Settings:
 	"""Dictionnaire de groupes de paramètres."""
 	_uis: dict[str, dict[str, BaseUIGroup]] = field(init=False, default_factory=lambda: dict[str, dict[str, BaseUIGroup]]())
 	"""Dictionnaire des interfaces qui ont été créées pour ce groupe de paramètres."""
+	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	"""Notification globale regroupant les cascades entre groupes de paramètres."""
 	rois: ROIManager = field(init=False)
 	"""Manager des zones d'intérêts."""
 
@@ -52,8 +54,8 @@ class Settings:
 		for setting in list_settings: self._settings[setting.__name__] = setting()
 		self._settings["Tracking"]["Max Distance"].sync(self._settings["BlinkingReconnection"]["Max Distance"])
 		self.rois = ROIManager(cast(CheckInt, self.filters["ROI"]), cast(SpinInt, self.hr["Ratio"]))
-		self.batch["Files"].connect(self._update_filter_limits)
-		self.batch["Mode"].connect(self._update_filter_limits)
+		self.batch.connect(self._update_filter_limits)
+		for group in self._settings.values(): group.connect_after(self._signal.emit)
 
 	# --------------------------------------------------
 	def _update_filter_limits(self, _value: Any = None):
@@ -62,12 +64,14 @@ class Settings:
 		except (OSError, ValueError, IndexError) as error:
 			Ui.print_warning(f"Unable to read batch stack depth: {error}")
 			return
-		self.filters.update_limits(plane_count if plane_count is not None else 100000)
+		with self.filters.signal_blocked(emit_last=False):
+			self.filters.update_limits(plane_count if plane_count is not None else 100000)
 
 	# --------------------------------------------------
 	def reset(self):
 		"""Remet les valeurs par défaut des paramètres."""
-		for _, setting in self._settings.items(): setting.reset()
+		with self.signal_blocked():
+			for setting in self._settings.values(): setting.reset()
 
 	# ==================================================
 	# endregion Initialisation
@@ -179,11 +183,12 @@ class Settings:
 	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		"""Met à jour la classe à partir d'un dictionnaire minimal."""
-		groups = data["PALM Tracer Settings"]
-		for name, obj in self._settings.items():
-			if name in groups: obj.update_from_compact_dict(groups[name])
-		if "ROIs" in groups: self.rois.from_dict_list(groups["ROIs"])
-		self._update_filter_limits()
+		with self.signal_blocked():
+			groups = data["PALM Tracer Settings"]
+			for name, obj in self._settings.items():
+				if name in groups: obj.update_from_compact_dict(groups[name])
+			if "ROIs" in groups: self.rois.from_dict_list(groups["ROIs"])
+			self._update_filter_limits()
 
 	# ==================================================
 	# endregion Sérialisation
@@ -221,33 +226,44 @@ class Settings:
 	# ==================================================
 	def connect(self, f: Any):
 		"""
-		Connecte une fonction ou un slot à l'intégralité des paramètres.
+		Connecte une fonction ou un slot à la notification finale des changements de paramètres.
 
-		:param f: Fonction ou slot à connecter.
+		:param f: Fonction ou slot appelé avec :obj:`None` après synchronisation des groupes.
 		"""
-		for _, setting in self._settings.items(): setting.connect(f)
+		self._signal.connect(f)
+
+	# --------------------------------------------------
+	def connect_after(self, f: Any):
+		"""
+		Connecte une notification après les callbacks ordinaires de la configuration.
+
+		:param f: Fonction ou slot appelé avec :obj:`None` après les observateurs des paramètres.
+		"""
+		self._signal.connect_after(f)
 
 	# --------------------------------------------------
 	def disconnect(self, f: Callable[[Any], None] | None = None):
 		"""
-		Déconnecte une fonction ou un slot à tous les éléments du groupe.
+		Déconnecte un observateur de la notification globale, sans retirer les dépendances internes.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés.
 		"""
-		for _, setting in self._settings.items(): setting.disconnect(f)
+		return self._signal.disconnect(f)
 
 	# --------------------------------------------------
-	def signal_blocked(self) -> AbstractContextManager[Any]:
+	def signal_blocked(self, emit_last: bool = True) -> AbstractContextManager[Any]:
 		"""
 		Blocage des signaux pour l'intégralité des paramètres.
 
+		:param emit_last: Publie les notifications finales des groupes et de la configuration, ou les rend silencieuses.
 		:return: Retourne un context manager utilisable avec ``with ...:``.
 		"""
 		# if not self._settings: return nullcontext() # On n'a pas de settings vide
 		# noinspection PyAbstractClass
 		stack = ExitStack()
-		for group in self._settings.values(): stack.enter_context(group.signal_blocked())
+		stack.enter_context(self._signal.blocked(emit_last))
+		for group in self._settings.values(): stack.enter_context(group.signal_blocked(emit_last))
 		return stack
 
 

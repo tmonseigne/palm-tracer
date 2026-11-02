@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from contextlib import AbstractContextManager, ExitStack, nullcontext
+from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass, field
 from typing import Any
 
 from qtpy.QtCore import QSignalBlocker
 
 from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
-from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRangeInt
+from palm_tracer.Settings.Types import BaseSettingType, CheckRangeFloat, CheckRangeInt, SignalWrapper
 
 
 # --------------------------------------------------
@@ -32,6 +32,8 @@ class BaseSettingGroup:
 	"""Liste des paramètres du groupe (:class:`dict[str, BaseSettingGroup | BaseSettingType]`)."""
 	_uis: dict[str, BaseUIGroup] = field(init=False, default_factory=lambda: dict[str, BaseUIGroup]())
 	"""Dictionnaire des interfaces qui ont été créées pour ce groupe de paramètres."""
+	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	"""Notification agrégée des changements du groupe, après synchronisation de ses dépendances."""
 
 	# ==================================================
 	# region Initialisation
@@ -39,6 +41,8 @@ class BaseSettingGroup:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.initialize()
+		# Les observateurs sont raccordés après les callbacks qui synchronisent les paramètres dépendants.
+		for setting in self._settings.values(): setting.connect_after(self._signal.emit)
 		if self._mode != 0: self.active = True
 
 	# --------------------------------------------------
@@ -48,7 +52,8 @@ class BaseSettingGroup:
 	# --------------------------------------------------
 	def reset(self):
 		"""Remet les valeurs par défaut des paramètres."""
-		for _, setting in self._settings.items(): setting.reset()
+		with self.signal_blocked():
+			for setting in self._settings.values(): setting.reset()
 
 	# ==================================================
 	# endregion Initialisation
@@ -116,6 +121,7 @@ class BaseSettingGroup:
 			with QSignalBlocker(ui.checkbox):
 				ui.checkbox.setChecked(value)
 				ui.active(value)
+		self._signal.emit()
 
 	# --------------------------------------------------
 	@property
@@ -194,10 +200,11 @@ class BaseSettingGroup:
 	# --------------------------------------------------
 	def update_from_compact_dict(self, data: dict[str, Any]):
 		"""Met à jour la classe à partir d'un dictionnaire minimal."""
-		self.active = data.get("active", False)
-		settings = data["settings"]
-		for key, setting in self._settings.items():
-			if key in settings: setting.update_from_compact_dict(settings[key])
+		with self.signal_blocked():
+			self.active = data.get("active", False)
+			settings = data["settings"]
+			for key, setting in self._settings.items():
+				if key in settings: setting.update_from_compact_dict(settings[key])
 
 	# --------------------------------------------------
 	def tostring(self, line_prefix: str = "") -> str:
@@ -244,28 +251,45 @@ class BaseSettingGroup:
 	# ==================================================
 	def connect(self, f: Any):
 		"""
-		Connecte une fonction ou un slot à tous les éléments du groupe.
+		Connecte une fonction ou un slot à la notification finale des changements du groupe.
 
-		:param f: Fonction ou slot à connecter.
+		:param f: Fonction ou slot appelé avec :obj:`None` après synchronisation des paramètres.
 		"""
-		for _, setting in self._settings.items(): setting.connect(f)
+		self._signal.connect(f)
+
+	# --------------------------------------------------
+	def connect_after(self, f: Any):
+		"""
+		Connecte une notification après les callbacks ordinaires du groupe.
+
+		:param f: Fonction ou slot appelé avec :obj:`None` après les observateurs du groupe.
+		"""
+		self._signal.connect_after(f)
 
 	# --------------------------------------------------
 	def disconnect(self, f: Any | None = None):
 		"""
-		Déconnecte une fonction ou un slot à tous les éléments du groupe.
+		Déconnecte un observateur du groupe, sans retirer les dépendances internes des paramètres.
 
 		:param f: Fonction ou slot à déconnecter.
 		:return: Nombre de slots déconnectés.
 		"""
-		for _, setting in self._settings.items(): setting.disconnect(f)
+		return self._signal.disconnect(f)
 
 	# --------------------------------------------------
-	def signal_blocked(self) -> AbstractContextManager[Any]:
-		"""Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec ``with ...:``."""
-		if not self._settings: return nullcontext()
+	def signal_blocked(self, emit_last: bool = True) -> AbstractContextManager[Any]:
+		"""
+		Diffère les signaux des paramètres et publie le groupe après synchronisation des dépendances.
 
+		:param emit_last: Publie la notification finale du groupe et des sous-groupes, ou les rend silencieux.
+			Les callbacks individuels restent exécutés au déblocage pour synchroniser les valeurs et les contrôles.
+		:return: Contexte de blocage des paramètres et des notifications du groupe.
+		"""
 		# noinspection PyAbstractClass
 		stack = ExitStack()
-		for setting in self._settings.values(): stack.enter_context(setting.signal_blocked())  # Chaque enfant doit lui-même retourner un context manager
+		stack.enter_context(self._signal.blocked(emit_last))
+		for setting in self._settings.values():
+			# Les callbacks individuels restent nécessaires pour synchroniser les dépendances internes.
+			context = setting.signal_blocked(emit_last) if isinstance(setting, BaseSettingGroup) else setting.signal_blocked()
+			stack.enter_context(context)
 		return stack

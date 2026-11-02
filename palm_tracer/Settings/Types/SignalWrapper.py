@@ -27,6 +27,8 @@ class SignalWrapper(QObject):
 	"""Signal encapsulé, prêt à être utilisé dans l'application."""
 	_queued = Signal(object)
 	"""Relais interne des émissions provenant d'un autre thread."""
+	_after = Signal(object)
+	"""Notification interne exécutée après les callbacks ordinaires, pour annoncer l'état final d'un groupe."""
 
 	# --------------------------------------------------
 	def __init__(self):
@@ -50,6 +52,15 @@ class SignalWrapper(QObject):
 		"""
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 		self._slots.append(f)
+
+	# --------------------------------------------------
+	def connect_after(self, f: Callable[[Any], None]):
+		"""
+		Connecte une notification de groupe après les callbacks qui adaptent les paramètres dépendants.
+
+		:param f: Notification appelée avec :obj:`None` après les callbacks ordinaires.
+		"""
+		self._after.connect(f)
 
 	# --------------------------------------------------
 	def disconnect(self, f: Callable[[Any], None] | None = None) -> int:
@@ -95,8 +106,11 @@ class SignalWrapper(QObject):
 				self._pending_value = value
 				return
 		# Aucun verrou n'est conservé pendant l'exécution des observateurs.
-		if QThread.currentThread() == self.thread(): self._signal.emit(value)
-		else: self._queued.emit(value)
+		if QThread.currentThread() != self.thread():
+			self._queued.emit(value)
+			return
+		self._signal.emit(value)
+		self._after.emit(None)
 
 	# --------------------------------------------------
 	# --- Gestion du blocage des signaux ---

@@ -427,6 +427,15 @@ class Results:
 		self._signal.connect(f)
 
 	# --------------------------------------------------
+	def connect_after(self, f: Callable[[Any], None]):
+		"""
+		Connecte une notification après les callbacks ordinaires des résultats.
+
+		:param f: Fonction ou slot appelé avec :obj:`None` après les observateurs des résultats.
+		"""
+		self._signal.connect_after(f)
+
+	# --------------------------------------------------
 	def disconnect(self, f: Callable[[Any], None] | None = None) -> int:
 		"""
 		Déconnecte un observateur, ou tous les observateurs lorsqu'aucun n'est indiqué.

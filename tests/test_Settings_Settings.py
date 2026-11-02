@@ -135,6 +135,29 @@ def test_settings_signal(qtbot):
 	with settings.signal_blocked(): pass
 	settings.disconnect()
 
+
+# --------------------------------------------------
+def test_cross_group_cascade_notifies_once():
+	"""Vérifie une seule notification globale après synchronisation de deux groupes liés."""
+	settings = Settings()
+	states: list[tuple[float, float]] = []
+	settings.connect(lambda _: states.append((settings.tracking["Max Distance"].value, settings.blinking["Max Distance"].value)))
+	value = settings.tracking["Max Distance"].value + 1
+	settings.tracking["Max Distance"].value = value
+	assert states == [(value, value)]
+
+
+# --------------------------------------------------
+def test_global_reset_notifies_once():
+	"""Vérifie qu'un reset global publie une seule notification de sauvegarde."""
+	settings = Settings()
+	settings.localization["Threshold"].value += 1
+	settings.filters["Save"].value = True
+	notifications: list[object] = []
+	settings.connect(notifications.append)
+	settings.reset()
+	assert len(notifications) == 1
+
 # ==================================================
 # endregion Signaux
 # ==================================================

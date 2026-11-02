@@ -34,8 +34,13 @@ def stack_drop_widget(qtbot, monkeypatch):
 	calls = []
 	files = cast(FileList, widget.pt.settings.batch["Files"])
 	monkeypatch.setattr(ViewerHRWidget, "_generate", lambda self: None)
-	monkeypatch.setattr(widget.pt, "load", lambda path="": calls.append(("load", Path(path))))
-	monkeypatch.setattr(widget, "_actualize", lambda: calls.append(("actualize", Path(files.current_text))))
+	def load_results(path=""):
+		"""Simule un chargement qui remplace les résultats et notifie les vues."""
+		calls.append(("load", Path(path)))
+		widget.pt.results.reset()
+
+	monkeypatch.setattr(widget.pt, "load", load_results)
+	monkeypatch.setattr(widget, "_check_beads", lambda: calls.append(("actualize", Path(files.current_text))))
 	window.show()
 	return widget, receiver, calls
 
@@ -356,16 +361,29 @@ def test_add_stack(qtbot, input_stack):
 
 
 # --------------------------------------------------
-def test_actualize(qtbot):
-	"""Vérifie le widget."""
+def test_results_refresh_bead_options(qtbot, monkeypatch):
+	"""Vérifie la synchronisation des options des billes et une seule reconstruction par action."""
+	generate = Mock()
+	monkeypatch.setattr(ViewerHRWidget, "_generate", generate)
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, PALMTracer())
 	qtbot.addWidget(w)
+	generate.reset_mock()
+	options = [w._hr_settings[key].get_ui(w.UI_NAME) for key in ("Remove Beads", "Drift Correction", "Smooth Drift")]
 
-	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
+	w.pt.results["bds"] = pd.DataFrame({"Bead": [1]})
+	qtbot.waitUntil(lambda: generate.call_count == 1)
+	assert all(not option.boxes[0].isHidden() for option in options)
+	generate.reset_mock()
 
-	w.pt._stack = np.zeros((1, 1, 1), dtype=np.uint16)
-	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
+	with w.pt.results.signal_blocked():
+		w.pt.results.get_ui(w.UI_NAME).clear_buttons["Beads"].click()
+		w.pt.reset_filtered()
+	qtbot.waitUntil(lambda: generate.call_count == 1)
+	QCoreApplication.processEvents()
+	assert generate.call_count == 1
+	assert all(option.boxes[0].isHidden() for option in options)
+	assert all(button.text() != "Actualize" for button in w.findChildren(QPushButton))
 
 
 # --------------------------------------------------
