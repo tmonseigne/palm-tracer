@@ -235,8 +235,12 @@ class PALMTracer:
 
 	# --------------------------------------------------
 	def process(self):
-		"""Lance le pipeline PALM selon les paramètres sélectionnés."""
+		"""
+		Lance le pipeline PALM et publie les résultats une seule fois à la fin du batch.
 
+		Les changements intermédiaires ne déclenchent aucun rendu des viewers. En cas d'erreur,
+		le blocage est levé et les résultats partiels conservés sont publiés avant propagation de l'exception.
+		"""
 		if not self.is_dll_valid():
 			Ui.print_warning("Process not completed due to missing DLLs.")
 			return
@@ -248,62 +252,63 @@ class PALMTracer:
 			Ui.print_warning("No files.")
 			return
 
-		# --- Parcours du batch ---
-		for self._path, self._stack in zip(paths, stacks):
-			# Réinitialisation des DataFrames de résultats
-			self.results.reset()
+		with self.results.signal_blocked():  # Blocaqe des émissions temporaire pour éviter des rafraichissements dans les viewer.
+			# --- Parcours du batch ---
+			for self._path, self._stack in zip(paths, stacks):
+				# Réinitialisation des DataFrames de résultats
+				self.results.reset()
 
-			# Logger
-			Path(self._path).mkdir(parents=True, exist_ok=True)
-			self._timestamp = FileIO.get_timestamp_for_files()
-			self._logger.open(self._output_name("log", "log"))
-			self._logger.add("Start Processing.")
-			self._logger.add(f"Output folder: {self._path}")
+				# Logger
+				Path(self._path).mkdir(parents=True, exist_ok=True)
+				self._timestamp = FileIO.get_timestamp_for_files()
+				self._logger.open(self._output_name("log", "log"))
+				self._logger.add("Start Processing.")
+				self._logger.add(f"Output folder: {self._path}")
 
-			# Chargement du dernier Setting
-			previous_settings_filename = FileIO.get_last_file(self._path, "settings")
-			self._timestamp_previous = FileIO.extract_suffix(previous_settings_filename)
-			if Path(previous_settings_filename).is_file():
-				previous_settings = Settings()
-				previous_settings.update_from_compact_dict(FileIO.open_json(previous_settings_filename))
-			else:
-				previous_settings = None
+				# Chargement du dernier Setting
+				previous_settings_filename = FileIO.get_last_file(self._path, "settings")
+				self._timestamp_previous = FileIO.extract_suffix(previous_settings_filename)
+				if Path(previous_settings_filename).is_file():
+					previous_settings = Settings()
+					previous_settings.update_from_compact_dict(FileIO.open_json(previous_settings_filename))
+				else:
+					previous_settings = None
 
-			# Save meta file (Création du DataFrame et sauvegarde en CSV)
-			self.save_meta()
+				# Save meta file (Création du DataFrame et sauvegarde en CSV)
+				self.save_meta()
 
-			# Enregistrement des paramètres une première fois pour avoir une trace
-			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())
-			self._logger.add("Settings saved.")
+				# Enregistrement des paramètres une première fois pour avoir une trace
+				FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())
+				self._logger.add("Settings saved.")
 
-			# Lancement des traitements
-			pipeline_dirty = False
-			for step in self._STEPS: pipeline_dirty = self._process_step(step, previous_settings, pipeline_dirty)
+				# Lancement des traitements
+				pipeline_dirty = False
+				for step in self._STEPS: pipeline_dirty = self._process_step(step, previous_settings, pipeline_dirty)
 
-			# Lancement de la génération de Galeries
-			if self.settings.gallery.active:
-				self._logger.add("Gallery generation enabled.")
-				self._gallery()
-			else: self._logger.add("Gallery generation disabled.")
+				# Lancement de la génération de Galeries
+				if self.settings.gallery.active:
+					self._logger.add("Gallery generation enabled.")
+					self._gallery()
+				else: self._logger.add("Gallery generation disabled.")
 
-			# Lancement de la Visualisation graphique
-			if self.settings.graph.active:
-				self._logger.add("Graphical visualization enabled.")
-				self._visualization_graph()
-			else: self._logger.add("Graphical visualization disabled.")
+				# Lancement de la Visualisation graphique
+				if self.settings.graph.active:
+					self._logger.add("Graphical visualization enabled.")
+					self._visualization_graph()
+				else: self._logger.add("Graphical visualization disabled.")
 
-			# Lancement de la Visualisation Haute Résolution
-			if self.settings.hr.active:
-				self._logger.add("High-resolution visualization enabled.")
-				self._visualization_hr()
-			else: self._logger.add("High-resolution visualization disabled.")
+				# Lancement de la Visualisation Haute Résolution
+				if self.settings.hr.active:
+					self._logger.add("High-resolution visualization enabled.")
+					self._visualization_hr()
+				else: self._logger.add("High-resolution visualization disabled.")
 
-			# Enregistrement des paramètres (qui ont pu être modifié durant le process)
-			FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())
-			# Fermeture du Log
-			self._logger.add("Processing complete.")
-			self._logger.close()
-			FileIO.cleanup_process(self._path, self._timestamp_previous)
+				# Enregistrement des paramètres (qui ont pu être modifié durant le process)
+				FileIO.save_json(self._output_name("settings", "json"), self.settings.to_compact_dict())
+				# Fermeture du Log
+				self._logger.add("Processing complete.")
+				self._logger.close()
+				FileIO.cleanup_process(self._path, self._timestamp_previous)
 
 	# --------------------------------------------------
 	def save_meta(self):

@@ -274,6 +274,63 @@ def test_getter_track_analysis(pt):
 # region Traitements
 # ==================================================
 
+@pytest.fixture
+def notification_pipeline(pt, monkeypatch, tmp_path):
+	"""Isole les étapes de calcul et les écritures pour observer les notifications du vrai parcours de batch."""
+	monkeypatch.setattr(pt, "is_dll_valid", lambda: True)
+	monkeypatch.setattr(pt.settings.batch, "get_paths", lambda: [str(tmp_path / "first"), str(tmp_path / "second")])
+	monkeypatch.setattr(pt.settings.batch, "get_stacks", lambda: [np.zeros((1, 1, 1), dtype=np.uint16)] * 2)
+	monkeypatch.setattr(pt, "_STEPS", [None])
+	monkeypatch.setattr(pt, "_logger", Mock())
+	monkeypatch.setattr(pt, "save_meta", Mock())
+	monkeypatch.setattr(FileIO, "get_last_file", lambda *args: "")
+	monkeypatch.setattr(FileIO, "save_json", Mock())
+	monkeypatch.setattr(FileIO, "cleanup_process", Mock())
+	for group in (pt.settings.gallery, pt.settings.graph, pt.settings.hr): group.active = False
+	return pt
+
+
+# --------------------------------------------------
+def test_process_publishes_after_entire_batch(notification_pipeline, monkeypatch):
+	"""Vérifie que plusieurs piles et étapes ne publient que l'état final du batch."""
+	pt = notification_pipeline
+	notifications = []
+	pt.results.connect(lambda _: notifications.append(pt.results["loc"].copy()))
+
+	def process_step(*_args):
+		"""Simule les résultats de plusieurs calculs pour la pile courante."""
+		pt.results["loc"] = pd.DataFrame({"Stack": [Path(pt.path).name]})
+		pt.results["bds"] = pd.DataFrame({"Bead": [1]})
+		pt.results["trc"] = pd.DataFrame({"Track": [1]})
+		assert notifications == []
+		return True
+
+	monkeypatch.setattr(pt, "_process_step", process_step)
+	pt.process()
+	assert len(notifications) == 1
+	assert notifications[0]["Stack"].tolist() == ["second"]
+
+
+# --------------------------------------------------
+def test_process_failure_releases_notifications(notification_pipeline, monkeypatch):
+	"""Vérifie la publication des résultats partiels et la libération du blocage après une erreur."""
+	pt = notification_pipeline
+	notifications = []
+	pt.results.connect(notifications.append)
+
+	def failing_step(*_args):
+		"""Simule une erreur après la localisation et avant les autres étapes."""
+		pt.results["loc"] = pd.DataFrame({"X": [1.0]})
+		assert notifications == []
+		raise RuntimeError("tracking failed")
+
+	monkeypatch.setattr(pt, "_process_step", failing_step)
+	with pytest.raises(RuntimeError, match="tracking failed"): pt.process()
+	assert notifications == [None]
+	assert not pt.results["loc"].empty
+	pt.results.reset()
+	assert notifications == [None, None]
+
 # ==================================================
 # region Chargement des résultats
 # ==================================================
