@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 10:55+0100\n"
+"PO-Revision-Date: 2026-11-03 10:55+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../user/viewer_graph.rst:2
 msgid "Visionneuse de graphique"
@@ -110,8 +115,8 @@ msgid "Onglet Filtres"
 msgstr "Filters tab"
 
 #: ../../user/viewer_graph.rst:74
-msgid "Boutons :guilabel:`Actualize Files` et :guilabel:`Export…`."
-msgstr "Buttons :guilabel:`Actualize Files` and :guilabel:`Export…`."
+msgid "Bouton :guilabel:`Export…`"
+msgstr ":guilabel:`Export…` button"
 
 #: ../../user/viewer_graph.rst:77
 msgid "Volet de visualisation"
@@ -313,8 +318,8 @@ msgid "Filtres pour les trajectoires"
 msgstr "Filters for tracks"
 
 #: ../../user/viewer_graph.rst:357
-msgid "Chaque filtre doit-être coché pour être effectif, mais ne sera pas appliqué tant qu'il n'y aura pas d'appuie sur le bouton :guilabel:`Update`. À ce moment, les filtres seront appliqués au sein de l'interface principale sur les dernières données en mémoire (données de base ou déjà filtré), les options de filtrage seront mises à jour également dans l'interface principale."
-msgstr "Each filter must be checked to be active, but it will not be applied until you press the :guilabel:`Update` button. At that moment, the filters will be applied within the main interface to the latest data in memory (base data or already filtered data), and the filtering options will also be updated in the main interface."
+msgid "Chaque filtre doit être coché pour être effectif, mais ne sera pas appliqué avant un appui sur le bouton :guilabel:`Update`. À ce moment, les filtres seront appliqués au sein de l'interface principale sur les données initiales en mémoire, sans accumuler les filtrages successifs, les options de filtrage seront mises à jour également dans l'interface principale."
+msgstr "Each filter must be checked to be active, but it is not applied until you press the :guilabel:`Update` button. The filters are then applied within the main interface to the initial data in memory, without accumulating successive filtering operations, and the filtering options are also updated in the main interface."
 
 #: ../../user/viewer_graph.rst:361
 msgid "L'appui sur le bouton :guilabel:`Reset`, supprimera les données filtrées de la mémoire, le panneau d'information affichera cette mise à jour dans les statuts des fichiers. Les filtres ne seront pas effacés, pour que vous conserviez l'ensemble de vos paramètres et faire les petits ajustements nécessaires avant de relancer un filtrage. Le graphique actuel sera recalculé après la réinitialisation."
@@ -361,16 +366,16 @@ msgid "Plusieurs éléments permettent une communication bidirectionnelle entre 
 msgstr "Several elements allow bidirectional communication between the two interfaces:"
 
 #: ../../user/viewer_graph.rst:407
-msgid ":guilabel:`Actualize files`, situé au plus bas, vous permet de mettre à jour les différents tableaux si un nouveau calcul a été effectué dans l'interface principale."
-msgstr ":guilabel:`Actualize files`, located at the very bottom, allows you to update the different tables if a new computation has been performed in the main interface."
+msgid "Le graphique est automatiquement actualisé lorsque les résultats changent dans l'interface principale ou dans une visionneuse. Les mises à jour groupées des résultats ne déclenchent qu’un seul tracé à la sortie du regroupement."
+msgstr "The graph is automatically refreshed when results change in the main interface or in a viewer. Grouped result updates trigger a single plot update when the group of updates is complete."
 
 #: ../../user/viewer_graph.rst:408
-msgid ":guilabel:`Reset` permets de supprimer les tableaux filtrés pour repartir sur une base saine."
-msgstr ":guilabel:`Reset` allows removing the filtered tables to start again from a clean base."
+msgid ":guilabel:`Reset` permet de supprimer les tableaux filtrés pour repartir sur une base saine."
+msgstr ":guilabel:`Reset` removes the filtered tables to start again from the initial data."
 
 #: ../../user/viewer_graph.rst:409
-msgid ":guilabel:`Update` permets d'appliquer votre nouvelle sélection de filtres sur les tableaux (filtrés s'ils existent sinon sur les tableaux initiaux)."
-msgstr ":guilabel:`Update` allows applying your new selection of filters to the tables (filtered tables if they exist, otherwise the initial tables)."
+msgid ":guilabel:`Update` permet d'appliquer votre nouvelle sélection de filtres sur les tableaux initiaux, même si des tableaux filtrés existent déjà."
+msgstr ":guilabel:`Update` applies your new selection of filters to the initial tables, even when filtered tables already exist."
 
 #: ../../user/viewer_graph.rst:412
 msgid "Export"

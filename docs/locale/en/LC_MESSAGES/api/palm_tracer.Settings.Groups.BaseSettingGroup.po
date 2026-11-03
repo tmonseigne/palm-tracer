@@ -3,9 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"POT-Creation-Date: 2026-10-30 10:35+0100\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -31,7 +32,7 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.label:1
-msgid "Nom du Groupe."
+msgid "Nom du groupe."
 msgstr "Group name."
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.active:1
@@ -88,8 +89,8 @@ msgid "Nom de l'interface dans le dictionnaire."
 msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:4
-msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
+msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : Groupe toujours actif, sans case à cocher - 2 : Groupe sans en-tête"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: Always-active group without a checkbox - 2: Group without a header"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:4
 msgid "Méthode de création du groupe."
@@ -104,23 +105,22 @@ msgid "0 : Avec un titre et une checkbox pour activer/désactiver le groupe"
 msgstr "0: With a title and a checkbox to enable/disable the group"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:8
-msgid "1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)"
-msgstr "1: State when using the \"always active\" method (the checkbox is not created)"
+msgid "1 : Groupe toujours actif, sans case à cocher"
+msgstr "1: Always-active group without a checkbox"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:9
-msgid "2 : État remove header (aucune création de l'espace titre)"
-msgstr "2: \"Remove header\" state (no title area created)"
+msgid "2 : Groupe sans en-tête"
+msgstr "2: Group without a header"
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst
 msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.get_ui:11
-msgid "Interface du paramètre (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
-msgstr "Setting interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgid "Interface du groupe (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgstr "Group interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
 
 #: ../../api/palm_tracer.Settings.Groups.BaseSettingGroup.rst of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.to_compact_dict
 msgid "Type renvoyé"
 msgstr "Return type"
@@ -181,29 +181,59 @@ msgid "Signaux"
 msgstr "Signals"
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect:1
-msgid "Connecte une fonction ou un slot à tous les éléments du groupe."
-msgstr "Connects a function or slot to all elements in the group."
+msgid "Connecte une fonction ou un slot à la notification finale des changements du groupe."
+msgstr "Connects a function or slot to the final notification of group changes."
 
 #: of palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect:3
-msgid "Fonction ou slot à connecter."
-msgstr "Function or slot to connect."
+msgid "Fonction ou slot appelé avec :obj:`None` après synchronisation des paramètres."
+msgstr "Function or slot called with :obj:`None` after the settings have been synchronized."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect_after:1
+msgid "Connecte une notification finale après le signal ordinaire."
+msgstr "Connects a final notification after the ordinary signal."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect_after:3
+msgid "Les callbacks directs sont terminés ; les callbacks transférés vers un autre thread ne sont pas attendus."
+msgstr "Direct callbacks have finished; callbacks dispatched to another thread are not awaited."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.connect_after:5
+msgid "Fonction ou slot appelé avec :obj:`None`."
+msgstr "Function or slot called with :obj:`None`."
 
 #: of
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:1
-msgid "Déconnecte une fonction ou un slot à tous les éléments du groupe."
-msgstr "Disconnects a function or slot from all elements in the group."
+msgid "Déconnecte les observateurs enregistrés par :meth:`connect`."
+msgstr "Disconnects observers registered through :meth:`connect`."
 
 #: of
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:3
-msgid "Fonction ou slot à déconnecter."
-msgstr "Function or slot to disconnect."
+msgid "Les connexions établies par :meth:`connect_after` et les dépendances internes sont conservées."
+msgstr "Connections established through :meth:`connect_after` and internal dependencies are retained."
 
 #: of
-#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:4
-msgid "Nombre de slots déconnectés."
-msgstr "Number of disconnected slots."
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:5
+msgid "Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires."
+msgstr "Function or slot to disconnect, or :obj:`None` for all ordinary observers."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.disconnect:6
+msgid "Nombre de slots ordinaires déconnectés."
+msgstr "Number of ordinary slots disconnected."
 
 #: of
 #: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:1
-msgid "Blocage des signaux pour tout le groupe (récursif). Retourne un context manager utilisable avec ``with ...:``."
-msgstr "Signal blocking for the entire group (recursive). Returns a context manager usable with ``with ...:``."
+msgid "Diffère les signaux des paramètres et publie le groupe après synchronisation des dépendances."
+msgstr "Defers setting signals and publishes the group after its dependencies have been synchronized."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:3
+msgid "Publie la notification finale du groupe et des sous-groupes, ou les rend silencieux. Les callbacks individuels restent exécutés au déblocage pour synchroniser les valeurs et les contrôles."
+msgstr "Publishes the final notification of the group and its subgroups, or keeps them silent. Individual callbacks still run when unblocked to synchronize values and controls."
+
+#: of
+#: palm_tracer.Settings.Groups.BaseSettingGroup.BaseSettingGroup.signal_blocked:5
+msgid "Contexte de blocage des paramètres et des notifications du groupe."
+msgstr "Context blocking setting signals and group notifications."

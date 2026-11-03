@@ -1,8 +1,4 @@
-"""
-Fournit le widget Napari de visualisation haute résolution des résultats.
-
-.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
-"""
+"""Fournit le widget Napari de visualisation haute résolution des résultats."""
 
 from __future__ import annotations
 
@@ -33,12 +29,14 @@ class ViewerHRWidget(BaseNapariWidget):
 	Affiche les résultats PALM en haute résolution dans Napari.
 
 	Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation
-	sous forme d'image PNG.
+	sous forme d’image PNG ou TIFF.
 
 	:param viewer: Visionneuse Napari recevant les calques.
 	:param palmtracer: Instance principale à laquelle le widget est associé.
 
 	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "HR Viewer"``.
+
+	.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 	"""
 
 	UI_NAME: str = "HR"
@@ -230,7 +228,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 	# --------------------------------------------------
 	def _save(self):
-		"""Créé une image PNG de la visualisation actuelle."""
+		"""Enregistre la reconstruction recadrée en PNG ou TIFF, selon le nom de fichier choisi."""
 		if self._filename:
 			crop = self.pt.crop(self.visualization)
 			if self._filename[-3:] == "png": FileIO.save_png(crop, self._filename, False)
@@ -239,7 +237,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 	# --------------------------------------------------
 	def _screenshot(self):  # pragma: no cover — Accès au canevas
-		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les réglages de color map, contraste)."""
+		"""Enregistre une capture PNG du canevas avec sa palette de couleurs et son contraste courants."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
 			self.notify_info("Screenshot saved successfully.")
@@ -262,7 +260,7 @@ class ViewerHRWidget(BaseNapariWidget):
 	# region Dessin
 	# ==================================================
 	def _generate(self):
-		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
+		"""Reconstruit l’image haute résolution et met à jour les calques de points et de trajectoires dans Napari."""
 		self._filename = ""
 		path, stack, suffix = self.pt.path, self.pt.stack, self.pt.suffix
 
@@ -289,7 +287,8 @@ class ViewerHRWidget(BaseNapariWidget):
 		tracks_layer = self._layers[self.LAYERS_NAME[3]]
 
 		# Remplace systématiquement les données des calques vectoriels pour éviter les résidus entre modes.
-		points, tracks = np.empty((0, 3), dtype=float), np.zeros((1, 4), dtype=float)
+		points: np.ndarray = np.empty((0, 3), dtype=float)
+		tracks: np.ndarray = np.zeros((1, 4), dtype=float)
 		filtered_points: np.ndarray = np.empty((0, 3), dtype=float)
 		if self._hr_settings["Dimension"].value == 2:  # .				 Rotation 3D
 			point_layer.visible = tracks_layer.visible = False

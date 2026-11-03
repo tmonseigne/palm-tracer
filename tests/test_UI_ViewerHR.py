@@ -34,6 +34,8 @@ def stack_drop_widget(qtbot, monkeypatch):
 	calls = []
 	files = cast(FileList, widget.pt.settings.batch["Files"])
 	monkeypatch.setattr(ViewerHRWidget, "_generate", lambda self: None)
+
+	# --------------------------------------------------
 	def load_results(path=""):
 		"""Simule un chargement qui remplace les résultats et notifie les vues."""
 		calls.append(("load", Path(path)))
@@ -341,7 +343,7 @@ def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypat
 # region Liaison avec PALMTracer
 # ==================================================
 def test_check_beads(qtbot, input_stack):
-	"""Vérifie le widget."""
+	"""Vérifie la visibilité de l’option de retrait des billes selon les résultats disponibles."""
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, get_fake_pt(input_stack))
 	qtbot.addWidget(w)
@@ -395,7 +397,7 @@ def test_results_refresh_bead_options(qtbot, monkeypatch):
 
 # --------------------------------------------------
 def test_save(qtbot, input_stack):
-	"""Vérifie la création du widget."""
+	"""Vérifie l’enregistrement de la reconstruction en PNG et TIFF, ainsi que l’absence de nom de fichier."""
 	res_2d, res_3d = OUTPUT_DIR / "HR.png", OUTPUT_DIR / "HR.tif"
 	res_2d.unlink(missing_ok=True)  # .	Suppression du fichier de résultat s'il existe.
 	res_3d.unlink(missing_ok=True)  # .	Suppression du fichier de résultat s'il existe.
@@ -449,7 +451,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatc
 
 # --------------------------------------------------
 def test_change_type(qtbot, input_stack):
-	"""Vérifie le widget."""
+	"""Vérifie la sélection des localisations et des trajectoires depuis les boutons du viewer HR."""
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, get_fake_pt(input_stack))  # .	Créer notre widget, en passant par le viewer.
 	qtbot.addWidget(w)
@@ -473,7 +475,7 @@ def test_change_type(qtbot, input_stack):
 # region Génération des rendus
 # ==================================================
 def test_generate_bad(qtbot, capsys, input_stack):
-	"""Vérifie le widget."""
+	"""Vérifie les avertissements lorsque la reconstruction est demandée sans pile traitée."""
 	viewer = ViewerModel()
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)  # .				Créer notre widget, en passant par le viewer.
@@ -504,7 +506,7 @@ def test_generate_bad(qtbot, capsys, input_stack):
 
 # --------------------------------------------------
 def test_generate(generated_widget, capsys):
-	"""Vérifie le widget."""
+	"""Vérifie les calques reconstruits et la sauvegarde des seuls paramètres HR."""
 	viewer, pt, w = generated_widget
 
 	settings_file = Path(pt.path) / f"settings-{pt.suffix}.json"
@@ -788,8 +790,9 @@ def test_generate_render_and_roi_transitions(qtbot, input_stack):
 			if is_rgb:
 				assert image.shape == (3, (y1 - y0) * 2, (x1 - x0) * 2, 3), context
 				# Ce coin est hors des trajectoires : sa valeur doit provenir du bon pixel de l'acquisition.
-				background = pt.stack[:3, y0:y1, x0:x1].astype(float)
-				low, high = background.min(), background.max()
+				background: np.ndarray = pt.stack[:3, y0:y1, x0:x1].astype(float)
+				low: float = background.min()
+				high: float = background.max()
 				offset, span = (low, high - low) if high > low else (0.0, 65535.0)
 				expected_corner = round((background[0, 0, 0] - offset) * 255 / span)
 				np.testing.assert_array_equal(image[0, 0, 0], [expected_corner] * 3, err_msg=context)

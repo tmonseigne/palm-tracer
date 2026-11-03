@@ -23,13 +23,13 @@ class BaseSettingGroup:
 	"""
 
 	label: str = field(init=False, default="Base Setting Group")
-	"""Nom du Groupe."""
+	"""Nom du groupe."""
 	_mode: int = field(init=False, default=0)
 	"""Méthode d'affichage du groupe par défaut."""
 	_active: bool = field(init=False, default=False)
 	"""État du groupe (activé ou non)."""
 	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=dict)
-	"""Liste des paramètres du groupe (:class:`dict[str, BaseSettingGroup | BaseSettingType]`)."""
+	"""Dictionnaire des paramètres du groupe, indexé par leur nom."""
 	_uis: dict[str, BaseUIGroup] = field(init=False, default_factory=lambda: dict[str, BaseUIGroup]())
 	"""Dictionnaire des interfaces qui ont été créées pour ce groupe de paramètres."""
 	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
@@ -71,10 +71,10 @@ class BaseSettingGroup:
 
 			- -1 : Valeur par défaut du groupe
 			- 0 : Avec un titre et une checkbox pour activer/désactiver le groupe
-			- 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)
-			- 2 : État remove header (aucune création de l'espace titre)
+			- 1 : Groupe toujours actif, sans case à cocher
+			- 2 : Groupe sans en-tête
 
-		:return: Interface du paramètre (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`).
+		:return: Interface du groupe (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`).
 		"""
 		if name in self._uis: return self._uis[name]
 		if mode < 0: mode = self._mode
@@ -260,19 +260,23 @@ class BaseSettingGroup:
 	# --------------------------------------------------
 	def connect_after(self, f: Any):
 		"""
-		Connecte une notification après les callbacks ordinaires du groupe.
+		Connecte une notification finale après le signal ordinaire.
 
-		:param f: Fonction ou slot appelé avec :obj:`None` après les observateurs du groupe.
+		Les callbacks directs sont terminés ; les callbacks transférés vers un autre thread ne sont pas attendus.
+
+		:param f: Fonction ou slot appelé avec :obj:`None`.
 		"""
 		self._signal.connect_after(f)
 
 	# --------------------------------------------------
 	def disconnect(self, f: Any | None = None):
 		"""
-		Déconnecte un observateur du groupe, sans retirer les dépendances internes des paramètres.
+		Déconnecte les observateurs enregistrés par :meth:`connect`.
 
-		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés.
+		Les connexions établies par :meth:`connect_after` et les dépendances internes sont conservées.
+
+		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires.
+		:return: Nombre de slots ordinaires déconnectés.
 		"""
 		return self._signal.disconnect(f)
 

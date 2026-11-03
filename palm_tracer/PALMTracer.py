@@ -1,8 +1,4 @@
-"""
-Orchestre le chargement, le traitement, le filtrage et l'enregistrement des données PALM.
-
-.. todo:: Documenter précisément la stratégie de filtrage appliquée aux calculs, aux visualisations et aux sauvegardes.
-"""
+"""Orchestre le chargement, le traitement, le filtrage et l'enregistrement des données PALM."""
 
 from __future__ import annotations
 
@@ -32,6 +28,8 @@ class PALMTracer:
 
 	La classe coordonne la configuration, les appels à la DLL PALM, le pipeline de traitement, le filtrage, la production des visualisations et la
 	sauvegarde des résultats.
+
+	.. todo:: Documenter précisément la stratégie de filtrage appliquée aux calculs, aux visualisations et aux sauvegardes.
 	"""
 
 	settings: Settings = field(init=False, default_factory=Settings)
@@ -115,8 +113,8 @@ class PALMTracer:
 
 	# --------------------------------------------------
 	@property
-	def stack(self) -> np.ndarray:
-		"""Pile en cours de traitement."""
+	def stack(self) -> np.ndarray | None:
+		"""Pile en cours de traitement, ou :obj:`None` avant son chargement."""
 		return self._stack
 
 	# --------------------------------------------------
@@ -238,10 +236,10 @@ class PALMTracer:
 	# --------------------------------------------------
 	def process(self):
 		"""
-		Lance le pipeline PALM et publie les résultats une seule fois à la fin du batch.
+		Lance le pipeline PALM et regroupe les notifications des résultats jusqu’à la fin du batch.
 
-		Les changements intermédiaires ne déclenchent aucun rendu des viewers. En cas d'erreur,
-		le blocage est levé et les résultats partiels conservés sont publiés avant propagation de l'exception.
+		Les résultats intermédiaires ne sont pas publiés à leurs observateurs. En cas d’erreur,
+		le blocage est levé et les résultats partiels conservés sont publiés avant propagation de l’exception.
 		"""
 		if not self.is_dll_valid():
 			Ui.print_warning("Process not completed due to missing DLLs.")
@@ -254,7 +252,7 @@ class PALMTracer:
 			Ui.print_warning("No files.")
 			return
 
-		with self.results.signal_blocked():  # Blocaqe des émissions temporaire pour éviter des rafraichissements dans les viewer.
+		with self.results.signal_blocked():  # Blocage temporaire des émissions pour éviter les rafraîchissements intermédiaires des viewers.
 			# --- Parcours du batch ---
 			for self._path, self._stack in zip(paths, stacks):
 				# Réinitialisation des DataFrames de résultats
@@ -461,8 +459,8 @@ class PALMTracer:
 		Les erreurs de lecture sont signalées par ``Ui.print_error`` et ne sont pas propagées.
 
 		.. note::
-		        Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
-		        Si ce n'est pas le cas, le modèle est considéré comme invalide.
+			Le fichier doit respecter la forme attendue définie par ``Parsing.SHAPE_MODEL``.
+			Si ce n'est pas le cas, le modèle est considéré comme invalide.
 
 		.. tip:: En cas de chemin inexistant, les emplacements locaux sont prioritaires sur le dernier modèle sauvegardé dans le dossier utilisateur.
 		"""
@@ -921,8 +919,8 @@ class PALMTracer:
 		"""
 		df = self.results.tracks
 		if df.empty or not {"Track", "Plane", "Integrated Intensity"}.issubset(df.columns): return np.empty(0)
-		values = df["Integrated Intensity"].to_numpy(dtype=float)
-		values = pd.Series(np.where(np.isfinite(values) & (values >= 0), values, np.nan), index=df.index)
+		intensities_array = df["Integrated Intensity"].to_numpy(dtype=float)
+		values = pd.Series(np.where(np.isfinite(intensities_array) & (intensities_array >= 0), intensities_array, np.nan), index=df.index)
 		points = values.groupby([df["Track"], df["Plane"].astype(int)], sort=False).mean()
 		if mean:
 			means = points.groupby(level=1, sort=True).mean()
@@ -935,7 +933,7 @@ class PALMTracer:
 			planes = track.index.to_numpy(dtype=float)
 			intensities = self._log_data(track.to_numpy(dtype=float), log_scale)
 			# Un seul NaN par intervalle absent suffit à interrompre la ligne, sans allouer tous les plans de chaque trajectoire.
-			gaps = np.flatnonzero(np.diff(planes) > 1) + 1
+			gaps: np.ndarray = np.flatnonzero(np.diff(planes) > 1) + 1
 			curves.append(np.vstack((np.insert(planes, gaps, np.nan), np.insert(intensities, gaps, np.nan))))
 		if not curves: return np.empty(0)  # pragma: no cover - Garde impossible, car vérifié en amont.
 		data = np.full((len(curves), 2, max(curve.shape[1] for curve in curves)), np.nan)
@@ -963,7 +961,7 @@ class PALMTracer:
 		changes: np.ndarray = np.zeros(planes.size + 1, dtype=int)
 		np.add.at(changes, bounds["min"].to_numpy(dtype=int) - planes[0], 1)
 		np.add.at(changes, bounds["max"].to_numpy(dtype=int) - planes[0] + 1, -1)
-		in_progress = np.cumsum(changes[:-1])
+		in_progress: np.ndarray = np.cumsum(changes[:-1])
 		present = points.groupby("Plane").size().reindex(pd.Index(planes), fill_value=0).to_numpy(dtype=int)
 		counts = np.vstack((in_progress, present, in_progress - present))
 		return np.stack((np.broadcast_to(planes, counts.shape), self._log_data(counts, log_scale)), axis=1)
@@ -985,7 +983,7 @@ class PALMTracer:
 		:return: Dictionnaire contenant l'image ``visualization``, les coordonnées vectorielles ``plot_data`` et, si les localisations actives sont
 			filtrées, les coordonnées des points exclus ``plot_filtered``. Ces points partagent le repère du rendu sans contribuer à l'image.
 		"""
-		data = {"visualization": np.zeros((1, 1), dtype=np.uint16), "plot_data": np.zeros((1, 1), dtype=float)}
+		data: dict[str, np.ndarray] = {"visualization": np.zeros((1, 1), dtype=np.uint16), "plot_data": np.zeros((1, 1), dtype=float)}
 		if self._stack is None: return data
 
 		# --- Paramètres ---
@@ -1071,7 +1069,7 @@ class PALMTracer:
 		# Initialisation du dataframe.
 		key = self.results.get_tracks_key() if tracks else self.results.get_localization_key()
 		filtered = not tracks and key.startswith("f_")
-		plot = {"plot_data": np.zeros((1, 1), dtype=float)}
+		plot: dict[str, np.ndarray] = {"plot_data": np.zeros((1, 1), dtype=float)}
 		if filtered:
 			plot["plot_filtered"] = np.empty((0, 3), dtype=float)
 			df = self.results[key[2:]].copy()
@@ -1088,11 +1086,11 @@ class PALMTracer:
 		if tracks: df = self._renderer.add_colors_to_tracks(df, source)
 		elif filtered:
 			# Les points exclus ne doivent pas changer la normalisation des couleurs du rendu conservé.
-			retained = df["_HR Retained"]
-			if not retained.any(): return None, plot, 0.0
-			colored = self._renderer.add_colors_to_localizations(df.loc[retained].copy(), source, max_color)
+			retained_mask = df["_HR Retained"]
+			if not retained_mask.any(): return None, plot, 0.0
+			colored = self._renderer.add_colors_to_localizations(df.loc[retained_mask].copy(), source, max_color)
 			df["Color"] = 0.0
-			df.loc[retained, "Color"] = colored["Color"].to_numpy()
+			df.loc[retained_mask, "Color"] = colored["Color"].to_numpy()
 		else: df = self._renderer.add_colors_to_localizations(df, source, max_color)
 		df["Color"] *= color_scaling
 

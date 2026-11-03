@@ -20,16 +20,8 @@ def sw() -> SignalWrapper:
 # ==================================================
 # region Connexion et déconnexion
 # ==================================================
-def test_group_notification_follows_regular_callbacks(sw: SignalWrapper):
-	"""Vérifie qu'une notification de groupe reste après les adaptations, quel que soit l'ordre de connexion."""
-	events: list[str] = []
-	sw.connect_after(lambda _: events.append("group"))
-	sw.connect(lambda _: events.append("adaptation"))
-	sw.emit()
-	assert events == ["adaptation", "group"]
 
 
-# --------------------------------------------------
 def test_connect_and_emit_direct(sw: SignalWrapper):
 	"""Vérifie la connexion d'un slot Python et émission immédiate."""
 	received: list[Any] = []
@@ -37,6 +29,16 @@ def test_connect_and_emit_direct(sw: SignalWrapper):
 
 	sw.emit("X")
 	assert received == ["X"]
+
+
+# --------------------------------------------------
+def test_group_notification_follows_regular_callbacks(sw: SignalWrapper):
+	"""Vérifie qu'une notification de groupe reste après les adaptations, quel que soit l'ordre de connexion."""
+	events: list[str] = []
+	sw.connect_after(lambda _: events.append("group"))
+	sw.connect(lambda _: events.append("adaptation"))
+	sw.emit()
+	assert events == ["adaptation", "group"]
 
 
 # --------------------------------------------------
@@ -102,6 +104,7 @@ def test_worker_emits_in_owner_thread_in_order(sw: SignalWrapper, qtbot):
 	received: list[tuple[int, QThread]] = []
 	sw.connect(lambda value: received.append((value, QThread.currentThread())))
 
+	# --------------------------------------------------
 	def produce():
 		"""Émet plusieurs valeurs successives depuis le worker."""
 		for value in range(3): sw.emit(value)
@@ -188,6 +191,8 @@ def test_nested_blocks_emit_once_at_outer_exit(sw: SignalWrapper):
 
 	# Une seule émission à la fin, avec la dernière valeur (3)
 	assert received == [3]
+	sw.emit(4)
+	assert received == [3, 4]
 
 
 # --------------------------------------------------
@@ -255,19 +260,18 @@ def test_emit_direct_after_previous_block(sw: SignalWrapper):
 
 
 # --------------------------------------------------
-def test_internal_block_begin_end_paths(sw: SignalWrapper):
-	"""Vérifie le scénario ``internal_block_begin_end_paths``."""
+def test_block_end_without_active_context_keeps_signal_usable(sw: SignalWrapper):
+	"""Vérifie qu'un déblocage sans contexte actif ne publie rien et laisse le signal utilisable."""
 	received: list[Any] = []
 	sw.connect(lambda v: received.append(v))
 
-	# 1) _block_end() quand rien n'est bloqué : ne doit pas lever ni émettre
 	sw._block_end()
 	assert received == []
 
-	# 2) begin/end sans pending : ne doit rien émettre
-	sw._block_begin(True)
-	sw._block_end()
-	assert received == []
+	with sw.blocked(): sw.emit("grouped")
+	assert received == ["grouped"]
+	sw.emit("direct")
+	assert received == ["grouped", "direct"]
 
 
 # --------------------------------------------------
@@ -277,6 +281,7 @@ def test_worker_block_coalesces_in_owner_thread(sw: SignalWrapper, qtbot, emit_l
 	received: list[tuple[int, QThread]] = []
 	sw.connect(lambda value: received.append((value, QThread.currentThread())))
 
+	# --------------------------------------------------
 	def produce():
 		"""Émet plusieurs valeurs pendant des blocages imbriqués."""
 		with sw.blocked(emit_last):

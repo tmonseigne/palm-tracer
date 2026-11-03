@@ -41,7 +41,7 @@ class Settings:
 	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
 	"""Notification globale regroupant les cascades entre groupes de paramètres."""
 	rois: ROIManager = field(init=False)
-	"""Manager des zones d'intérêts."""
+	"""Gestionnaire des zones d’intérêt."""
 
 	# ==================================================
 	# region Initialisation
@@ -195,7 +195,7 @@ class Settings:
 	# ==================================================
 
 	# ==================================================
-	# region Entrées-sorties
+	# region Entrées / sorties
 	# ==================================================
 	def tostring(self) -> str:
 		"""
@@ -218,7 +218,7 @@ class Settings:
 		return self.tostring()
 
 	# ==================================================
-	# endregion Entrées-sorties
+	# endregion Entrées / sorties
 	# ==================================================
 
 	# ==================================================
@@ -233,21 +233,12 @@ class Settings:
 		self._signal.connect(f)
 
 	# --------------------------------------------------
-	def connect_after(self, f: Any):
-		"""
-		Connecte une notification après les callbacks ordinaires de la configuration.
-
-		:param f: Fonction ou slot appelé avec :obj:`None` après les observateurs des paramètres.
-		"""
-		self._signal.connect_after(f)
-
-	# --------------------------------------------------
 	def disconnect(self, f: Callable[[Any], None] | None = None):
 		"""
-		Déconnecte un observateur de la notification globale, sans retirer les dépendances internes.
+		Déconnecte les observateurs enregistrés par :meth:`connect`.
 
-		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés.
+		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires.
+		:return: Nombre de slots ordinaires déconnectés.
 		"""
 		return self._signal.disconnect(f)
 

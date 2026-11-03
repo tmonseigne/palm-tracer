@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
-from qtpy.QtCore import QThread, Qt
+from qtpy.QtCore import Qt, QThread
 from qtpy.QtGui import QDesktopServices
 
 from palm_tracer.Results import Results
@@ -444,14 +444,17 @@ def test_worker_groups_view_updates_in_owner_thread(results, qtbot, monkeypatch)
 	"""Vérifie qu'un worker diffère les vues et que leur synchronisation finale reste dans le thread graphique."""
 	ui = results.get_ui()
 	qtbot.addWidget(ui.widget)
-	updates, errors = [], []
+	updates: list[QThread] = []
+	errors: list[Exception] = []
 	update_status = ui.update_status
 
+	# --------------------------------------------------
 	def record_update(status):
 		"""Relève le thread et conserve la synchronisation réelle des libellés."""
 		updates.append(QThread.currentThread())
 		update_status(status)
 
+	# --------------------------------------------------
 	def compute():
 		"""Produit plusieurs résultats depuis un worker et conserve ses éventuelles erreurs."""
 		try:
@@ -478,7 +481,7 @@ def test_worker_groups_view_updates_in_owner_thread(results, qtbot, monkeypatch)
 def test_data_changes_notify_without_interface(results, action):
 	"""Vérifie que le modèle notifie ses observateurs même sans interface créée."""
 	results["loc"] = make_dataframe(2)
-	notifications = []
+	notifications: list[None] = []
 	results.connect(notifications.append)
 	if action == "replace": results["loc"] = make_dataframe(1)
 	elif action == "reset": results.reset()
@@ -491,7 +494,8 @@ def test_data_changes_notify_without_interface(results, action):
 # --------------------------------------------------
 def test_disconnect_results_observer(results):
 	"""Vérifie la déconnexion ciblée puis la déconnexion de tous les observateurs."""
-	first, second = [], []
+	first: list[None] = []
+	second: list[None] = []
 	results.connect(first.append)
 	results.connect(second.append)
 	assert results.disconnect(first.append) == 1
@@ -507,7 +511,7 @@ def test_disconnect_results_observer(results):
 @pytest.mark.parametrize("emit_last", [True, False], ids=["emit-final", "discard"])
 def test_blocked_results_notifications(results, emit_last):
 	"""Vérifie le regroupement des changements imbriqués et la suppression optionnelle des notifications."""
-	notifications = []
+	notifications: list[None] = []
 	results.connect(notifications.append)
 	with results.signal_blocked(emit_last):
 		results["loc"] = make_dataframe(2)
@@ -520,7 +524,7 @@ def test_blocked_results_notifications(results, emit_last):
 # --------------------------------------------------
 def test_metadata_changes_do_not_notify_data(results, tmp_path):
 	"""Vérifie que les métadonnées et la synchronisation des vues ne demandent aucun nouveau rendu."""
-	notifications = []
+	notifications: list[None] = []
 	results.connect(notifications.append)
 	results.stack_name = "stack.tif"
 	results.results_folder = tmp_path

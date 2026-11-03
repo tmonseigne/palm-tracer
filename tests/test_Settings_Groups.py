@@ -113,61 +113,6 @@ def test_base_group(qtbot):
 
 
 # --------------------------------------------------
-def test_graph_cascade_notifies_once():
-	"""Vérifie qu'un changement de mode publie les sources et limites déjà synchronisées."""
-	group = sg.Graph()
-	group["Type"].value = 1
-	states: list[tuple[int, bool, list[str]]] = []
-	group.connect(lambda _: states.append((group["Mode"].value, group.display["Limits"].value, group["Source"].items.copy())))
-	group["Mode"].value = 1
-	assert len(states) == 1
-	assert states[0] == (1, False, group["Source"].items)
-	group.disconnect()
-	# Déconnecter l'observateur ne doit pas supprimer les dépendances entre paramètres.
-	group["Mode"].value = 0
-	assert group.display["Limits"].value is True
-
-
-# --------------------------------------------------
-def test_graph_source_adaptation_is_silent():
-	"""Vérifie que l'adaptation des sources ne publie pas ses changements intermédiaires."""
-	group = sg.Graph()
-	group["Type"].value = 1
-	group["Mode"].value = 1
-	group["Source"].value = 2
-	with group["Mode"].signal_blocked(emit_last=False): group["Mode"].value = 2
-	notifications: list[object] = []
-	group.connect(notifications.append)
-	group.toggle_mode(2)
-	group._update_src()
-	assert notifications == []
-
-
-# --------------------------------------------------
-@pytest.mark.parametrize("dimension", [1, 2, 3], ids=["z-stack", "rotation", "track-stack"])
-def test_hr_dimension_notifies_after_adaptation(dimension):
-	"""Vérifie qu'une transition HR notifie une seule fois après adaptation du domaine et des sources."""
-	group = sg.HR()
-	states: list[tuple[int, int, list[str]]] = []
-	group.connect(lambda _: states.append((group["Dimension"].value, group["Type"].value, group["Source"].items.copy())))
-	group["Dimension"].value = dimension
-	assert states == [(dimension, group["Type"].value, group["Source"].items)]
-	assert group["Type"].value == (1 if dimension == 3 else 0)
-
-
-# --------------------------------------------------
-def test_gaussian_mode_notifies_after_z_adaptation():
-	"""Vérifie que le changement de mode annonce une seule fois la désactivation de l'estimation Z."""
-	group = sg.GaussianFit()
-	group["Mode"].value = 3
-	group["Z"].value = True
-	states: list[tuple[int, bool]] = []
-	group.connect(lambda _: states.append((group["Mode"].value, group["Z"].value)))
-	group["Mode"].value = 0
-	assert states == [(0, False)]
-
-
-# --------------------------------------------------
 def test_group_update_notifies_after_all_values():
 	"""Vérifie qu'une restauration de groupe notifie seulement après application de toutes les valeurs."""
 	group = sg.Graph()
@@ -318,6 +263,19 @@ def test_localization_spline_missing_file(qtbot, with_ui):
 # ==================================================
 # region GaussianFit
 # ==================================================
+
+def test_gaussian_mode_notifies_after_z_adaptation():
+	"""Vérifie que le changement de mode annonce une seule fois la désactivation de l'estimation Z."""
+	group = sg.GaussianFit()
+	group["Mode"].value = 3
+	group["Z"].value = True
+	states: list[tuple[int, bool]] = []
+	group.connect(lambda _: states.append((group["Mode"].value, group["Z"].value)))
+	group["Mode"].value = 0
+	assert states == [(0, False)]
+
+
+# --------------------------------------------------
 def test_gaussian_fit_z(qtbot):
 	"""Vérifie la classe GaussianFit avec affichage/masquage des éléments."""
 	grp = sg.GaussianFit()
@@ -418,6 +376,37 @@ def test_graph(qtbot):
 	assert isinstance(g.display, sg.GraphDisplay)
 
 
+# --------------------------------------------------
+def test_graph_cascade_notifies_once():
+	"""Vérifie qu'un changement de mode publie les sources et limites déjà synchronisées."""
+	group = sg.Graph()
+	group["Type"].value = 1
+	states: list[tuple[int, bool, list[str]]] = []
+	group.connect(lambda _: states.append((group["Mode"].value, group.display["Limits"].value, group["Source"].items.copy())))
+	group["Mode"].value = 1
+	assert len(states) == 1
+	assert states[0] == (1, False, group["Source"].items)
+	group.disconnect()
+	# Déconnecter l'observateur ne doit pas supprimer les dépendances entre paramètres.
+	group["Mode"].value = 0
+	assert group.display["Limits"].value is True
+
+
+# --------------------------------------------------
+def test_graph_source_adaptation_is_silent():
+	"""Vérifie que l'adaptation des sources ne publie pas ses changements intermédiaires."""
+	group = sg.Graph()
+	group["Type"].value = 1
+	group["Mode"].value = 1
+	group["Source"].value = 2
+	with group["Mode"].signal_blocked(emit_last=False): group["Mode"].value = 2
+	notifications: list[object] = []
+	group.connect(notifications.append)
+	group.toggle_mode(2)
+	group._update_src()
+	assert notifications == []
+
+
 # ==================================================
 # endregion Graph
 # ==================================================
@@ -438,6 +427,18 @@ def test_hr(qtbot):
 	assert isinstance(g.gaussian, sg.HRGaussian)
 	assert isinstance(g.hr_3d, sg.HR3D)
 	assert isinstance(g.track_stack, HRTrackStack)
+
+# --------------------------------------------------
+@pytest.mark.parametrize("dimension", [1, 2, 3], ids=["z-stack", "rotation", "track-stack"])
+def test_hr_dimension_notifies_after_adaptation(dimension):
+	"""Vérifie qu'une transition HR notifie une seule fois après adaptation du domaine et des sources."""
+	group = sg.HR()
+	states: list[tuple[int, int, list[str]]] = []
+	group.connect(lambda _: states.append((group["Dimension"].value, group["Type"].value, group["Source"].items.copy())))
+	group["Dimension"].value = dimension
+	assert states == [(dimension, group["Type"].value, group["Source"].items)]
+	assert group["Type"].value == (1 if dimension == 3 else 0)
+
 
 # ==================================================
 # endregion HR

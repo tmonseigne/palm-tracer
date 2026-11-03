@@ -20,7 +20,13 @@ if TYPE_CHECKING:
 # --------------------------------------------------
 @dataclass
 class Results:
-	"""Conserve les résultats des traitements et leurs représentations Qt."""
+	"""
+	Conserve les résultats des traitements et leurs représentations Qt.
+
+	L’affectation d’un tableau et les opérations de réinitialisation notifient les observateurs.
+	Les tableaux sont conservés par référence : leur modification en place ne déclenche aucune notification.
+	Le contexte :meth:`signal_blocked` regroupe les notifications et synchronise les compteurs avant de publier les résultats.
+	"""
 
 	_data: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
 			"loc":   pd.DataFrame(), "dft": pd.DataFrame(), "bds": pd.DataFrame(),  # .	   Localisations.
@@ -31,7 +37,7 @@ class Results:
 			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Analyses des trajectoires filtrées.
 	"""Résultats des différents calculs."""
 
-	_uis: dict[str, "ResultsUI"] = field(init=False, default_factory=dict)
+	_uis: dict[str, ResultsUI] = field(init=False, default_factory=dict)
 	"""Interfaces d'information."""
 	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
 	"""Signal émis après modification des données, indépendamment des interfaces créées."""
@@ -359,7 +365,7 @@ class Results:
 		self._signal.emit()
 
 	# --------------------------------------------------
-	def get_ui(self, name: str = "default", margin: int = 5) -> "ResultsUI":
+	def get_ui(self, name: str = "default", margin: int = 5) -> ResultsUI:
 		"""
 		Retourne une représentation Qt des résultats, existante ou nouvellement créée.
 
@@ -427,21 +433,12 @@ class Results:
 		self._signal.connect(f)
 
 	# --------------------------------------------------
-	def connect_after(self, f: Callable[[Any], None]):
-		"""
-		Connecte une notification après les callbacks ordinaires des résultats.
-
-		:param f: Fonction ou slot appelé avec :obj:`None` après les observateurs des résultats.
-		"""
-		self._signal.connect_after(f)
-
-	# --------------------------------------------------
 	def disconnect(self, f: Callable[[Any], None] | None = None) -> int:
 		"""
-		Déconnecte un observateur, ou tous les observateurs lorsqu'aucun n'est indiqué.
+		Déconnecte les observateurs enregistrés par :meth:`connect`.
 
-		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les déconnecter.
-		:return: Nombre de slots déconnectés.
+		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires.
+		:return: Nombre de slots ordinaires déconnectés.
 		"""
 		return self._signal.disconnect(f)
 

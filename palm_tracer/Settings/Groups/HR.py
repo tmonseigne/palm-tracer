@@ -83,7 +83,7 @@ class HR(BaseSettingGroup):
 	# --------------------------------------------------
 	@property
 	def track_stack(self) -> HRTrackStack:
-		"""Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."""
+		"""Paramètres de l’animation des trajectoires (:class:`~palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack`)."""
 		return cast(HRTrackStack, self._settings["T-Stack"])
 
 	# --------------------------------------------------

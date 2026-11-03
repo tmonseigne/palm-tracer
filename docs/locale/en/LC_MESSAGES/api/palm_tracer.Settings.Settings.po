@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.Settings.Settings.rst:2
 msgid "Settings"
@@ -27,7 +32,7 @@ msgid "Attributs"
 msgstr "Attributes"
 
 #: of palm_tracer.Settings.Settings.Settings.rois:1
-msgid "Manager des zones d'intérêts."
+msgid "Gestionnaire des zones d’intérêt."
 msgstr "Region of interest manager."
 
 #: of palm_tracer.Settings.Settings.Settings.batch:1
@@ -126,7 +131,7 @@ msgid "Met à jour la classe à partir d'un dictionnaire minimal."
 msgstr "Updates the class from a minimal dictionary."
 
 #: ../../api/palm_tracer.Settings.Settings.rst:45
-msgid "Entrées-sorties"
+msgid "Entrées / sorties"
 msgstr "Input/output"
 
 #: of palm_tracer.Settings.Settings.Settings.tostring:1
@@ -146,29 +151,33 @@ msgid "Signaux"
 msgstr "Signals"
 
 #: of palm_tracer.Settings.Settings.Settings.connect:1
-msgid "Connecte une fonction ou un slot à l'intégralité des paramètres."
-msgstr "Connects a function or slot to all settings."
+msgid "Connecte une fonction ou un slot à la notification finale des changements de paramètres."
+msgstr "Connects a function or slot to the final notification of setting changes."
 
 #: of palm_tracer.Settings.Settings.Settings.connect:3
-msgid "Fonction ou slot à connecter."
-msgstr "Function or slot to connect."
+msgid "Fonction ou slot appelé avec :obj:`None` après synchronisation des groupes."
+msgstr "Function or slot called with :obj:`None` after the groups have been synchronized."
 
 #: of palm_tracer.Settings.Settings.Settings.disconnect:1
-msgid "Déconnecte une fonction ou un slot à tous les éléments du groupe."
-msgstr "Disconnects a function or slot from all elements in the group."
+msgid "Déconnecte les observateurs enregistrés par :meth:`connect`."
+msgstr "Disconnects observers registered through :meth:`connect`."
 
 #: of palm_tracer.Settings.Settings.Settings.disconnect:3
-msgid "Fonction ou slot à déconnecter."
-msgstr "Function or slot to disconnect."
+msgid "Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires."
+msgstr "Function or slot to disconnect, or :obj:`None` for all ordinary observers."
 
 #: of palm_tracer.Settings.Settings.Settings.disconnect:4
-msgid "Nombre de slots déconnectés."
-msgstr "Number of disconnected slots."
+msgid "Nombre de slots ordinaires déconnectés."
+msgstr "Number of ordinary slots disconnected."
 
 #: of palm_tracer.Settings.Settings.Settings.signal_blocked:1
 msgid "Blocage des signaux pour l'intégralité des paramètres."
 msgstr "Signal blocking for all settings."
 
 #: of palm_tracer.Settings.Settings.Settings.signal_blocked:3
+msgid "Publie les notifications finales des groupes et de la configuration, ou les rend silencieuses."
+msgstr "Publishes the final notifications of the groups and the configuration, or keeps them silent."
+
+#: of palm_tracer.Settings.Settings.Settings.signal_blocked:4
 msgid "Retourne un context manager utilisable avec ``with ...:``."
 msgstr "Returns a context manager that can be used with ``with ...:``."

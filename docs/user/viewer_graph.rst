@@ -71,7 +71,7 @@ Le widget est structuré comme suit :
 - Onglet Source
 - Onglet Affichage
 - Onglet Filtres
-- Boutons :guilabel:`Actualize Files` et :guilabel:`Export…`.
+- Bouton :guilabel:`Export…`
 
 Volet de visualisation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -354,8 +354,8 @@ Selon le type de données, la liste des filtres est mise à jour pour ne conserv
 
           Filtres pour les trajectoires
 
-Chaque filtre doit-être coché pour être effectif, mais ne sera pas appliqué tant qu'il n'y aura pas d'appuie sur le bouton :guilabel:`Update`.
-À ce moment, les filtres seront appliqués au sein de l'interface principale sur les dernières données en mémoire (données de base ou déjà filtré),
+Chaque filtre doit être coché pour être effectif, mais ne sera pas appliqué avant un appui sur le bouton :guilabel:`Update`.
+À ce moment, les filtres seront appliqués au sein de l'interface principale sur les données initiales en mémoire, sans accumuler les filtrages successifs,
 les options de filtrage seront mises à jour également dans l'interface principale.
 
 L'appui sur le bouton :guilabel:`Reset`, supprimera les données filtrées de la mémoire, le panneau d'information affichera cette mise à jour dans les statuts des fichiers.
@@ -404,9 +404,9 @@ Les éléments suivants sont utilisés :
 
 Plusieurs éléments permettent une communication bidirectionnelle entre les deux interfaces :
 
-- :guilabel:`Actualize files`, situé au plus bas, vous permet de mettre à jour les différents tableaux si un nouveau calcul a été effectué dans l'interface principale.
-- :guilabel:`Reset` permets de supprimer les tableaux filtrés pour repartir sur une base saine.
-- :guilabel:`Update` permets d'appliquer votre nouvelle sélection de filtres sur les tableaux (filtrés s'ils existent sinon sur les tableaux initiaux).
+- Le graphique est automatiquement actualisé lorsque les résultats changent dans l'interface principale ou dans une visionneuse. Les mises à jour groupées des résultats ne déclenchent qu’un seul tracé à la sortie du regroupement.
+- :guilabel:`Reset` permet de supprimer les tableaux filtrés pour repartir sur une base saine.
+- :guilabel:`Update` permet d'appliquer votre nouvelle sélection de filtres sur les tableaux initiaux, même si des tableaux filtrés existent déjà.
 
 Export
 ----------------------------------

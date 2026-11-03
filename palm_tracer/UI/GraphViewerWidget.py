@@ -1,8 +1,4 @@
-"""
-Fournit le widget de visualisation interactive des données PALM avec Plotly.
-
-.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
-"""
+"""Fournit le widget de visualisation interactive des données PALM avec Plotly."""
 
 from __future__ import annotations
 
@@ -42,6 +38,8 @@ class GraphViewerWidget(BasePlotlyWidget):
 	:param palmtracer: Instance principale dont les données sont visualisées. La référence est conservée sans effectuer de copie.
 
 	.. note:: Si QtWebEngine n'est pas disponible, le widget utilise un affichage textuel de remplacement.
+
+	.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 	"""
 
 	UI_NAME: str = "Graph Viewer"
@@ -72,15 +70,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 	# --------------------------------------------------
 	def _init_ui(self):
 		"""
-		Construit l'interface utilisateur :
-			- Colonne gauche :
-				- Informations : Nom du fichier, présence Localizations/Tracking.
-				- Domaine : 2 boutons exclusifs (Localization/Tracking).
-				- Source : ComboBox dépendante du domaine sélectionné.
-				- Filtres : Section réservée (non implémentée).
-				- Actions : Export…
-			- Zone droite :
-				- QWebEngineView hébergeant la figure Plotly (ou fallback texte si indisponible).
+		Construit les panneaux de paramètres et de visualisation.
+
+		Le panneau gauche regroupe les informations, les sources, l’affichage, les filtres et l’export.
+		Le panneau droit héberge la figure Plotly, ou un affichage textuel si QtWebEngine est indisponible.
 		"""
 		self.pt.clean_ui(self.UI_NAME)
 		main_layout = QHBoxLayout(self)
@@ -245,7 +238,7 @@ class GraphViewerWidget(BasePlotlyWidget):
 
 	# --------------------------------------------------
 	def _actualize(self):
-		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer et redessine le graph."""
+		"""Reconstruit le graphique à partir des paramètres et des résultats courants."""
 		self._update_plot()  # Puis redessiner le graphe.
 
 	# --------------------------------------------------

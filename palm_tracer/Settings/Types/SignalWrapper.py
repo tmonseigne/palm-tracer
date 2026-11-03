@@ -17,7 +17,7 @@ class SignalWrapper(QObject):
 
 	Les connexions et déconnexions sont déléguées au signal interne.
 	Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement la dernière valeur ;
-	celle-ci est émise une seule fois à la sortie du blocage externe.
+	celle-ci est émise une seule fois à la sortie du blocage externe si son option ``emit_last`` le demande.
 	Les émissions externes sont transférées vers le thread propriétaire du wrapper, dont la boucle Qt doit être active.
 	Les émissions dans ce thread restent immédiates. Le blocage est partagé entre tous les threads émetteurs.
 	Le wrapper ne copie pas les valeurs transmises et ne protège pas les données métier contre les accès concurrents.
@@ -56,19 +56,24 @@ class SignalWrapper(QObject):
 	# --------------------------------------------------
 	def connect_after(self, f: Callable[[Any], None]):
 		"""
-		Connecte une notification de groupe après les callbacks qui adaptent les paramètres dépendants.
+		Connecte une notification émise après le signal ordinaire, avec la valeur :obj:`None`.
 
-		:param f: Notification appelée avec :obj:`None` après les callbacks ordinaires.
+		Les callbacks directs du signal ordinaire sont terminés avant cette émission.
+		Les callbacks transférés vers un autre thread ne sont pas attendus.
+
+		:param f: Fonction ou slot à connecter à la notification finale.
 		"""
 		self._after.connect(f)
 
 	# --------------------------------------------------
 	def disconnect(self, f: Callable[[Any], None] | None = None) -> int:
 		"""
-		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnectés.
+		Déconnecte les slots enregistrés par :meth:`connect`.
 
-		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés.
+		Les connexions établies par :meth:`connect_after` sont conservées.
+
+		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les slots ordinaires.
+		:return: Nombre de slots ordinaires déconnectés.
 		"""
 		n = 0
 		if f is None:
@@ -114,6 +119,8 @@ class SignalWrapper(QObject):
 
 	# --------------------------------------------------
 	# --- Gestion du blocage des signaux ---
+
+	# --------------------------------------------------
 	class BlockCtx:
 		"""
 		Gère le blocage temporaire d'un :class:`SignalWrapper` dans une instruction ``with``.
@@ -123,7 +130,7 @@ class SignalWrapper(QObject):
 		"""
 
 		# --------------------------------------------------
-		def __init__(self, owner: "SignalWrapper", emit_last: bool = True):
+		def __init__(self, owner: SignalWrapper, emit_last: bool = True):
 			"""
 			Initialise l'instance.
 
@@ -157,11 +164,14 @@ class SignalWrapper(QObject):
 			return False
 
 	# --------------------------------------------------
-	def blocked(self, emit_last: bool = True) -> "BlockCtx":
+	def blocked(self, emit_last: bool = True) -> BlockCtx:
 		"""
-		Retourne un contexte de blocage des signaux.
+		Retourne un contexte de regroupement des émissions.
 
-		:param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage.
+		Seule la sortie du contexte externe peut émettre la dernière valeur reçue ; son option ``emit_last`` fait foi.
+		Le blocage ne restaure pas les données en cas d’exception.
+
+		:param emit_last: Émet la dernière valeur mémorisée à la sortie du contexte externe, ou abandonne les émissions bloquées.
 		:return: Gestionnaire de contexte contrôlant le blocage des signaux.
 		"""
 		return SignalWrapper.BlockCtx(self, emit_last)
@@ -177,10 +187,10 @@ class SignalWrapper(QObject):
 	def _block_end(self):
 		"""Termine un blocage et émet éventuellement la dernière valeur mémorisée."""
 		with self._lock:
-			if self._block_count == 0: return
+			if self._block_count == 0: return  # pragma: no branch — Retour testé, mais sortie du with mal attribuée par Coverage.
 			emit_last = self._emit_on_unblock_stack.pop()
 			self._block_count -= 1
-			if self._block_count != 0: return
+			if self._block_count != 0: return  # pragma: no branch — Retour testé, mais sortie du with mal attribuée par Coverage.
 			# Fin du blocage externe : on émet une seule fois si nécessaire.
 			pending_value, has_pending = self._pending_value, self._pending
 			self._pending, self._pending_value = False, None

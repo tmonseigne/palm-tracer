@@ -3,9 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"POT-Creation-Date: 2026-10-23 15:45+0200\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -21,6 +22,10 @@ msgstr ""
 #: of palm_tracer.Results.Results:1
 msgid "Conserve les résultats des traitements et leurs représentations Qt."
 msgstr "Stores processing results and their Qt representations."
+
+#: of palm_tracer.Results.Results:3
+msgid "L’affectation d’un tableau et les opérations de réinitialisation notifient les observateurs. Les tableaux sont conservés par référence : leur modification en place ne déclenche aucune notification. Le contexte :meth:`signal_blocked` regroupe les notifications et synchronise les compteurs avant de publier les résultats."
+msgstr "Assigning a table and resetting results notify observers. Tables are stored by reference: modifying them in place does not trigger a notification. The :meth:`signal_blocked` context groups notifications and synchronizes counters before publishing results."
 
 #: ../../api/palm_tracer.Results.rst:9
 msgid "Attributs"
@@ -247,5 +252,45 @@ msgid "Nom de l'interface dans le dictionnaire."
 msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Results.Results.update_uis:1
-msgid "Actualise toutes les représentations Qt associées aux résultats."
-msgstr "Updates all Qt representations associated with the results."
+msgid "Demande la synchronisation des vues, différée pendant une opération groupée ou depuis un worker."
+msgstr "Requests synchronization of the views, deferred during a grouped operation or when called from a worker."
+
+#: ../../api/palm_tracer.Results.rst:54
+msgid "Signaux"
+msgstr "Signals"
+
+#: of palm_tracer.Results.Results.connect:1
+msgid "Connecte un observateur aux modifications des données de résultats."
+msgstr "Connects an observer to changes in result data."
+
+#: of palm_tracer.Results.Results.connect:3
+msgid "Fonction ou slot appelé avec la valeur :obj:`None` après une modification."
+msgstr "Function or slot called with :obj:`None` after a change."
+
+#: of palm_tracer.Results.Results.disconnect:1
+msgid "Déconnecte les observateurs enregistrés par :meth:`connect`."
+msgstr "Disconnects observers registered through :meth:`connect`."
+
+#: of palm_tracer.Results.Results.disconnect:3
+msgid "Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires."
+msgstr "Function or slot to disconnect, or :obj:`None` for all ordinary observers."
+
+#: of palm_tracer.Results.Results.disconnect:4
+msgid "Nombre de slots ordinaires déconnectés."
+msgstr "Number of ordinary slots disconnected."
+
+#: of palm_tracer.Results.Results.signal_blocked:1
+msgid "Regroupe les notifications de données jusqu'à la sortie du contexte externe."
+msgstr "Groups data notifications until the outermost context exits."
+
+#: of palm_tracer.Results.Results.signal_blocked:3
+msgid "Les représentations des compteurs sont synchronisées à la sortie du contexte externe, y compris en cas d'exception. Les données partielles sont conservées et notifiées si demandé."
+msgstr "Counter views are synchronized when the outermost context exits, including when an exception occurs. Partial data is retained and observers are notified if requested."
+
+#: of palm_tracer.Results.Results.signal_blocked:6
+msgid "Émet une notification finale si des données ont changé, sinon ignore les notifications bloquées."
+msgstr "Emits a final notification if data has changed; otherwise discards the blocked notifications."
+
+#: of palm_tracer.Results.Results.signal_blocked:7
+msgid "Contexte de blocage des notifications."
+msgstr "Notification-blocking context."

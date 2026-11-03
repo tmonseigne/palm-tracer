@@ -53,7 +53,7 @@ class Graph(BaseSettingGroup):
 	# --------------------------------------------------
 	@property
 	def display(self) -> GraphDisplay:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
+		"""Paramètres d’affichage des graphiques (:class:`~palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay`)."""
 		return cast(GraphDisplay, self._settings["Display"])
 
 	# --------------------------------------------------

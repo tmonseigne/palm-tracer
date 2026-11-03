@@ -1,8 +1,4 @@
-"""
-Fournit le widget principal de configuration et d'exécution de PALM Tracer.
-
-.. todo:: Rendre interruptibles les prévisualisations sans bloquer l'interface Napari.
-"""
+"""Fournit le widget principal de configuration et d'exécution de PALM Tracer."""
 
 from pathlib import Path
 from typing import cast
@@ -31,6 +27,8 @@ class PALMTracerWidget(BaseNapariWidget):
 	Le widget expose les paramètres du pipeline, déclenche les traitements et synchronise les calques de prévisualisation et de résultats.
 
 	:param viewer: Visionneuse Napari dans laquelle l'interface et les calques sont créés.
+
+	.. todo:: Rendre interruptibles les prévisualisations sans bloquer l'interface Napari.
 	"""
 
 	UI_NAME: str = "PALMTracer"
@@ -310,7 +308,7 @@ class PALMTracerWidget(BaseNapariWidget):
 				self.pt.results.stack_name = ""  # On supprime le nom courant.
 				return
 
-			if self.last_file == selected_file: return
+			if self.last_file == selected_file: return  # pragma: no branch — Retour testé, mais sortie du with mal attribuée par Coverage.
 			else: self.last_file = selected_file
 
 			# Chargez le fichier TIFF sélectionné comme un layer Raw dans le viewer

@@ -3,7 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"POT-Creation-Date: 2026-10-21 14:21+0200\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -170,17 +173,36 @@ msgstr "Number of the box containing the button."
 msgid "Connecte une fonction ou un slot au signal encapsulé."
 msgstr "Connects a function or slot to the encapsulated signal."
 
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_after:1
+msgid "Connecte une notification finale après le signal ordinaire."
+msgstr "Connects a final notification after the ordinary signal."
+
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_after:3
+msgid "Les callbacks directs sont terminés ; les callbacks transférés vers un autre thread ne sont pas attendus."
+msgstr "Direct callbacks have finished; callbacks dispatched to another thread are not awaited."
+
+#: of
+#: palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.connect_after:5
+msgid "Fonction ou slot appelé avec :obj:`None`."
+msgstr "Function or slot called with :obj:`None`."
+
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:1
-msgid "Déconnecte ``f`` si fourni, sinon tous les slots. Renvoie le nombre de slots déconnectés."
-msgstr "Disconnects ``f`` if provided, otherwise all slots. Returns the number of disconnected slots."
+msgid "Déconnecte les observateurs enregistrés par :meth:`connect`."
+msgstr "Disconnects observers registered through :meth:`connect`."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:3
-msgid "Fonction ou slot à déconnecter."
-msgstr "Function or slot to disconnect."
+msgid "Les connexions établies par :meth:`connect_after` et les dépendances internes sont conservées."
+msgstr "Connections established through :meth:`connect_after` and internal dependencies are retained."
 
-#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:4
-msgid "Nombre de slots déconnectés."
-msgstr "Number of disconnected slots."
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:5
+msgid "Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires."
+msgstr "Function or slot to disconnect, or :obj:`None` for all ordinary observers."
+
+#: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.disconnect:6
+msgid "Nombre de slots ordinaires déconnectés."
+msgstr "Number of ordinary slots disconnected."
 
 #: of palm_tracer.Settings.Types.BaseSettingType.BaseSettingType.emit:1
 msgid "Émet le signal encapsulé."
