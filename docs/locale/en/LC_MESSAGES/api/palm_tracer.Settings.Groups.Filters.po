@@ -3,9 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"POT-Creation-Date: 2026-10-30 10:35+0100\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 10:55+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -96,8 +97,8 @@ msgid "Nom de l'interface dans le dictionnaire."
 msgstr "Interface name in the dictionary."
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:4
-msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé) - 2 : État remove header (aucune création de l'espace titre)"
-msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: State used by the always-active method (the checkbox is not created) - 2: Remove-header state (no title area is created)"
+msgid "Méthode de création du groupe.  - -1 : Valeur par défaut du groupe - 0 : Avec un titre et une checkbox pour activer/désactiver le groupe - 1 : Groupe toujours actif, sans case à cocher - 2 : Groupe sans en-tête"
+msgstr "Group creation method.  - -1: Default group value - 0: With a title and a checkbox to enable or disable the group - 1: Always-active group without a checkbox - 2: Group without a header"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:4
 msgid "Méthode de création du groupe."
@@ -112,20 +113,20 @@ msgid "0 : Avec un titre et une checkbox pour activer/désactiver le groupe"
 msgstr "0: With a title and a checkbox to enable/disable the group"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:8
-msgid "1 : État lorsque l'on utilise la méthode always actif (la check box n'est pas créé)"
-msgstr "1: State when using the \"always active\" method (the checkbox is not created)"
+msgid "1 : Groupe toujours actif, sans case à cocher"
+msgstr "1: Always-active group without a checkbox"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:9
-msgid "2 : État remove header (aucune création de l'espace titre)"
-msgstr "2: \"Remove header\" state (no title area created)"
+msgid "2 : Groupe sans en-tête"
+msgstr "2: Group without a header"
 
 #: ../../api/palm_tracer.Settings.Groups.Filters.rst
 msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Groups.Filters.Filters.get_ui:11
-msgid "Interface du paramètre (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
-msgstr "Setting interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgid "Interface du groupe (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
+msgstr "Group interface (:class:`~palm_tracer.Settings.Groups.BaseUIGroup.BaseUIGroup`)."
 
 #: ../../api/palm_tracer.Settings.Groups.Filters.rst
 msgid "Type renvoyé"

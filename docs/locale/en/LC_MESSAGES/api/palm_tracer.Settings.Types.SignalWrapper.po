@@ -3,12 +3,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 10:55+0100\n"
+"PO-Revision-Date: 2026-11-03 10:55+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst:2
 msgid "SignalWrapper"
@@ -19,8 +24,8 @@ msgid "Encapsule un signal Qt et regroupe les émissions produites pendant son b
 msgstr "Wraps a Qt signal and coalesces the emissions produced while it is blocked."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper:3
-msgid "Les connexions et déconnexions sont déléguées au signal interne. Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement la dernière valeur ; celle-ci est émise une seule fois à la sortie du blocage externe."
-msgstr "Connections and disconnections are delegated to the internal signal. Within a :meth:`blocked` context, calls to :meth:`emit` retain only the latest value; it is emitted once when the outermost block exits."
+msgid "Les connexions et déconnexions sont déléguées au signal interne. Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement la dernière valeur ; celle-ci est émise une seule fois à la sortie du blocage externe si son option ``emit_last`` le demande. Les émissions externes sont transférées vers le thread propriétaire du wrapper, dont la boucle Qt doit être active. Les émissions dans ce thread restent immédiates. Le blocage est partagé entre tous les threads émetteurs. Le wrapper ne copie pas les valeurs transmises et ne protège pas les données métier contre les accès concurrents."
+msgstr "Connections and disconnections are delegated to the internal signal. Within a :meth:`blocked` context, calls to :meth:`emit` store only the latest value; it is emitted once when the outermost context exits if its ``emit_last`` option requests it. Emissions from other threads are dispatched to the wrapper’s owning thread, whose Qt event loop must be running. Emissions in that thread remain immediate. Blocking is shared by all emitting threads. The wrapper neither copies the transmitted values nor protects application data against concurrent access."
 
 #: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst:9
 msgid "Méthodes"
@@ -34,8 +39,7 @@ msgstr "Miscellaneous"
 msgid "Connecte une fonction ou un slot au signal encapsulé."
 msgstr "Connects a function or slot to the encapsulated signal."
 
-#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst of
-#: palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.emit
+#: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst
 msgid "Paramètres"
 msgstr "Parameters"
 
@@ -44,41 +48,66 @@ msgid "Fonction ou slot à connecter."
 msgstr "Function or slot to connect."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.connect:4
+#: palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.emit:4
 msgid "Arguments nommés ignorés, acceptés pour assurer la compatibilité avec l'API Qt."
 msgstr "Keyword arguments are ignored and accepted for compatibility with the Qt API."
 
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.connect_after:1
+msgid "Connecte une notification émise après le signal ordinaire, avec la valeur :obj:`None`."
+msgstr "Connects a notification emitted after the ordinary signal, with the value :obj:`None`."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.connect_after:3
+msgid "Les callbacks directs du signal ordinaire sont terminés avant cette émission. Les callbacks transférés vers un autre thread ne sont pas attendus."
+msgstr "Direct callbacks of the ordinary signal have finished before this emission. Callbacks dispatched to another thread are not awaited."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.connect_after:6
+msgid "Fonction ou slot à connecter à la notification finale."
+msgstr "Function or slot to connect to the final notification."
+
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:1
-msgid "Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnectés."
-msgstr "Disconnects ``f`` if provided, otherwise **all** slots. Returns the number of disconnected slots."
+msgid "Déconnecte les slots enregistrés par :meth:`connect`."
+msgstr "Disconnects slots registered through :meth:`connect`."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:3
-msgid "Fonction ou slot à déconnecter."
-msgstr "Function or slot to disconnect."
+msgid "Les connexions établies par :meth:`connect_after` sont conservées."
+msgstr "Connections established through :meth:`connect_after` are retained."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:5
+msgid "Fonction ou slot à déconnecter, ou :obj:`None` pour tous les slots ordinaires."
+msgstr "Function or slot to disconnect, or :obj:`None` for all ordinary slots."
 
 #: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst
 msgid "Renvoie"
 msgstr "Returns"
 
-#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:4
-msgid "Nombre de slots déconnectés."
-msgstr "Number of disconnected slots."
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.disconnect:6
+msgid "Nombre de slots ordinaires déconnectés."
+msgstr "Number of ordinary slots disconnected."
 
 #: ../../api/palm_tracer.Settings.Types.SignalWrapper.rst
 msgid "Type renvoyé"
 msgstr "Return type"
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.emit:1
-msgid "Émet le signal encapsulé."
-msgstr "Emits the encapsulated signal."
+msgid "Émet dans le thread propriétaire ou mémorise la valeur lorsque les notifications sont bloquées."
+msgstr "Emits in the owning thread or stores the value while notifications are blocked."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.emit:3
+msgid "Valeur transmise par référence aux observateurs."
+msgstr "Value passed by reference to observers."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:1
-msgid "Retourne un contexte de blocage des signaux."
-msgstr "Returns a signal blocking context."
+msgid "Retourne un contexte de regroupement des émissions."
+msgstr "Returns a context that groups emissions."
 
 #: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:3
-msgid "Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage."
-msgstr "If ``True``, emits the last value at the end of the block. If ``False``, ignores all emissions received during the block."
+msgid "Seule la sortie du contexte externe peut émettre la dernière valeur reçue ; son option ``emit_last`` fait foi. Le blocage ne restaure pas les données en cas d’exception."
+msgstr "Only exiting the outermost context can emit the latest received value; its ``emit_last`` option takes precedence. Blocking does not restore data if an exception occurs."
 
-#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:4
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:6
+msgid "Émet la dernière valeur mémorisée à la sortie du contexte externe, ou abandonne les émissions bloquées."
+msgstr "Emits the latest stored value when the outermost context exits, or discards blocked emissions."
+
+#: of palm_tracer.Settings.Types.SignalWrapper.SignalWrapper.blocked:7
 msgid "Gestionnaire de contexte contrôlant le blocage des signaux."
 msgstr "Context manager controlling signal blocking."

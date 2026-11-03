@@ -69,11 +69,13 @@ class GaussianFit(BaseSettingGroup):
 
 		:param mode: Indice du mode d'ajustement gaussien sélectionné.
 		"""
-		if mode in (0, 1):  # L'estimation de Z nécessite l'ajustement séparé de Sigma X et Sigma Y.
-			self._settings["Z"].value = False
-			self._settings["Z"].hide()
-		else:
-			self._settings["Z"].show()
+		# Les paramètres dérivés sont synchronisés sans notification intermédiaire du groupe.
+		with self._signal.blocked(emit_last=False):
+			if mode in (0, 1):  # L'estimation de Z nécessite l'ajustement séparé de Sigma X et Sigma Y.
+				self._settings["Z"].value = False
+				self._settings["Z"].hide()
+			else:
+				self._settings["Z"].show()
 
 	# --------------------------------------------------
 	def toggle_z_estimate(self, mode: bool):

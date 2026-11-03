@@ -1,10 +1,12 @@
-
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
 msgid ""
 msgstr ""
-"Project-Id-Version: PALM Tracer \n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"POT-Creation-Date: 2026-10-27 09:56+0100\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -33,6 +35,14 @@ msgstr "Parameters"
 msgid "Visionneuse Napari dans laquelle l'interface et les calques sont créés."
 msgstr "Napari viewer in which the interface and layers are created."
 
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget:7
+msgid "À faire"
+msgstr "To do"
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget:7
+msgid "Rendre interruptibles les prévisualisations sans bloquer l'interface Napari."
+msgstr "Make previews interruptible without blocking the Napari interface."
+
 #: ../../api/palm_tracer.UI.PALMTracerWidget.rst:9
 msgid "Attributs"
 msgstr "Attributes"
@@ -56,3 +66,19 @@ msgstr "Empty array used when no point is previewed."
 #: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.EMPTY_STACK:1
 msgid "Pile minimale utilisée lorsqu'aucune image n'est chargée."
 msgstr "Minimal stack used when no image is loaded."
+
+#: ../../api/palm_tracer.UI.PALMTracerWidget.rst:18
+msgid "Méthodes"
+msgstr "Methods"
+
+#: ../../api/palm_tracer.UI.PALMTracerWidget.rst:21
+msgid "Initialisation"
+msgstr "Initialization"
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.closeEvent:1
+msgid "Retire les observateurs de cette interface avant sa fermeture."
+msgstr "Removes observers belonging to this interface before it closes."
+
+#: of palm_tracer.UI.PALMTracerWidget.PALMTracerWidget.closeEvent:3
+msgid "Événement de fermeture Qt."
+msgstr "Qt close event."

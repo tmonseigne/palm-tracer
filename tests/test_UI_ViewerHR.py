@@ -34,8 +34,15 @@ def stack_drop_widget(qtbot, monkeypatch):
 	calls = []
 	files = cast(FileList, widget.pt.settings.batch["Files"])
 	monkeypatch.setattr(ViewerHRWidget, "_generate", lambda self: None)
-	monkeypatch.setattr(widget.pt, "load", lambda path="": calls.append(("load", Path(path))))
-	monkeypatch.setattr(widget, "_actualize", lambda: calls.append(("actualize", Path(files.current_text))))
+
+	# --------------------------------------------------
+	def load_results(path=""):
+		"""Simule un chargement qui remplace les résultats et notifie les vues."""
+		calls.append(("load", Path(path)))
+		widget.pt.results.reset()
+
+	monkeypatch.setattr(widget.pt, "load", load_results)
+	monkeypatch.setattr(widget, "_check_beads", lambda: calls.append(("actualize", Path(files.current_text))))
 	window.show()
 	return widget, receiver, calls
 
@@ -314,7 +321,14 @@ def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypat
 	assert calls == []
 
 	loaded_folders: list[str] = []
-	monkeypatch.setattr(pt, "_load_results", loaded_folders.append)
+
+	# --------------------------------------------------
+	def load_results(path):
+		"""Simule le remplacement des résultats lors du chargement suivant l'échec."""
+		loaded_folders.append(path)
+		pt.results.reset()
+
+	monkeypatch.setattr(pt, "_load_results", load_results)
 	widget._add_stack(str(input_stack))
 	assert [Path(path) for path in loaded_folders] == [output_folder]
 	assert calls == [("actualize", input_stack)]
@@ -329,7 +343,7 @@ def test_stack_drop_releases_load_guard_after_error(stack_drop_widget, monkeypat
 # region Liaison avec PALMTracer
 # ==================================================
 def test_check_beads(qtbot, input_stack):
-	"""Vérifie le widget."""
+	"""Vérifie la visibilité de l’option de retrait des billes selon les résultats disponibles."""
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, get_fake_pt(input_stack))
 	qtbot.addWidget(w)
@@ -356,21 +370,34 @@ def test_add_stack(qtbot, input_stack):
 
 
 # --------------------------------------------------
-def test_actualize(qtbot):
-	"""Vérifie le widget."""
+def test_results_refresh_bead_options(qtbot, monkeypatch):
+	"""Vérifie la synchronisation des options des billes et une seule reconstruction par action."""
+	generate = Mock()
+	monkeypatch.setattr(ViewerHRWidget, "_generate", generate)
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, PALMTracer())
 	qtbot.addWidget(w)
+	generate.reset_mock()
+	options = [w._hr_settings[key].get_ui(w.UI_NAME) for key in ("Remove Beads", "Drift Correction", "Smooth Drift")]
 
-	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
+	w.pt.results["bds"] = pd.DataFrame({"Bead": [1]})
+	qtbot.waitUntil(lambda: generate.call_count == 1)
+	assert all(not option.boxes[0].isHidden() for option in options)
+	generate.reset_mock()
 
-	w.pt._stack = np.zeros((1, 1, 1), dtype=np.uint16)
-	qtbot.mouseClick(w._btn_actualize, Qt.MouseButton.LeftButton)
+	with w.pt.results.signal_blocked():
+		w.pt.results.get_ui(w.UI_NAME).clear_buttons["Beads"].click()
+		w.pt.reset_filtered()
+	qtbot.waitUntil(lambda: generate.call_count == 1)
+	QCoreApplication.processEvents()
+	assert generate.call_count == 1
+	assert all(option.boxes[0].isHidden() for option in options)
+	assert all(button.text() != "Actualize" for button in w.findChildren(QPushButton))
 
 
 # --------------------------------------------------
 def test_save(qtbot, input_stack):
-	"""Vérifie la création du widget."""
+	"""Vérifie l’enregistrement de la reconstruction en PNG et TIFF, ainsi que l’absence de nom de fichier."""
 	res_2d, res_3d = OUTPUT_DIR / "HR.png", OUTPUT_DIR / "HR.tif"
 	res_2d.unlink(missing_ok=True)  # .	Suppression du fichier de résultat s'il existe.
 	res_3d.unlink(missing_ok=True)  # .	Suppression du fichier de résultat s'il existe.
@@ -424,7 +451,7 @@ def test_screenshot(make_napari_viewer, patched_napari_viewer, qtbot, monkeypatc
 
 # --------------------------------------------------
 def test_change_type(qtbot, input_stack):
-	"""Vérifie le widget."""
+	"""Vérifie la sélection des localisations et des trajectoires depuis les boutons du viewer HR."""
 	viewer = ViewerModel()
 	w = ViewerHRWidget(viewer, get_fake_pt(input_stack))  # .	Créer notre widget, en passant par le viewer.
 	qtbot.addWidget(w)
@@ -448,7 +475,7 @@ def test_change_type(qtbot, input_stack):
 # region Génération des rendus
 # ==================================================
 def test_generate_bad(qtbot, capsys, input_stack):
-	"""Vérifie le widget."""
+	"""Vérifie les avertissements lorsque la reconstruction est demandée sans pile traitée."""
 	viewer = ViewerModel()
 	pt = PALMTracer()
 	w = ViewerHRWidget(viewer, pt)  # .				Créer notre widget, en passant par le viewer.
@@ -479,7 +506,7 @@ def test_generate_bad(qtbot, capsys, input_stack):
 
 # --------------------------------------------------
 def test_generate(generated_widget, capsys):
-	"""Vérifie le widget."""
+	"""Vérifie les calques reconstruits et la sauvegarde des seuls paramètres HR."""
 	viewer, pt, w = generated_widget
 
 	settings_file = Path(pt.path) / f"settings-{pt.suffix}.json"
@@ -514,19 +541,21 @@ def test_generate(generated_widget, capsys):
 def test_generate_filtered_points(generated_widget, dimension, key, remove_beads):
 	"""Les points exclus restent rouges et utilisent le cadre XY et l'origine Z du rendu conservé."""
 	_, pt, w = generated_widget
-	pt.results.reset_filtered()
-	locations = pt.results["loc"].iloc[:4].copy()
-	locations.index = [10, 20, 30, 40]
-	locations["X"], locations["Y"], locations["Z"] = [20, 22, 21, 100], [30, 32, 31, 100], [4, 8, 6, 10]
-	pt.results[key] = locations
-	pt.results[f"f_{key}"] = locations.iloc[:2].copy()
-	pt.results["bds"] = locations.iloc[3:].copy()
-	s = pt.settings.hr
-	s["Type"].value, s["Dimension"].value = 0, dimension
-	s["Ratio"].value, s["Crop"].value = 2, True
-	s["Remove Beads"].value, s["Drift Correction"].value = remove_beads, False
-	s.gaussian.active = False
-	s.hr_3d["Z Step"].value = 2
+	# Ce scénario teste l'appel explicite à _generate(), pas le rendu d'un état de préparation incomplet.
+	with pt.results.signal_blocked(emit_last=False):
+		pt.results.reset_filtered()
+		locations = pt.results["loc"].iloc[:4].copy()
+		locations.index = [10, 20, 30, 40]
+		locations["X"], locations["Y"], locations["Z"] = [20, 22, 21, 100], [30, 32, 31, 100], [4, 8, 6, 10]
+		pt.results[key] = locations
+		pt.results[f"f_{key}"] = locations.iloc[:2].copy()
+		pt.results["bds"] = locations.iloc[3:].copy()
+		s = pt.settings.hr
+		s["Type"].value, s["Dimension"].value = 0, dimension
+		s["Ratio"].value, s["Crop"].value = 2, True
+		s["Remove Beads"].value, s["Drift Correction"].value = remove_beads, False
+		s.gaussian.active = False
+		s.hr_3d["Z Step"].value = 2
 	before = locations.copy(deep=True)
 	w._generate()
 	x0, _, y0, _ = pt.settings.rois.hr_box
@@ -761,8 +790,9 @@ def test_generate_render_and_roi_transitions(qtbot, input_stack):
 			if is_rgb:
 				assert image.shape == (3, (y1 - y0) * 2, (x1 - x0) * 2, 3), context
 				# Ce coin est hors des trajectoires : sa valeur doit provenir du bon pixel de l'acquisition.
-				background = pt.stack[:3, y0:y1, x0:x1].astype(float)
-				low, high = background.min(), background.max()
+				background: np.ndarray = pt.stack[:3, y0:y1, x0:x1].astype(float)
+				low: float = background.min()
+				high: float = background.max()
 				offset, span = (low, high - low) if high > low else (0.0, 65535.0)
 				expected_corner = round((background[0, 0, 0] - offset) * 255 / span)
 				np.testing.assert_array_equal(image[0, 0, 0], [expected_corner] * 3, err_msg=context)

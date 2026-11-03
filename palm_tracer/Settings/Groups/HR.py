@@ -83,7 +83,7 @@ class HR(BaseSettingGroup):
 	# --------------------------------------------------
 	@property
 	def track_stack(self) -> HRTrackStack:
-		"""Groupe de paramètres liés à la reconstruction 3D (:class:`~palm_tracer.Settings.Groups.HR3D.HR3D`)."""
+		"""Paramètres de l’animation des trajectoires (:class:`~palm_tracer.Settings.Groups.HRTrackStack.HRTrackStack`)."""
 		return cast(HRTrackStack, self._settings["T-Stack"])
 
 	# --------------------------------------------------
@@ -105,45 +105,49 @@ class HR(BaseSettingGroup):
 	# --------------------------------------------------
 	def toggle_dimension(self):
 		"""Adapte les types de données et les options au mode de reconstruction."""
-		s = cast(ButtonGroup, self._settings["Type"])  # .	Type Localisations ou trajectoires.
-		if self._settings["Dimension"].value == 0:  # .		--- 2D ---
-			self._settings["3D"].hide()
-			self._settings["T-Stack"].hide()
-			s.active_item(0, True)  # .						Active les localisations.
-			s.active_item(1, True)  # .						Active les trajectoires.
-		elif self._settings["Dimension"].value == 3:  # .	--- Track Stack ---
-			self._settings["3D"].hide()
-			self._settings["T-Stack"].show()
-			s.active_item(0, False)  # .					Désactive les localisations.
-			s.active_item(1, True)  # .						Active les trajectoires.
-			s.value = 1
-		else:  # .											--- 3D ---
-			self._settings["3D"].show()
-			self._settings["T-Stack"].hide()
-			s.active_item(0, True)  # .						Active les trajectoires.
-			s.active_item(1, False)  # .					Désactive les trajectoires.
-			s.value = 0
-			if self._settings["Dimension"].value == 1:  # .	--- Z Stack ---
-				self._settings["3D"]["Z Step"].show()
-				self._settings["3D"]["Axis"].hide()
-				self._settings["3D"]["Frames"].hide()
-			else:  # .										--- 3D Rotation ---
-				self._settings["3D"]["Z Step"].hide()
-				self._settings["3D"]["Axis"].show()
-				self._settings["3D"]["Frames"].show()
+		# Les paramètres dérivés sont synchronisés sans notification intermédiaire du groupe.
+		with self._signal.blocked(emit_last=False):
+			s = cast(ButtonGroup, self._settings["Type"])  # .	Type Localisations ou trajectoires.
+			if self._settings["Dimension"].value == 0:  # .		--- 2D ---
+				self._settings["3D"].hide()
+				self._settings["T-Stack"].hide()
+				s.active_item(0, True)  # .						Active les localisations.
+				s.active_item(1, True)  # .						Active les trajectoires.
+			elif self._settings["Dimension"].value == 3:  # .	--- Track Stack ---
+				self._settings["3D"].hide()
+				self._settings["T-Stack"].show()
+				s.active_item(0, False)  # .					Désactive les localisations.
+				s.active_item(1, True)  # .						Active les trajectoires.
+				s.value = 1
+			else:  # .											--- 3D ---
+				self._settings["3D"].show()
+				self._settings["T-Stack"].hide()
+				s.active_item(0, True)  # .						Active les trajectoires.
+				s.active_item(1, False)  # .					Désactive les trajectoires.
+				s.value = 0
+				if self._settings["Dimension"].value == 1:  # .	--- Z Stack ---
+					self._settings["3D"]["Z Step"].show()
+					self._settings["3D"]["Axis"].hide()
+					self._settings["3D"]["Frames"].hide()
+				else:  # .										--- 3D Rotation ---
+					self._settings["3D"]["Z Step"].hide()
+					self._settings["3D"]["Axis"].show()
+					self._settings["3D"]["Frames"].show()
 
 	# --------------------------------------------------
 	def toggle_type(self):
 		"""Adapte la liste des sources au type de reconstruction."""
-		src = cast(Combo, self._settings["Source"])
+		# Les paramètres dérivés sont synchronisés sans notification intermédiaire du groupe.
+		with self._signal.blocked(emit_last=False):
+			src = cast(Combo, self._settings["Source"])
 
-		if self._settings["Type"].value == 0:
-			src.items = DATA_SRC["Localization"]
-			self._settings["Gaussian"].show()
-		else:
-			src.items = DATA_SRC["Tracking"]
-			self._settings["Gaussian"].active = False
-			self._settings["Gaussian"].hide()
+			if self._settings["Type"].value == 0:
+				src.items = DATA_SRC["Localization"]
+				self._settings["Gaussian"].show()
+			else:
+				src.items = DATA_SRC["Tracking"]
+				self._settings["Gaussian"].active = False
+				self._settings["Gaussian"].hide()
 
 
 # --------------------------------------------------

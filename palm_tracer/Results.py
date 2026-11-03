@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
+from palm_tracer.Settings.Types.SignalWrapper import SignalWrapper
 from palm_tracer.Tools import FileIO, Ui
 
 if TYPE_CHECKING:
@@ -17,7 +20,13 @@ if TYPE_CHECKING:
 # --------------------------------------------------
 @dataclass
 class Results:
-	"""Conserve les résultats des traitements et leurs représentations Qt."""
+	"""
+	Conserve les résultats des traitements et leurs représentations Qt.
+
+	L’affectation d’un tableau et les opérations de réinitialisation notifient les observateurs.
+	Les tableaux sont conservés par référence : leur modification en place ne déclenche aucune notification.
+	Le contexte :meth:`signal_blocked` regroupe les notifications et synchronise les compteurs avant de publier les résultats.
+	"""
 
 	_data: dict[str, pd.DataFrame] = field(init=False, default_factory=lambda: {
 			"loc":   pd.DataFrame(), "dft": pd.DataFrame(), "bds": pd.DataFrame(),  # .	   Localisations.
@@ -28,8 +37,12 @@ class Results:
 			"f_MSD": pd.DataFrame(), "f_InD": pd.DataFrame(), "f_Fit": pd.DataFrame()})  # Analyses des trajectoires filtrées.
 	"""Résultats des différents calculs."""
 
-	_uis: dict[str, "ResultsUI"] = field(init=False, default_factory=dict)
+	_uis: dict[str, ResultsUI] = field(init=False, default_factory=dict)
 	"""Interfaces d'information."""
+	_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	"""Signal émis après modification des données, indépendamment des interfaces créées."""
+	_ui_signal: SignalWrapper = field(init=False, default_factory=SignalWrapper)
+	"""Notification interne de synchronisation des vues, sans déclencher de nouveau rendu."""
 
 	_stack_name: str = field(init=False, default="")
 	"""Nom du fichier en cours d'analyse, sans dossiers ni extension."""
@@ -52,6 +65,11 @@ class Results:
 	# ==================================================
 	# region Initialisation
 	# ==================================================
+	def __post_init__(self):
+		"""Connecte la synchronisation des vues dans le thread de création du modèle."""
+		self._ui_signal.connect(self._update_uis_now)
+
+	# --------------------------------------------------
 	@staticmethod
 	def output_name(name: str, path: str | Path, timestamp: str, ext: str = "csv") -> Path:
 		"""
@@ -87,7 +105,8 @@ class Results:
 		:param path: Dossier contenant les fichiers de résultats.
 		:param timestamp: Suffixe identifiant le traitement à charger.
 		"""
-		self.reset()  # Réinitialise les DataFrames de résultats.
+		# Le chargement publie uniquement son état final, sans notifier la réinitialisation intermédiaire.
+		with self._signal.blocked(emit_last=False): self.reset()
 		self.stack_name = stack_name
 		folder = Path(path).resolve()
 		self.results_folder = folder
@@ -109,12 +128,14 @@ class Results:
 			print(f"\tFile '{filename}' loaded successfully.")
 
 		self.update_uis()
+		self._signal.emit()
 
 	# --------------------------------------------------
 	def reset(self):
 		"""Vide entièrement les DataFrames de résultats."""
 		for key in self._data: self._data[key] = pd.DataFrame()
 		self.update_uis()
+		self._signal.emit()
 
 	# --------------------------------------------------
 	def reset_filtered(self):
@@ -122,6 +143,7 @@ class Results:
 		for key in self._data:
 			if key.startswith("f_"): self._data[key] = pd.DataFrame()
 		self.update_uis()
+		self._signal.emit()
 
 	# ==================================================
 	# endregion Initialisation
@@ -144,6 +166,7 @@ class Results:
 		"""
 		self._data[key] = value
 		self.update_uis()
+		self._signal.emit()
 
 	# --------------------------------------------------
 	def __iter__(self):
@@ -339,9 +362,10 @@ class Results:
 		"""
 		for key in keys: self._data[key] = pd.DataFrame()
 		self.update_uis()
+		self._signal.emit()
 
 	# --------------------------------------------------
-	def get_ui(self, name: str = "default", margin: int = 5) -> "ResultsUI":
+	def get_ui(self, name: str = "default", margin: int = 5) -> ResultsUI:
 		"""
 		Retourne une représentation Qt des résultats, existante ou nouvellement créée.
 
@@ -382,8 +406,57 @@ class Results:
 
 	# --------------------------------------------------
 	def update_uis(self):
-		"""Actualise toutes les représentations Qt associées aux résultats."""
+		"""Demande la synchronisation des vues, différée pendant une opération groupée ou depuis un worker."""
+		self._ui_signal.emit()
+
+	# --------------------------------------------------
+	def _update_uis_now(self, _value=None):
+		"""Actualise les représentations Qt dans le thread propriétaire du modèle."""
 		status = self.get_status()
 		for ui in self._uis.values():
 			ui.update_status(status)
 			ui.update_results_folder(self._results_folder)
+
+	# ==================================================
+	# endregion Interface
+	# ==================================================
+
+	# ==================================================
+	# region Signaux
+	# ==================================================
+	def connect(self, f: Callable[[Any], None]):
+		"""
+		Connecte un observateur aux modifications des données de résultats.
+
+		:param f: Fonction ou slot appelé avec la valeur :obj:`None` après une modification.
+		"""
+		self._signal.connect(f)
+
+	# --------------------------------------------------
+	def disconnect(self, f: Callable[[Any], None] | None = None) -> int:
+		"""
+		Déconnecte les observateurs enregistrés par :meth:`connect`.
+
+		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires.
+		:return: Nombre de slots ordinaires déconnectés.
+		"""
+		return self._signal.disconnect(f)
+
+	# --------------------------------------------------
+	@contextmanager
+	def signal_blocked(self, emit_last: bool = True) -> Iterator[None]:
+		"""
+		Regroupe les notifications de données jusqu'à la sortie du contexte externe.
+
+		Les représentations des compteurs sont synchronisées à la sortie du contexte externe,
+		y compris en cas d'exception. Les données partielles sont conservées et notifiées si demandé.
+
+		:param emit_last: Émet une notification finale si des données ont changé, sinon ignore les notifications bloquées.
+		:return: Contexte de blocage des notifications.
+		"""
+		# Les compteurs sont synchronisés avant de notifier les observateurs des données.
+		with self._signal.blocked(emit_last), self._ui_signal.blocked(): yield
+
+	# ==================================================
+	# endregion Signaux
+	# ==================================================

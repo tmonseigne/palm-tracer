@@ -265,8 +265,8 @@ def test_clean_layer(qtbot):
 
 
 # --------------------------------------------------
-def test_reset_layer(capsys, qtbot, input_stack):
-	"""Vérifie la remise à zéro des calques."""
+def test_reset_layer(capsys, qtbot, input_stack, monkeypatch):
+	"""Vérifie la remise à zéro des calques et l'absence de rechargement lorsque le fichier sélectionné reste identique."""
 	viewer = ViewerModel()
 	w = PALMTracerWidget(viewer)
 	qtbot.addWidget(w)
@@ -278,7 +278,15 @@ def test_reset_layer(capsys, qtbot, input_stack):
 	assert not w._layers["Raw"].visible
 	lines = get_lines_output(capsys)
 	assert lines == ["No valid settings file to load.", f"Loaded {input_stack} (10, 128, 256) into Napari viewer."]
-	w._reset_layer()  # .											   Remise à 0 des calques sans changement.
+	stack = w._current_stack
+	read_stack, load_results = Mock(), Mock()
+	monkeypatch.setattr(FileIO, "open_tif", read_stack)
+	monkeypatch.setattr(w.pt, "load", load_results)
+	w._reset_layer()
+	read_stack.assert_not_called()
+	load_results.assert_not_called()
+	assert w._current_stack is stack
+	assert get_lines_output(capsys) == []
 
 
 # --------------------------------------------------
@@ -482,6 +490,25 @@ def test_preview_plane_filter_uses_stack_plane(qtbot, input_stack):
 		assert len(w._preview_locs["Filtered"]) == 0
 		assert len(w._preview_locs["Past"]) > 0
 		assert len(w._preview_locs["Future"]) > 0
+
+
+# --------------------------------------------------
+def test_auto_threshold_groups_preview_and_save(qtbot, monkeypatch):
+	"""Vérifie qu'un seuil automatique et son changement de valeur déclenchent une seule preview et sauvegarde."""
+	preview, save = Mock(), Mock()
+	monkeypatch.setattr(PALMTracerWidget, "_on_startup", lambda self: None)
+	monkeypatch.setattr(PALMTracerWidget, "_preview", preview)
+	monkeypatch.setattr(PALMTracerWidget, "_on_change_setting", save)
+	widget = PALMTracerWidget(ViewerModel())
+	qtbot.addWidget(widget)
+	monkeypatch.setattr(widget, "_get_actual_image", lambda offset=0: np.zeros((4, 4), dtype=np.uint16))
+	monkeypatch.setattr(widget.pt.palm, "auto_threshold", lambda *args: 123.0)
+	preview.reset_mock()
+	save.reset_mock()
+	widget.pt.settings.localization["Auto Threshold"].emit()
+	assert widget.pt.settings.localization["Threshold"].value == 123.0
+	preview.assert_called_once()
+	save.assert_called_once()
 
 
 # --------------------------------------------------

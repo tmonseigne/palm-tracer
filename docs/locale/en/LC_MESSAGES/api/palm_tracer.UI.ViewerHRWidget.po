@@ -3,9 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"POT-Creation-Date: 2026-10-28 13:57+0100\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,21 +23,13 @@ msgstr ""
 msgid "Fournit le widget Napari de visualisation haute résolution des résultats."
 msgstr "three fields to control the High-Resolution display settings,"
 
-#: of palm_tracer.UI.ViewerHRWidget:3
-msgid "À faire"
-msgstr "To do"
-
-#: of palm_tracer.UI.ViewerHRWidget:3
-msgid "Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix."
-msgstr "Warns the user before displaying more than ten million points and allows their choice to be remembered."
-
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:1
 msgid "Affiche les résultats PALM en haute résolution dans Napari."
 msgstr "Displays PALM results at high resolution in Napari."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:3
-msgid "Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation sous forme d'image PNG."
-msgstr "The widget loads the results, configures point size and color, displays tracks, and can save the visualization as a PNG image."
+msgid "Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation sous forme d’image PNG ou TIFF."
+msgstr "The widget loads the results, configures point size and color, displays tracks, and can save the visualization as a PNG or TIFF image."
 
 #: ../../api/palm_tracer.UI.ViewerHRWidget.rst
 msgid "Paramètres"
@@ -53,6 +46,14 @@ msgstr "Main instance associated with the widget."
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:9
 msgid "Le widget peut être lancé avec la commande ``napari -w palm-tracer \"HR Viewer\"``."
 msgstr "The widget can be launched with ``napari -w palm-tracer \"HR Viewer\"``."
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:11
+msgid "À faire"
+msgstr "To do"
+
+#: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:11
+msgid "Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix."
+msgstr "Warns the user before displaying more than ten million points and allows their choice to be remembered."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.UI_NAME:1
 msgid "Nom de l'interface de visualisation haute résolution."

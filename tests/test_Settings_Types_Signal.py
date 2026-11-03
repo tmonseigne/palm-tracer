@@ -1,9 +1,11 @@
-"""Teste l'abstraction et le regroupement des signaux Qt."""
+"""Teste le regroupement des signaux Qt et leur transfert entre threads."""
 
+from threading import Thread
 from typing import Any
 from unittest.mock import Mock
 
 import pytest
+from qtpy.QtCore import QCoreApplication, QThread
 
 from palm_tracer.Settings.Types import SignalWrapper
 
@@ -18,6 +20,8 @@ def sw() -> SignalWrapper:
 # ==================================================
 # region Connexion et déconnexion
 # ==================================================
+
+
 def test_connect_and_emit_direct(sw: SignalWrapper):
 	"""Vérifie la connexion d'un slot Python et émission immédiate."""
 	received: list[Any] = []
@@ -25,6 +29,16 @@ def test_connect_and_emit_direct(sw: SignalWrapper):
 
 	sw.emit("X")
 	assert received == ["X"]
+
+
+# --------------------------------------------------
+def test_group_notification_follows_regular_callbacks(sw: SignalWrapper):
+	"""Vérifie qu'une notification de groupe reste après les adaptations, quel que soit l'ordre de connexion."""
+	events: list[str] = []
+	sw.connect_after(lambda _: events.append("group"))
+	sw.connect(lambda _: events.append("adaptation"))
+	sw.emit()
+	assert events == ["adaptation", "group"]
 
 
 # --------------------------------------------------
@@ -83,6 +97,47 @@ def test_disconnect_unavailable_signal(sw: SignalWrapper, monkeypatch, disconnec
 # ==================================================
 
 # ==================================================
+# region Émissions depuis un worker
+# ==================================================
+def test_worker_emits_in_owner_thread_in_order(sw: SignalWrapper, qtbot):
+	"""Vérifie le transfert des émissions externes, leur ordre et leur exécution dans le thread propriétaire."""
+	received: list[tuple[int, QThread]] = []
+	sw.connect(lambda value: received.append((value, QThread.currentThread())))
+
+	# --------------------------------------------------
+	def produce():
+		"""Émet plusieurs valeurs successives depuis le worker."""
+		for value in range(3): sw.emit(value)
+
+	worker = Thread(target=produce)
+	worker.start()
+	worker.join(timeout=5)
+	assert not worker.is_alive()
+	assert received == []
+	qtbot.waitUntil(lambda: len(received) == 3)
+	assert received == [(value, sw.thread()) for value in range(3)]
+
+
+# --------------------------------------------------
+def test_queued_emissions_respect_new_block(sw: SignalWrapper, qtbot):
+	"""Vérifie qu'une émission déjà en attente respecte un blocage commencé avant sa livraison."""
+	received: list[str] = []
+	sw.connect(received.append)
+	worker = Thread(target=lambda: sw.emit("queued"))
+	worker.start()
+	worker.join(timeout=5)
+	assert not worker.is_alive()
+	with sw.blocked():
+		QCoreApplication.processEvents()
+		assert received == []
+	assert received == ["queued"]
+
+
+# ==================================================
+# endregion Émissions depuis un worker
+# ==================================================
+
+# ==================================================
 # region Blocage des signaux
 # ==================================================
 def test_blocked_returns_context_manager_instance(sw: SignalWrapper):
@@ -136,6 +191,8 @@ def test_nested_blocks_emit_once_at_outer_exit(sw: SignalWrapper):
 
 	# Une seule émission à la fin, avec la dernière valeur (3)
 	assert received == [3]
+	sw.emit(4)
+	assert received == [3, 4]
 
 
 # --------------------------------------------------
@@ -203,19 +260,49 @@ def test_emit_direct_after_previous_block(sw: SignalWrapper):
 
 
 # --------------------------------------------------
-def test_internal_block_begin_end_paths(sw: SignalWrapper):
-	"""Vérifie le scénario ``internal_block_begin_end_paths``."""
+def test_block_end_without_active_context_keeps_signal_usable(sw: SignalWrapper):
+	"""Vérifie qu'un déblocage sans contexte actif ne publie rien et laisse le signal utilisable."""
 	received: list[Any] = []
 	sw.connect(lambda v: received.append(v))
 
-	# 1) _block_end() quand rien n'est bloqué : ne doit pas lever ni émettre
 	sw._block_end()
 	assert received == []
 
-	# 2) begin/end sans pending : ne doit rien émettre
-	sw._block_begin(True)
-	sw._block_end()
+	with sw.blocked(): sw.emit("grouped")
+	assert received == ["grouped"]
+	sw.emit("direct")
+	assert received == ["grouped", "direct"]
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("emit_last", [True, False], ids=["emit-final", "discard"])
+def test_worker_block_coalesces_in_owner_thread(sw: SignalWrapper, qtbot, emit_last):
+	"""Vérifie le regroupement imbriqué depuis un worker et le thread de livraison de la valeur finale."""
+	received: list[tuple[int, QThread]] = []
+	sw.connect(lambda value: received.append((value, QThread.currentThread())))
+
+	# --------------------------------------------------
+	def produce():
+		"""Émet plusieurs valeurs pendant des blocages imbriqués."""
+		with sw.blocked(emit_last):
+			sw.emit(1)
+			with sw.blocked(): sw.emit(2)
+			sw.emit(3)
+
+	worker = Thread(target=produce)
+	worker.start()
+	worker.join(timeout=5)
+	assert not worker.is_alive()
 	assert received == []
+	if emit_last:
+		qtbot.waitUntil(lambda: len(received) == 1)
+		assert received == [(3, sw.thread())]
+	else:
+		QCoreApplication.processEvents()
+		assert received == []
+	# Le transfert précédent ne doit pas différer une émission locale ultérieure.
+	sw.emit(4)
+	assert received[-1] == (4, sw.thread())
 
 # ==================================================
 # endregion Blocage des signaux

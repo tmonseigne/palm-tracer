@@ -56,6 +56,23 @@ def sequential_timestamps(monkeypatch):
 
 
 # --------------------------------------------------
+@pytest.fixture
+def notification_pipeline(pt, monkeypatch, tmp_path):
+	"""Isole les étapes de calcul et les écritures pour observer les notifications du vrai parcours de batch."""
+	monkeypatch.setattr(pt, "is_dll_valid", lambda: True)
+	monkeypatch.setattr(pt.settings.batch, "get_paths", lambda: [str(tmp_path / "first"), str(tmp_path / "second")])
+	monkeypatch.setattr(pt.settings.batch, "get_stacks", lambda: [np.zeros((1, 1, 1), dtype=np.uint16)] * 2)
+	monkeypatch.setattr(pt, "_STEPS", [None])
+	monkeypatch.setattr(pt, "_logger", Mock())
+	monkeypatch.setattr(pt, "save_meta", Mock())
+	monkeypatch.setattr(FileIO, "get_last_file", lambda *args: "")
+	monkeypatch.setattr(FileIO, "save_json", Mock())
+	monkeypatch.setattr(FileIO, "cleanup_process", Mock())
+	for group in (pt.settings.gallery, pt.settings.graph, pt.settings.hr): group.active = False
+	return pt
+
+
+# --------------------------------------------------
 def check_output(folder: Path, csv: list[int] | None = None, log: list[int] | None = None, json: list[int] | None = None,
 				 tif: list[int] | None = None, png: list[int] | None = None, html: list[int] | None = None, clean: bool = True):
 	"""Vérifie si la sortie correspond à ce qui est attendu."""
@@ -91,19 +108,19 @@ def check_capsys(capsys, n_lines: int, steps: list[int]):
 
 
 # --------------------------------------------------
-def add_fakeprocess(pt: PALMTracer, localisation: bool, tracking: bool, output_folder: Path):
+def add_fake_process(pt: PALMTracer, localization: bool, tracking: bool, output_folder: Path):
 	"""
 	Prépare les fichiers d'un traitement précédent pour vérifier leur réutilisation.
 
 	:param pt: Instance du pipeline dont les paramètres sont enregistrés.
-	:param localisation: Indique si les résultats de localisation sont préparés.
+	:param localization: Indique si les résultats de localisation sont préparés.
 	:param tracking: Indique si les résultats de suivi sont préparés.
 	:param output_folder: Dossier temporaire des résultats de la pile.
 	"""
 	output_folder.mkdir(exist_ok=True, parents=True)
 	timestamp = "20260101_000000"
 	pt.settings.rois.set_size(256, 128)
-	if localisation:
+	if localization:
 		src = INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv"
 		dst = output_folder / f"localizations-{timestamp}.csv"
 		shutil.copy2(src, dst)
@@ -274,6 +291,7 @@ def test_getter_track_analysis(pt):
 # region Traitements
 # ==================================================
 
+
 # ==================================================
 # region Chargement des résultats
 # ==================================================
@@ -368,6 +386,51 @@ def test_load_stack_error(capsys, pt, input_stack, output_folder, monkeypatch):
 # ==================================================
 # region Pipeline et réutilisation
 # ==================================================
+
+def test_process_publishes_after_entire_batch(notification_pipeline, monkeypatch):
+	"""Vérifie que plusieurs piles et étapes ne publient que l'état final du batch."""
+	pt = notification_pipeline
+	notifications = []
+	pt.results.connect(lambda _: notifications.append(pt.results["loc"].copy()))
+
+	# --------------------------------------------------
+	def process_step(*_args):
+		"""Simule les résultats de plusieurs calculs pour la pile courante."""
+		pt.results["loc"] = pd.DataFrame({"Stack": [Path(pt.path).name]})
+		pt.results["bds"] = pd.DataFrame({"Bead": [1]})
+		pt.results["trc"] = pd.DataFrame({"Track": [1]})
+		assert notifications == []
+		return True
+
+	monkeypatch.setattr(pt, "_process_step", process_step)
+	pt.process()
+	assert len(notifications) == 1
+	assert notifications[0]["Stack"].tolist() == ["second"]
+
+
+# --------------------------------------------------
+def test_process_failure_releases_notifications(notification_pipeline, monkeypatch):
+	"""Vérifie la publication des résultats partiels et la libération du blocage après une erreur."""
+	pt = notification_pipeline
+	notifications: list[None] = []
+	pt.results.connect(notifications.append)
+
+	# --------------------------------------------------
+	def failing_step(*_args):
+		"""Simule une erreur après la localisation et avant les autres étapes."""
+		pt.results["loc"] = pd.DataFrame({"X": [1.0]})
+		assert notifications == []
+		raise RuntimeError("tracking failed")
+
+	monkeypatch.setattr(pt, "_process_step", failing_step)
+	with pytest.raises(RuntimeError, match="tracking failed"): pt.process()
+	assert notifications == [None]
+	assert not pt.results["loc"].empty
+	pt.results.reset()
+	assert notifications == [None, None]
+
+
+# --------------------------------------------------
 def test_process_no_input(capsys, pt):
 	"""Vérifie le process sans fichiers en entrée."""
 	pt.process()
@@ -489,12 +552,14 @@ def test_process_step_recomputes_after_reuse_error(pt, tmp_path, monkeypatch, st
 	new_file = pt.results.output_name_by_key("loc", pt.path, pt._timestamp)
 	pd.DataFrame({"X": [-1.0]}).to_csv(old_file, index=False)
 	expected = pd.DataFrame({"X": [2.0]})
-	messages = []
+	messages: list[str] = []
 	monkeypatch.setattr(pt._logger, "add", messages.append)
 	if stage == "read": monkeypatch.setattr(pd, "read_csv", Mock(side_effect=OSError("Reuse failed")))
 	else: monkeypatch.setattr(Path, "rename", Mock(side_effect=PermissionError("Reuse failed")))
 
 	# Le résultat incomplet doit être vidé avant d'entrer dans le nouveau calcul.
+
+	# --------------------------------------------------
 	def compute():
 		"""Vérifie l'abandon du résultat précédent et fournit un résultat recalculé."""
 		assert pt.results["loc"].empty
@@ -734,7 +799,7 @@ def test_process_tracking(capsys, pt, input_stack, output_folder):
 	"""Vérifie le process de tracking."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations
+	add_fake_process(pt, True, False, output_folder)  # Ajout d'un fichier de localisations
 
 	pt.settings.tracking.active = True
 	pt.process()
@@ -752,7 +817,7 @@ def test_process_tracking_blinking(capsys, pt, input_stack, output_folder):
 	"""Vérifie le process de tracking."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, False, True, output_folder)  # Ajout d'un fichier de Tracking
+	add_fake_process(pt, False, True, output_folder)  # Ajout d'un fichier de Tracking
 
 	pt.settings.blinking.active = True
 	pt.process()
@@ -767,7 +832,7 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 	"""Vérifie le process de tracking."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, False, True, output_folder)  # Ajout d'un fichier de Tracking
+	add_fake_process(pt, False, True, output_folder)  # Ajout d'un fichier de Tracking
 
 	ta = pt.settings.track_analysis
 	ta.active = True
@@ -811,6 +876,8 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 # ==================================================
 # region Filtrage
 # ==================================================
+
+
 def test_reset_filtered(capsys, pt):
 	"""Vérifie la suppréssion des tableaux filtrés."""
 
@@ -858,6 +925,22 @@ def test_reset_filtered_saves_only_filters(pt, tmp_path):
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("last", [True, False], ids=["latest-results", "original-results"])
+def test_update_filtered_publishes_once(pt, monkeypatch, last):
+	"""Vérifie que les résultats de tous les filtres sont publiés ensemble après leur mise à jour."""
+	data = pd.DataFrame({"Value": [1, 2]})
+	for key in ("loc", "trc", "MSD", "InD", "Fit"): pt.results[key] = data.copy()
+	monkeypatch.setattr(pt.filtering, "localization", lambda frame: frame.iloc[:1].copy())
+	monkeypatch.setattr(pt.filtering, "tracking", lambda frame: frame.iloc[:1].copy())
+	monkeypatch.setattr(pt.filtering, "track_analysis", lambda tracks, msd, ind, fit: (tracks, msd, ind, fit))
+	monkeypatch.setattr(pt, "save_setting_group", Mock())
+	states: list[tuple[int, int]] = []
+	pt.results.connect(lambda _: states.append((len(pt.results["f_loc"]), len(pt.results["f_trc"]))))
+	pt.update_filtered(last)
+	assert states == [(1, 1)]
+
+
+# --------------------------------------------------
 def test_update_filtered(capsys, pt, input_stack, output_folder):
 	"""Vérifie la mise à jour des tableaux filtrés."""
 	pt.update_filtered()  # .			Tout est vide
@@ -865,7 +948,7 @@ def test_update_filtered(capsys, pt, input_stack, output_folder):
 	pt.update_filtered()  # .			Tout est vide, mais je demande à enregistrer
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations et de tracking
+	add_fake_process(pt, True, False, output_folder)  # Ajout d'un fichier de localisations et de tracking
 
 	pt.process()
 	pt.update_filtered()  # .			Maintenant, il va recalculer les filtres (il n'y en aura aucun de toute façon).
@@ -928,7 +1011,7 @@ def test_save_filtered(capsys, pt, input_stack, output_folder):
 	pt.update_filtered()  # .				Tout est vide, mais je demande à enregistrer
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, True, False, output_folder)  # .	Ajout d'un fichier de localisations et de tracking
+	add_fake_process(pt, True, False, output_folder)  # .	Ajout d'un fichier de localisations et de tracking
 
 	pt.results["loc"] = pd.read_csv(INPUT_DIR / "ref" / "stack-localizations-103.6_True_4_1.0_0.0_7.csv")
 	pt.settings.filters["Plane"].active = True
@@ -949,7 +1032,7 @@ def test_filter_localization(capsys, pt, sequential_timestamps, input_stack, out
 	"""Vérifie le filtrage complet lors de l'exécution."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations et de tracking
+	add_fake_process(pt, True, False, output_folder)  # Ajout d'un fichier de localisations et de tracking
 
 	f = pt.settings.filters
 	fl = f.localization
@@ -982,7 +1065,7 @@ def test_filter_track_analysis(capsys, pt, sequential_timestamps, input_stack, o
 	"""Vérifie le filtrage complet lors de l'exécution."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, False, True, output_folder)  # Ajout d'un fichier de tracking
+	add_fake_process(pt, False, True, output_folder)  # Ajout d'un fichier de tracking
 
 	pt.settings.track_analysis.active = True
 	pt.settings.track_analysis["MSD"].value = True
@@ -1043,7 +1126,7 @@ def test_process_gallery(capsys, pt, input_stack, output_folder):
 	"""Vérifie le process de visualization HR."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, True, False, output_folder)  # Ajout d'un fichier de localisations
+	add_fake_process(pt, True, False, output_folder)  # Ajout d'un fichier de localisations
 
 	pt.settings.gallery.active = True
 	pt.process()
@@ -1446,7 +1529,7 @@ def test_process_visualization_graph(capsys, pt, input_stack, output_folder):
 	"""Vérifie le process de visualization de graph."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, True, True, output_folder)  # Ajout d'un fichier de localisations et de tracking
+	add_fake_process(pt, True, True, output_folder)  # Ajout d'un fichier de localisations et de tracking
 
 	pt.settings.graph.active = True
 	pt.process()
@@ -1825,7 +1908,8 @@ def test_hr_stress():
 	s["Drift Correction"].value = False
 
 	# Bille qui part en diagonale du haut à droite vers le bas à gauche
-	bead_x, bead_y = np.linspace(n_x - 0.5, 0.0, n_p, dtype=float), np.linspace(0.0, n_y - 0.5, n_p, dtype=float)
+	bead_x: np.ndarray = np.linspace(n_x - 0.5, 0.0, n_p, dtype=float)
+	bead_y: np.ndarray = np.linspace(0.0, n_y - 0.5, n_p, dtype=float)
 
 	beads = pd.DataFrame({"Bead":  np.ones(n_p, dtype=int),
 						  "Plane": np.arange(1, n_p + 1, dtype=int),
@@ -2158,7 +2242,7 @@ def test_hr_tracks_data_crop(dimension, raw, head, width, with_roi):
 # region Recadrage et sauvegarde
 # ==================================================
 def test_crop(input_stack):
-	"""Vérifie la création du widget."""
+	"""Vérifie le recadrage des images et volumes, avec ou sans marge et lorsque le recadrage est désactivé."""
 
 	pt = get_fake_pt(input_stack)
 	img: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
@@ -2196,7 +2280,7 @@ def test_process_visualization_hr(capsys, pt, sequential_timestamps, input_stack
 	"""Vérifie le process de visualization HR."""
 
 	add_basic_file(pt, [str(input_stack)])
-	add_fakeprocess(pt, True, True, output_folder)  # Ajout d'un fichier de localisations et de tracking
+	add_fake_process(pt, True, True, output_folder)  # Ajout d'un fichier de localisations et de tracking
 
 	pt.settings.hr.active = True
 	pt.settings.hr["Crop"].value = False

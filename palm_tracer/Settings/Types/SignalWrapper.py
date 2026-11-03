@@ -1,12 +1,13 @@
-"""Fournit une abstraction des signaux Qt avec regroupement des émissions bloquées."""
+"""Fournit des signaux Qt avec regroupement des émissions et transfert vers le thread propriétaire."""
 
 from __future__ import annotations
 
 from collections.abc import Callable
 from contextlib import suppress
+from threading import RLock
 from typing import Any
 
-from qtpy.QtCore import QObject, Signal
+from qtpy.QtCore import QObject, QThread, Signal, Slot
 
 
 # --------------------------------------------------
@@ -16,21 +17,30 @@ class SignalWrapper(QObject):
 
 	Les connexions et déconnexions sont déléguées au signal interne.
 	Dans un contexte :meth:`blocked`, les appels à :meth:`emit` mémorisent uniquement la dernière valeur ;
-	celle-ci est émise une seule fois à la sortie du blocage externe.
+	celle-ci est émise une seule fois à la sortie du blocage externe si son option ``emit_last`` le demande.
+	Les émissions externes sont transférées vers le thread propriétaire du wrapper, dont la boucle Qt doit être active.
+	Les émissions dans ce thread restent immédiates. Le blocage est partagé entre tous les threads émetteurs.
+	Le wrapper ne copie pas les valeurs transmises et ne protège pas les données métier contre les accès concurrents.
 	"""
 
 	_signal = Signal(object)
 	"""Signal encapsulé, prêt à être utilisé dans l'application."""
+	_queued = Signal(object)
+	"""Relais interne des émissions provenant d'un autre thread."""
+	_after = Signal(object)
+	"""Notification interne exécutée après les callbacks ordinaires, pour annoncer l'état final d'un groupe."""
 
 	# --------------------------------------------------
 	def __init__(self):
 		"""Initialise l'objet SignalWrapper."""
 		super().__init__()  # .							 Appelle le constructeur de la classe parent QObject.
+		self._lock = RLock()  # .						 Protège l'état du blocage entre les threads émetteurs.
 		self._block_count: int = 0  # .					 Compteur de blocs imbriqués.
 		self._pending: bool = False  # .				 Indique si une émission est en attente.
 		self._pending_value: Any = None  # .			 Dernière valeur reçue pendant le blocage.
 		self._slots: list[Callable[[Any], None]] = []  # Liste des Fonctions ou slots connectés.
 		self._emit_on_unblock_stack: list[bool] = []  # .Liste des émissions à conserver
+		self._queued.connect(self.emit)
 
 	# --------------------------------------------------
 	def connect(self, f: Callable[[Any], None], **kwargs):
@@ -44,12 +54,26 @@ class SignalWrapper(QObject):
 		self._slots.append(f)
 
 	# --------------------------------------------------
+	def connect_after(self, f: Callable[[Any], None]):
+		"""
+		Connecte une notification émise après le signal ordinaire, avec la valeur :obj:`None`.
+
+		Les callbacks directs du signal ordinaire sont terminés avant cette émission.
+		Les callbacks transférés vers un autre thread ne sont pas attendus.
+
+		:param f: Fonction ou slot à connecter à la notification finale.
+		"""
+		self._after.connect(f)
+
+	# --------------------------------------------------
 	def disconnect(self, f: Callable[[Any], None] | None = None) -> int:
 		"""
-		Déconnecte ``f`` si fourni, sinon **tous** les slots. Retourne le nombre de déconnectés.
+		Déconnecte les slots enregistrés par :meth:`connect`.
 
-		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés.
+		Les connexions établies par :meth:`connect_after` sont conservées.
+
+		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les slots ordinaires.
+		:return: Nombre de slots ordinaires déconnectés.
 		"""
 		n = 0
 		if f is None:
@@ -73,16 +97,30 @@ class SignalWrapper(QObject):
 		return n
 
 	# --------------------------------------------------
+	@Slot(object)
 	def emit(self, value: Any = None, **kwargs):
-		"""Émet le signal encapsulé."""
-		if self._block_count > 0:
-			self._pending = True
-			self._pending_value = value
+		"""
+		Émet dans le thread propriétaire ou mémorise la valeur lorsque les notifications sont bloquées.
+
+		:param value: Valeur transmise par référence aux observateurs.
+		:param kwargs: Arguments nommés ignorés, acceptés pour assurer la compatibilité avec l'API Qt.
+		"""
+		with self._lock:
+			if self._block_count > 0:
+				self._pending = True
+				self._pending_value = value
+				return
+		# Aucun verrou n'est conservé pendant l'exécution des observateurs.
+		if QThread.currentThread() != self.thread():
+			self._queued.emit(value)
 			return
-		self._signal.emit(value)  # Émission du signal.
+		self._signal.emit(value)
+		self._after.emit(None)
 
 	# --------------------------------------------------
 	# --- Gestion du blocage des signaux ---
+
+	# --------------------------------------------------
 	class BlockCtx:
 		"""
 		Gère le blocage temporaire d'un :class:`SignalWrapper` dans une instruction ``with``.
@@ -92,7 +130,7 @@ class SignalWrapper(QObject):
 		"""
 
 		# --------------------------------------------------
-		def __init__(self, owner: "SignalWrapper", emit_last: bool = True):
+		def __init__(self, owner: SignalWrapper, emit_last: bool = True):
 			"""
 			Initialise l'instance.
 
@@ -126,11 +164,14 @@ class SignalWrapper(QObject):
 			return False
 
 	# --------------------------------------------------
-	def blocked(self, emit_last: bool = True) -> "BlockCtx":
+	def blocked(self, emit_last: bool = True) -> BlockCtx:
 		"""
-		Retourne un contexte de blocage des signaux.
+		Retourne un contexte de regroupement des émissions.
 
-		:param emit_last: Si ``True``, émet la dernière valeur à la fin du blocage. Si ``False``, ignore toutes les émissions reçues pendant le blocage.
+		Seule la sortie du contexte externe peut émettre la dernière valeur reçue ; son option ``emit_last`` fait foi.
+		Le blocage ne restaure pas les données en cas d’exception.
+
+		:param emit_last: Émet la dernière valeur mémorisée à la sortie du contexte externe, ou abandonne les émissions bloquées.
 		:return: Gestionnaire de contexte contrôlant le blocage des signaux.
 		"""
 		return SignalWrapper.BlockCtx(self, emit_last)
@@ -138,17 +179,19 @@ class SignalWrapper(QObject):
 	# --------------------------------------------------
 	def _block_begin(self, emit_last: bool):
 		"""Démarre (ou imbrique) un blocage."""
-		self._block_count += 1
-		self._emit_on_unblock_stack.append(emit_last)
+		with self._lock:
+			self._block_count += 1
+			self._emit_on_unblock_stack.append(emit_last)
 
 	# --------------------------------------------------
 	def _block_end(self):
 		"""Termine un blocage et émet éventuellement la dernière valeur mémorisée."""
-		if self._block_count == 0: return
-		emit_last = self._emit_on_unblock_stack.pop()
-		self._block_count -= 1
-		if self._block_count != 0: return
-		# Fin du blocage externe : on émet une seule fois si nécessaire.
-		pending_value, has_pending = self._pending_value, self._pending
-		self._pending, self._pending_value = False, None
-		if has_pending and emit_last: self._signal.emit(pending_value)
+		with self._lock:
+			if self._block_count == 0: return  # pragma: no branch — Retour testé, mais sortie du with mal attribuée par Coverage.
+			emit_last = self._emit_on_unblock_stack.pop()
+			self._block_count -= 1
+			if self._block_count != 0: return  # pragma: no branch — Retour testé, mais sortie du with mal attribuée par Coverage.
+			# Fin du blocage externe : on émet une seule fois si nécessaire.
+			pending_value, has_pending = self._pending_value, self._pending
+			self._pending, self._pending_value = False, None
+		if has_pending and emit_last: self.emit(pending_value)

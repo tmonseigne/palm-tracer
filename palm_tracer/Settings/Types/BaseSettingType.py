@@ -165,12 +165,25 @@ class BaseSettingType:
 		self._signal.connect(f)  # Connexion de la fonction fournie au signal.
 
 	# --------------------------------------------------
+	def connect_after(self, f: Any):
+		"""
+		Connecte une notification finale après le signal ordinaire.
+
+		Les callbacks directs sont terminés ; les callbacks transférés vers un autre thread ne sont pas attendus.
+
+		:param f: Fonction ou slot appelé avec :obj:`None`.
+		"""
+		self._signal.connect_after(f)
+
+	# --------------------------------------------------
 	def disconnect(self, f: Any | None = None) -> int:
 		"""
-		Déconnecte ``f`` si fourni, sinon tous les slots. Renvoie le nombre de slots déconnectés.
+		Déconnecte les observateurs enregistrés par :meth:`connect`.
 
-		:param f: Fonction ou slot à déconnecter.
-		:return: Nombre de slots déconnectés.
+		Les connexions établies par :meth:`connect_after` et les dépendances internes sont conservées.
+
+		:param f: Fonction ou slot à déconnecter, ou :obj:`None` pour tous les observateurs ordinaires.
+		:return: Nombre de slots ordinaires déconnectés.
 		"""
 		return self._signal.disconnect(f)
 
@@ -197,7 +210,7 @@ class BaseSettingType:
 		return self._signal.blocked(emit_last)
 
 	# --------------------------------------------------
-	def sync(self, other: "BaseSettingType"):
+	def sync(self, other: BaseSettingType):
 		"""
 		Synchronise ce paramètre avec un autre paramètre.
 
@@ -207,7 +220,7 @@ class BaseSettingType:
 		"""
 
 		# --------------------------------------------------
-		def sync(setting: "BaseSettingType", value: Any):
+		def sync(setting: BaseSettingType, value: Any):
 			"""
 			Propage la valeur vers le paramètre synchronisé.
 

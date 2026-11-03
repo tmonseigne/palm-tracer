@@ -1,8 +1,4 @@
-"""
-Fournit le widget Napari de visualisation haute résolution des résultats.
-
-.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
-"""
+"""Fournit le widget Napari de visualisation haute résolution des résultats."""
 
 from __future__ import annotations
 
@@ -21,7 +17,6 @@ from palm_tracer.UI.BaseNapariWidget import BaseNapariWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
 
 TIPS = {
-		"Actualize":  "Updates files/data from PALMTracer status.",
 		"Generate":   "Generate HR Visualization.",
 		"Save":       "Save the visualization generated.",
 		"Screenshot": "Save the actual view of layers.",
@@ -34,12 +29,14 @@ class ViewerHRWidget(BaseNapariWidget):
 	Affiche les résultats PALM en haute résolution dans Napari.
 
 	Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation
-	sous forme d'image PNG.
+	sous forme d’image PNG ou TIFF.
 
 	:param viewer: Visionneuse Napari recevant les calques.
 	:param palmtracer: Instance principale à laquelle le widget est associé.
 
 	.. note:: Le widget peut être lancé avec la commande ``napari -w palm-tracer "HR Viewer"``.
+
+	.. todo:: Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix.
 	"""
 
 	UI_NAME: str = "HR"
@@ -92,7 +89,6 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._init_ui()
 		self._connect_signals()
 		self._actualize()
-		self._generate()
 		self.viewer.reset_view()  # .  Recentrer et ajuster la vue la première fois uniquement
 
 	# --------------------------------------------------
@@ -132,8 +128,6 @@ class ViewerHRWidget(BaseNapariWidget):
 		# --- Actions ---
 		actions_row = QHBoxLayout()
 		Ui.init_layout(actions_row)
-		self._btn_actualize = QPushButton("Actualize")
-		self._btn_actualize.setToolTip(TIPS["Actualize"])
 		self._btn_generate = QPushButton("Generate")
 		self._btn_generate.setToolTip(TIPS["Generate"])
 		self._btn_save = QPushButton("Save")
@@ -141,7 +135,6 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._btn_screenshot = QPushButton("Screenshot")
 		self._btn_screenshot.setToolTip(TIPS["Screenshot"])
 		# actions_row.addStretch(1)  # permet d'aligner à droite
-		actions_row.addWidget(self._btn_actualize)
 		actions_row.addWidget(self._btn_generate)
 		actions_row.addWidget(self._btn_save)
 		actions_row.addWidget(self._btn_screenshot)
@@ -162,14 +155,12 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		# Connexion des boutons Filters de cette UI
 		self.pt.connect_filters_button(self.UI_NAME)
-		self._filters.connect_button(self._generate, self.UI_NAME, "reset")
-		self._filters.connect_button(self._generate, self.UI_NAME, "update")
+		self.pt.results.connect(self._actualize)
 
 		self._hr_settings["Type"].connect(self._toggle_type)
 
 		# Action Row
-		self._btn_actualize.clicked.connect(self._actualize)
-		self._btn_generate.clicked.connect(self._generate)
+		self._btn_generate.clicked.connect(self._actualize)
 		self._btn_save.clicked.connect(self._save)
 		self._btn_screenshot.clicked.connect(self._screenshot)
 
@@ -180,6 +171,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		:param event: Événement de fermeture Qt.
 		"""
+		self.pt.results.disconnect(self._actualize)
 		try: self.pt.clean_ui(self.UI_NAME)
 		finally: super().closeEvent(event)
 
@@ -223,19 +215,20 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		:param path: Chemin local de la pile à ajouter au Batch partagé avec le widget principal.
 		"""
-		cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
-		# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
-		self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
-		self._actualize()  # Actualisation des statuts
+		with self.pt.results.signal_blocked():
+			cast(FileList, self.pt.settings.batch["Files"]).add_files([path])
+			# Sans chemin explicite, load() utilise le premier dossier du Batch, pas celui de la pile déposée.
+			self.pt.load(str(Path(path).with_suffix("")) + "_PALM_Tracer")
 
 	# --------------------------------------------------
 	def _actualize(self):
-		"""Actualise les statuts des fichiers/données depuis l'état PALMTracer."""
+		"""Synchronise les options liées aux billes puis reconstruit une seule fois la visualisation."""
 		self._check_beads()
+		self._generate()
 
 	# --------------------------------------------------
 	def _save(self):
-		"""Créé une image PNG de la visualisation actuelle."""
+		"""Enregistre la reconstruction recadrée en PNG ou TIFF, selon le nom de fichier choisi."""
 		if self._filename:
 			crop = self.pt.crop(self.visualization)
 			if self._filename[-3:] == "png": FileIO.save_png(crop, self._filename, False)
@@ -244,7 +237,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 	# --------------------------------------------------
 	def _screenshot(self):  # pragma: no cover — Accès au canevas
-		"""Créé une image PNG de l'aperçu de la visualisation actuelle (avec les réglages de color map, contraste)."""
+		"""Enregistre une capture PNG du canevas avec sa palette de couleurs et son contraste courants."""
 		if self._screenshot_filename:
 			self.viewer.screenshot(self._screenshot_filename, canvas_only=True)
 			self.notify_info("Screenshot saved successfully.")
@@ -267,7 +260,7 @@ class ViewerHRWidget(BaseNapariWidget):
 	# region Dessin
 	# ==================================================
 	def _generate(self):
-		"""Crée ou mets à jour le calque de points/trajectoires HR l'image de visualisation dans le viewer Napari."""
+		"""Reconstruit l’image haute résolution et met à jour les calques de points et de trajectoires dans Napari."""
 		self._filename = ""
 		path, stack, suffix = self.pt.path, self.pt.stack, self.pt.suffix
 
@@ -294,7 +287,8 @@ class ViewerHRWidget(BaseNapariWidget):
 		tracks_layer = self._layers[self.LAYERS_NAME[3]]
 
 		# Remplace systématiquement les données des calques vectoriels pour éviter les résidus entre modes.
-		points, tracks = np.empty((0, 3), dtype=float), np.zeros((1, 4), dtype=float)
+		points: np.ndarray = np.empty((0, 3), dtype=float)
+		tracks: np.ndarray = np.zeros((1, 4), dtype=float)
 		filtered_points: np.ndarray = np.empty((0, 3), dtype=float)
 		if self._hr_settings["Dimension"].value == 2:  # .				 Rotation 3D
 			point_layer.visible = tracks_layer.visible = False

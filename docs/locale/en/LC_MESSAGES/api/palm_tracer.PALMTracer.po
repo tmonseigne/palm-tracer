@@ -1,9 +1,12 @@
+# Traductions anglaises de PALM Tracer.
+# Distribué sous la même licence que PALM Tracer (GPL-3.0).
 msgid ""
 msgstr ""
-"Project-Id-Version: PALM Tracer \n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"POT-Creation-Date: 2026-10-13 11:41+0200\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
+"Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -23,6 +26,14 @@ msgstr "Orchestrates a complete PALM workflow and stores its intermediate and fi
 #: of palm_tracer.PALMTracer.PALMTracer:3
 msgid "La classe coordonne la configuration, les appels à la DLL PALM, le pipeline de traitement, le filtrage, la production des visualisations et la sauvegarde des résultats."
 msgstr "The class coordinates configuration, calls to the PALM DLL, the processing pipeline, filtering, visualization generation, and result saving."
+
+#: of palm_tracer.PALMTracer.PALMTracer:6
+msgid "À faire"
+msgstr "To do"
+
+#: of palm_tracer.PALMTracer.PALMTracer:6
+msgid "Documenter précisément la stratégie de filtrage appliquée aux calculs, aux visualisations et aux sauvegardes."
+msgstr "Document the filtering strategy used for computations, visualizations, and saved results precisely."
 
 #: ../../api/palm_tracer.PALMTracer.rst:9
 msgid "Attributs"
@@ -49,8 +60,8 @@ msgid "Dossier de sortie pour le fichier en cours de traitement."
 msgstr "Output directory for the file currently being processed."
 
 #: of palm_tracer.PALMTracer.PALMTracer.stack:1
-msgid "Pile en cours de traitement."
-msgstr "Stack currently being processed."
+msgid "Pile en cours de traitement, ou :obj:`None` avant son chargement."
+msgstr "Stack currently being processed, or :obj:`None` before it is loaded."
 
 #: of palm_tracer.PALMTracer.PALMTracer.suffix:1
 msgid "Suffixe des fichiers pour un traitement (timestamp au format ``YYYYMMDD_HHMMSS``)."
@@ -131,8 +142,12 @@ msgid "Dossier des résultats, ou chaîne vide pour utiliser le premier dossier 
 msgstr "Results directory, or an empty string to use the first Batch directory."
 
 #: of palm_tracer.PALMTracer.PALMTracer.process:1
-msgid "Lance le pipeline PALM selon les paramètres sélectionnés."
-msgstr "Runs the PALM pipeline using the selected settings."
+msgid "Lance le pipeline PALM et regroupe les notifications des résultats jusqu’à la fin du batch."
+msgstr "Runs the PALM pipeline and groups result notifications until the end of the batch."
+
+#: of palm_tracer.PALMTracer.PALMTracer.process:3
+msgid "Les résultats intermédiaires ne sont pas publiés à leurs observateurs. En cas d’erreur, le blocage est levé et les résultats partiels conservés sont publiés avant propagation de l’exception."
+msgstr "Intermediate results are not published to their observers. If an error occurs, notifications are unblocked and the retained partial results are published before the exception propagates."
 
 #: of palm_tracer.PALMTracer.PALMTracer.save_meta:1
 msgid "Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."

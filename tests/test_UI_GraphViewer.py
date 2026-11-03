@@ -27,7 +27,14 @@ def stack_drop_widget(qtbot, monkeypatch):
 	qtbot.addWidget(widget)
 	calls = []
 	files = cast(FileList, widget.pt.settings.batch["Files"])
-	monkeypatch.setattr(widget.pt, "load", lambda path="": calls.append(("load", Path(path))))
+
+	# --------------------------------------------------
+	def load_results(path=""):
+		"""Simule un chargement qui remplace les résultats et notifie les vues."""
+		calls.append(("load", Path(path)))
+		widget.pt.results.reset()
+
+	monkeypatch.setattr(widget.pt, "load", load_results)
 	monkeypatch.setattr(widget, "_update_plot", lambda: calls.append(("plot", Path(files.current_text))))
 	widget.show()
 	return widget, calls
@@ -107,14 +114,14 @@ def test_widget_double_creation(qtbot, input_stack):
 # ==================================================
 # region Glisser-déposer
 # ==================================================
-# --------------------------------------------------
+
 @pytest.mark.parametrize("target", ["window", "button", "scroll", "graph"], ids=["window", "action-button", "scroll-viewport", "graph-area"])
 def test_stack_drop_loads_latest_results_and_redraws(stack_drop_widget, target, input_stack, output_folder):
 	"""Vérifie l'ajout, le chargement du dossier des résultats et le tracé depuis chaque zone."""
 	widget, calls = stack_drop_widget
 	mime = QMimeData()
 	mime.setUrls([QUrl.fromLocalFile(str(input_stack))])
-	targets = {"window": widget, "button": widget._btn_actualize, "scroll": widget.findChild(QScrollArea).viewport(), "graph": widget._web}
+	targets = {"window": widget, "button": widget._btn_export, "scroll": widget.findChild(QScrollArea).viewport(), "graph": widget._web}
 
 	events = send_drop_events(targets[target], mime)
 
@@ -153,8 +160,10 @@ def test_stack_drop_rejects_invalid_batch(stack_drop_widget, tmp_path, scenario,
 # ==================================================
 # region Liaison avec PALMTracer
 # ==================================================
+
+
 def test_change_type(w: GraphViewerWidget, qtbot):
-	"""Vérifie la création du widget."""
+	"""Vérifie la sélection des localisations et des trajectoires depuis les boutons du graphique."""
 	qtbot.addWidget(w)
 	w.resize(1000, 600)
 	w.show()
@@ -182,6 +191,26 @@ def test_add_stack_uses_dropped_results_folder(stack_drop_widget, tmp_path, mode
 
 	assert Path(files.current_text) == input_stack
 	assert calls == [("load", output_folder), ("plot", input_stack)]
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("action", ["results", "filters", "settings", "combined"], ids=["results", "filter-reset", "graph-settings", "combined-signals"])
+def test_refresh_coalesces_notifications(stack_drop_widget, qtbot, action):
+	"""Vérifie qu'une action et ses notifications imbriquées ne produisent qu'un tracé."""
+	widget, calls = stack_drop_widget
+	QCoreApplication.processEvents()
+	calls.clear()
+	with widget.pt.results.signal_blocked(), widget._graph_settings.signal_blocked(emit_last=action == "settings"):
+		if action in ("results", "combined"):
+			widget.pt.results["bds"] = pd.DataFrame({"Bead": [1]})
+			widget.pt.results.get_ui(widget.UI_NAME).clear_buttons["Beads"].click()
+		if action in ("filters", "combined"): widget.pt.reset_filtered()
+		if action in ("settings", "combined"): widget._graph_settings["Mode"].value = 2
+		assert calls == []
+	assert len(calls) == 1
+	QCoreApplication.processEvents()
+	assert len(calls) == 1
+	assert all(button.text() != "Actualize files" for button in widget.findChildren(QPushButton))
 
 
 # --------------------------------------------------
