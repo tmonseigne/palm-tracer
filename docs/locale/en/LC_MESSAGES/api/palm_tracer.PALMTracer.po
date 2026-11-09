@@ -146,8 +146,8 @@ msgid "Lance le pipeline PALM et regroupe les notifications des résultats jusqu
 msgstr "Runs the PALM pipeline and groups result notifications until the end of the batch."
 
 #: of palm_tracer.PALMTracer.PALMTracer.process:3
-msgid "Les résultats intermédiaires ne sont pas publiés à leurs observateurs. En cas d’erreur, le blocage est levé et les résultats partiels conservés sont publiés avant propagation de l’exception."
-msgstr "Intermediate results are not published to their observers. If an error occurs, notifications are unblocked and the retained partial results are published before the exception propagates."
+msgid "Les résultats intermédiaires ne sont pas publiés à leurs observateurs. En cas d’erreur, le blocage est levé et les résultats partiels conservés sont publiés avant propagation de l’exception. Un échec de concaténation arrête le lot avant le traitement de la première pile et conserve les résultats précédents."
+msgstr "Intermediate results are not published to their observers. If an error occurs, notifications are unblocked and the retained partial results are published before the exception propagates. A concatenation failure stops the batch before the first stack is processed and preserves the previous results."
 
 #: of palm_tracer.PALMTracer.PALMTracer.save_meta:1
 msgid "Sauvegarde le fichier méta (Création du DataFrame et sauvegarde en CSV si différent du précédent)."

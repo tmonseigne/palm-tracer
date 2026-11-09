@@ -240,6 +240,7 @@ class PALMTracer:
 
 		Les résultats intermédiaires ne sont pas publiés à leurs observateurs. En cas d’erreur,
 		le blocage est levé et les résultats partiels conservés sont publiés avant propagation de l’exception.
+		Un échec de concaténation arrête le lot avant le traitement de la première pile et conserve les résultats précédents.
 		"""
 		if not self.is_dll_valid():
 			Ui.print_warning("Process not completed due to missing DLLs.")
@@ -247,7 +248,10 @@ class PALMTracer:
 
 		# --- Parsing du batch ---
 		paths = self.settings.batch.get_paths()
-		stacks = self.settings.batch.get_stacks()
+		try: stacks = self.settings.batch.get_stacks()
+		except ValueError as e:
+			Ui.print_error(f"Process not completed: {e}")
+			return
 		if len(stacks) == 0:
 			Ui.print_warning("No files.")
 			return

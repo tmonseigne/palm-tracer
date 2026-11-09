@@ -10,7 +10,7 @@ import numpy as np
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
 from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList
-from palm_tracer.Tools import FileIO, Ui
+from palm_tracer.Tools import FileIO
 
 
 # --------------------------------------------------
@@ -69,6 +69,7 @@ class Batch(BaseSettingGroup):
 		Récupère la liste de piles en fonction des paramètres.
 
 		:return: Une liste de piles en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de piles).
+		:raises ValueError: Si les dimensions des piles ne permettent pas leur concaténation.
 		"""
 		res = list[np.ndarray]()
 		file_list = cast(FileList, self._settings["Files"])
@@ -84,7 +85,7 @@ class Batch(BaseSettingGroup):
 				try:
 					res = [np.concatenate(res, axis=0)]  # On concatène la liste des fichiers
 				except ValueError as e:
-					Ui.print_warning(f"Error when concatenating stacks (they will be processed independently):\nValueError: {e}")
+					raise ValueError(f"Unable to concatenate stacks: {e}") from e
 
 		return res
 

@@ -440,6 +440,31 @@ def test_process_no_input(capsys, pt):
 
 
 # --------------------------------------------------
+def test_process_stops_on_incompatible_stacks(capsys, pt, tmp_path, monkeypatch):
+	"""Arrête le lot avant toute écriture ou réinitialisation des résultats si la concaténation échoue."""
+	first, second = tmp_path / "first.tif", tmp_path / "second.tif"
+	shutil.copy2(INPUT_DIR / "stack.tif", first)
+	shutil.copy2(INPUT_DIR / "stack_quadrant.tif", second)
+	add_basic_file(pt, [str(first), str(second)])
+	pt.settings.batch["Mode"].value = 2
+	previous = pd.DataFrame({"X": [1.0], "Y": [2.0]})
+	pt.results["loc"] = previous.copy()
+	monkeypatch.setattr(pt, "is_dll_valid", lambda: True)
+	# Interrompt aussi l'ancienne version avant tout calcul si elle traite la première pile à tort.
+	save_meta = Mock(side_effect=AssertionError("Unexpected stack processing"))
+	monkeypatch.setattr(pt, "save_meta", save_meta)
+
+	pt.process()
+
+	assert "Process not completed: Unable to concatenate stacks:" in capsys.readouterr().out
+	save_meta.assert_not_called()
+	assert not (tmp_path / "first_PALM_Tracer").exists()
+	assert not (tmp_path / "second_PALM_Tracer").exists()
+	assert pt.stack is None
+	pd.testing.assert_frame_equal(pt.results["loc"], previous)
+
+
+# --------------------------------------------------
 def test_process_nothing(capsys, pt, input_stack, output_folder):
 	"""Vérifie le process avec tous les éléments à False et aucun fichier chargeable."""
 

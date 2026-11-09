@@ -200,8 +200,7 @@ def test_batch_get_path(qtbot, files, selected, mode, expected):
 		pytest.param([], 0, 0, None, id="no-stacks"),
 		pytest.param(["stack.tif"] * 3, 0, 1, (10, 128, 256), id="selected-stack"),
 		pytest.param(["stack.tif"] * 3, 1, 3, (10, 128, 256), id="separate-stacks"),
-		pytest.param(["stack.tif"] * 3, 2, 1, (30, 128, 256), id="compatible-merge"),
-		pytest.param(["stack.tif", "stack_quadrant.tif", "stack.tif"], 2, 3, (10, 128, 256), id="invalid-dimensions")])
+		pytest.param(["stack.tif"] * 3, 2, 1, (30, 128, 256), id="compatible-merge")])
 def test_batch_get_stacks(qtbot, files, mode, expected_count, expected_shape):
 	"""Vérifie les piles retournées selon le mode et la compatibilité de leurs dimensions."""
 	batch = sg.Batch()
@@ -211,6 +210,17 @@ def test_batch_get_stacks(qtbot, files, mode, expected_count, expected_shape):
 	assert len(stacks) == expected_count
 	# La forme de la première pile suffit à distinguer le mode fusion du mode séparé.
 	if stacks: assert stacks[0].shape == expected_shape
+
+
+# --------------------------------------------------
+def test_batch_get_stacks_incompatible_dimensions(qtbot):
+	"""Refuse la concaténation de piles dont les dimensions spatiales diffèrent."""
+	batch = sg.Batch()
+	batch["Files"].items = [str(INPUT_DIR / name) for name in ("stack.tif", "stack_quadrant.tif", "stack.tif")]
+	batch["Mode"].value = 2
+
+	with pytest.raises(ValueError, match="Unable to concatenate stacks"):
+		batch.get_stacks()
 
 
 # ==================================================
