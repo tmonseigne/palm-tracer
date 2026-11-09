@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
 "Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
-"POT-Creation-Date: 2026-11-03 09:49+0100\n"
-"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"POT-Creation-Date: 2026-11-09 10:33+0100\n"
+"PO-Revision-Date: 2026-11-09 10:39+0100\n"
 "Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
@@ -21,15 +21,15 @@ msgstr ""
 
 #: of palm_tracer.UI.ViewerHRWidget:1
 msgid "Fournit le widget Napari de visualisation haute résolution des résultats."
-msgstr "three fields to control the High-Resolution display settings,"
+msgstr "Provides the Napari widget for high-resolution visualization of results."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:1
 msgid "Affiche les résultats PALM en haute résolution dans Napari."
 msgstr "Displays PALM results at high resolution in Napari."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:3
-msgid "Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation sous forme d’image PNG ou TIFF."
-msgstr "The widget loads the results, configures point size and color, displays tracks, and can save the visualization as a PNG or TIFF image."
+msgid "Le widget charge les résultats, affiche les points conservés, les points exclus, les billes et les trajectoires dans des calques distincts. Il permet d'enregistrer la reconstruction sous forme d'image PNG ou TIFF et de capturer la vue Napari."
+msgstr "The widget loads the results and displays retained points, excluded points, beads and tracks in separate layers. It can save the reconstruction as a PNG or TIFF image and capture the Napari view."
 
 #: ../../api/palm_tracer.UI.ViewerHRWidget.rst
 msgid "Paramètres"
@@ -53,11 +53,11 @@ msgstr "To do"
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget:11
 msgid "Avertir l'utilisateur avant l'affichage de plus de dix millions de points et permettre de mémoriser son choix."
-msgstr "Warns the user before displaying more than ten million points and allows their choice to be remembered."
+msgstr "Warn the user before displaying more than ten million points and allow their choice to be remembered."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.UI_NAME:1
 msgid "Nom de l'interface de visualisation haute résolution."
-msgstr "three fields to control the High-Resolution display settings,"
+msgstr "Name of the high-resolution viewer interface."
 
 #: of palm_tracer.UI.ViewerHRWidget.ViewerHRWidget.LAYERS_NAME:1
 msgid "Noms des calques gérés par la visionneuse haute résolution."

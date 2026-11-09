@@ -28,8 +28,8 @@ class ViewerHRWidget(BaseNapariWidget):
 	"""
 	Affiche les résultats PALM en haute résolution dans Napari.
 
-	Le widget charge les résultats, configure la taille et la coloration des points, affiche les trajectoires et permet d'enregistrer la visualisation
-	sous forme d’image PNG ou TIFF.
+	Le widget charge les résultats, affiche les points conservés, les points exclus, les billes et les trajectoires dans des calques distincts.
+	Il permet d'enregistrer la reconstruction sous forme d'image PNG ou TIFF et de capturer la vue Napari.
 
 	:param viewer: Visionneuse Napari recevant les calques.
 	:param palmtracer: Instance principale à laquelle le widget est associé.
@@ -41,7 +41,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 	UI_NAME: str = "HR"
 	"""Nom de l'interface de visualisation haute résolution."""
-	LAYERS_NAME: list[str] = ["Visualization", "Points", "Points Filtered", "Tracks", "ROI Filter"]
+	LAYERS_NAME: list[str] = ["Visualization", "Points", "Points Filtered", "Beads", "Tracks", "ROI Filter"]
 	"""Noms des calques gérés par la visionneuse haute résolution."""
 
 	DROP_MULTIPLE: bool = False
@@ -54,11 +54,11 @@ class ViewerHRWidget(BaseNapariWidget):
 	# ==================================================
 	def __init__(self, viewer: napari.Viewer, palmtracer: PALMTracer | None = None):
 		"""
-		Initialise le widget et configure l'interface graphique (boutons, champs numériques, checkbox).
+		Crée les calques Napari, initialise l'interface et charge la visualisation disponible.
 
-		La création du calque Napari se fait plus tard dans :meth:`update_layer` lorsqu'un fichier CSV est chargé.
+		Les styles initiaux proviennent de :attr:`LAYER_ARGS` ; les générations suivantes actualisent les données sans réinitialiser ces styles.
 
-		:param viewer: Viewer Napari cible.
+		:param viewer: Visionneuse Napari recevant les calques.
 		:param palmtracer: Instance PALMTracer à utiliser, ou :obj:`None` pour en créer une.
 		"""
 		super().__init__(viewer, palmtracer)
@@ -68,7 +68,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		self._roi_visibility_before_rotation: bool | None = None
 		self.visualization: np.ndarray = np.zeros((1, 1), dtype=np.uint16)
 
-		present, filtered = self.LAYER_ARGS["Present"], self.LAYER_ARGS["Filtered"]
+		present, filtered, beads = self.LAYER_ARGS["Present"], self.LAYER_ARGS["Filtered"], self.LAYER_ARGS["Beads"]
 		self._layers = {self.LAYERS_NAME[0]: self.viewer.add_image(self.visualization, name=self.LAYERS_NAME[0]),
 						self.LAYERS_NAME[1]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[1],
 																	size=present["size"], face_color=present["face"],
@@ -76,16 +76,19 @@ class ViewerHRWidget(BaseNapariWidget):
 						self.LAYERS_NAME[2]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[2],
 																	size=filtered["size"], face_color=filtered["face"],
 																	border_color=filtered["color"], border_width=filtered["border"], visible=False),
-						self.LAYERS_NAME[3]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=float), name=self.LAYERS_NAME[3],
+						self.LAYERS_NAME[3]: self.viewer.add_points(np.empty((0, 3), dtype=float), name=self.LAYERS_NAME[3],
+																	size=beads["size"], face_color=beads["face"],
+																	border_color=beads["color"], border_width=beads["border"], visible=False),
+						self.LAYERS_NAME[4]: self.viewer.add_tracks(np.array([[0, 0, 0, 0]], dtype=float), name=self.LAYERS_NAME[4],
 																	blending="translucent", visible=False),
-						self.LAYERS_NAME[4]: self.viewer.add_shapes([], name=self.LAYERS_NAME[4], shape_type="polygon", edge_color=filtered["color"],
+						self.LAYERS_NAME[5]: self.viewer.add_shapes([], name=self.LAYERS_NAME[5], shape_type="polygon", edge_color=filtered["color"],
 																	edge_width=filtered["edge"], face_color="transparent")}
 
 		for layer in self._layers.values(): layer.editable, layer.locked = False, True
 
-		self.pt.settings.rois.layer_hr = self._layers[self.LAYERS_NAME[4]]  # Connexion du calque avec le manager.
+		self.pt.settings.rois.layer_hr = self._layers[self.LAYERS_NAME[5]]  # Connexion du calque avec le manager.
 
-		# Construction UI
+		# Construction de l'interface.
 		self._init_ui()
 		self._connect_signals()
 		self._actualize()
@@ -159,7 +162,7 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		self._hr_settings["Type"].connect(self._toggle_type)
 
-		# Action Row
+		# Boutons d'action.
 		self._btn_generate.clicked.connect(self._actualize)
 		self._btn_save.clicked.connect(self._save)
 		self._btn_screenshot.clicked.connect(self._screenshot)
@@ -199,8 +202,8 @@ class ViewerHRWidget(BaseNapariWidget):
 	# ==================================================
 	def _check_beads(self):
 		"""
-		Affiche ou masque les élements liés aux billes si des données sont présentes ou non.
-		Uniquement dans cette interface, l'interface principale conserve toutes les options si les billes sont calculées en cours de route.
+		Affiche les options liées aux billes lorsque leurs résultats sont disponibles, sinon les masque.
+		L'interface principale conserve toutes ces options, car les billes peuvent être extraites pendant le traitement.
 		"""
 		s_list = ["Remove Beads", "Drift Correction", "Smooth Drift"]
 		if self.pt.results.beads.empty:
@@ -250,7 +253,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		:param btn_id: Identifiant du bouton domaine sélectionné (0=Localization, 1=Tracking).
 		"""
 		if btn_id == 0: self._filters.show_part(self.UI_NAME, localization=True, tracking=False)  # Localisation
-		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Tracking
+		else: self._filters.show_part(self.UI_NAME, localization=False, tracking=True)  # Trajectoires
 
 	# ==================================================
 	# endregion Liaison avec PALMTracer
@@ -260,7 +263,7 @@ class ViewerHRWidget(BaseNapariWidget):
 	# region Dessin
 	# ==================================================
 	def _generate(self):
-		"""Reconstruit l’image haute résolution et met à jour les calques de points et de trajectoires dans Napari."""
+		"""Reconstruit l'image haute résolution et actualise les calques de points, de billes et de trajectoires en conservant leurs styles."""
 		self._filename = ""
 		path, stack, suffix = self.pt.path, self.pt.stack, self.pt.suffix
 
@@ -284,23 +287,27 @@ class ViewerHRWidget(BaseNapariWidget):
 
 		point_layer = self._layers[self.LAYERS_NAME[1]]
 		filtered_layer = self._layers[self.LAYERS_NAME[2]]
-		tracks_layer = self._layers[self.LAYERS_NAME[3]]
+		beads_layer = self._layers[self.LAYERS_NAME[3]]
+		tracks_layer = self._layers[self.LAYERS_NAME[4]]
 
 		# Remplace systématiquement les données des calques vectoriels pour éviter les résidus entre modes.
 		points: np.ndarray = np.empty((0, 3), dtype=float)
 		tracks: np.ndarray = np.zeros((1, 4), dtype=float)
 		filtered_points: np.ndarray = np.empty((0, 3), dtype=float)
+		bead_points: np.ndarray = data.get("plot_beads", np.empty((0, 3), dtype=float))
+		is_bead = data.get("plot_is_bead", np.zeros(len(plot_data), dtype=bool))
 		if self._hr_settings["Dimension"].value == 2:  # .				 Rotation 3D
 			point_layer.visible = tracks_layer.visible = False
 			filtered_layer.visible = False
+			bead_points = np.empty((0, 3), dtype=float)
 		elif self._hr_settings["Type"].value == 0:  # .					 Localisations
-			points = plot_data
+			points = plot_data[~is_bead]
 			tracks_layer.visible = False
 			filtered_points = data.get("plot_filtered", filtered_points)
 		else:  # .														 Trajectoires
-			points = plot_data[:, 1:]  # .								 Les têtes conservent le plan des tracks, déjà décalé pour le track stack.
+			points = plot_data[~is_bead, 1:]  # .						 Les têtes conservent le plan des tracks, déjà décalé pour le track stack.
 			if plot_data.shape[0] > 0: tracks = plot_data
-		for layer, data, state in ((point_layer, points, "Present"), (filtered_layer, filtered_points, "Filtered")):
+		for layer, data, state in ((point_layer, points, "Present"), (filtered_layer, filtered_points, "Filtered"), (beads_layer, bead_points, "Beads")):
 			args = self.LAYER_ARGS[state]
 			self.update_layer(layer, data, size=args["size"], face_color=args["face"], projection_mode="none", editable=False, locked=True)
 		self.update_layer(tracks_layer, tracks, blending="translucent")  # Napari refuse les tracks vides : conserve le point fictif de l'initialisation.
@@ -309,7 +316,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		# self._layers[self.LAYERS_NAME[0]].visible = True
 		self.pt.settings.rois.update_hr()
 		# La zone source n'a pas de repère commun avec les projections tournées.
-		roi_layer = self._layers[self.LAYERS_NAME[4]]
+		roi_layer = self._layers[self.LAYERS_NAME[5]]
 		if self._hr_settings["Dimension"].value == 2:
 			if self._roi_visibility_before_rotation is None: self._roi_visibility_before_rotation = roi_layer.visible
 			roi_layer.visible = False

@@ -158,8 +158,8 @@ def test_results_status_automatic_update(qtbot, input_stack):
 # --------------------------------------------------
 def test_widget_double_creation(qtbot, input_stack):
 	"""
-	Vérifie Permettant de gérer la création en doublon de la même UI.
-	Reproduit le cas où une UI Qt cachée dans un dict survit à la destruction C++.
+	Vérifie la création de deux interfaces associées à la même instance PALMTracer.
+	Reproduit le cas où une interface Qt conservée dans un dictionnaire survit à la destruction de son objet C++.
 	"""
 	viewer = ViewerModel()
 	pt = get_fake_pt(input_stack)
@@ -571,6 +571,55 @@ def test_generate_filtered_points(generated_widget, dimension, key, remove_beads
 	pt.reset_filtered()
 	w._generate()
 	assert w._layers["Points Filtered"] is layer
+	assert layer.data.shape == (0, 3)
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack")])
+@pytest.mark.parametrize("remove_beads", [pytest.param(False, id="keep-beads"), pytest.param(True, id="remove-beads")])
+@pytest.mark.parametrize("correct_drift", [pytest.param(False, id="raw"), pytest.param(True, id="drift-corrected")])
+def test_generate_beads_layer(generated_widget, dimension, remove_beads, correct_drift):
+	"""Sépare les billes conservées ou exclues des filtres, dans le même repère que le rendu."""
+	_, pt, w = generated_widget
+	with pt.results.signal_blocked(emit_last=False):
+		pt.results.reset_filtered()
+		locations = pt.results["loc"].iloc[:4].copy()
+		locations["Plane"] = [1, 1, 2, 2]
+		locations["X"], locations["Y"], locations["Z"] = [20, 22, 24, 26], [30, 32, 34, 36], [4, 6, 8, 10]
+		pt.results["loc"] = locations
+		pt.results["f_loc"] = locations.iloc[:2].copy()
+		beads = locations.iloc[[1, 3]].copy()
+		beads["Bead"] = 1
+		pt.results["bds"] = beads
+		s = pt.settings.hr
+		s["Type"].value, s["Dimension"].value = 0, dimension
+		s["Ratio"].value, s["Crop"].value = 2, False
+		s["Remove Beads"].value, s["Drift Correction"].value = remove_beads, correct_drift
+		s["Smooth Drift"].value = False
+		s.hr_3d["Z Step"].value = 2
+		s.gaussian.active = False
+	w._generate()
+	layer = w._layers["Beads"]
+	# La bille se déplace de quatre pixels sur les deux axes entre les deux plans.
+	shift = 8 if correct_drift else 0
+	expected = [[0 if dimension == 0 else 1, 64, 44], [0 if dimension == 0 else 3, 72 - shift, 52 - shift]]
+	np.testing.assert_allclose(layer.data, expected)
+	np.testing.assert_allclose(layer.face_color, np.tile([1, 0.6470588, 0, 1], (2, 1)))
+	np.testing.assert_allclose(w._layers["Points"].data, [[0, 60, 40]])
+	np.testing.assert_allclose(w._layers["Points Filtered"].data, [[0 if dimension == 0 else 2, 68 - shift, 48 - shift]])
+	assert not layer.visible and not layer.editable and layer.locked
+	pd.testing.assert_frame_equal(pt.results["loc"], locations)
+	# Une rotation vide le calque, puis le retour retrouve le même objet et les mêmes données.
+	s["Dimension"].value = 2
+	s.hr_3d["Frames"].value = 4
+	w._generate()
+	assert layer.data.shape == (0, 3)
+	s["Dimension"].value = dimension
+	w._generate()
+	assert w._layers["Beads"] is layer
+	np.testing.assert_allclose(layer.data, expected)
+	with pt.results.signal_blocked(emit_last=False): pt.results["bds"] = pd.DataFrame()
+	w._generate()
 	assert layer.data.shape == (0, 3)
 
 

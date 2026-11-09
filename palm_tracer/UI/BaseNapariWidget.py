@@ -29,6 +29,7 @@ class BaseNapariWidget(BaseWidget):
 	LAYER_ARGS: dict[str, dict[str, Any]] = {
 			"Present":  {"border": 0.4, "edge": 0.5, "color": "lime", "face": "lime", "size": 1.0},
 			"Filtered": {"border": 0.2, "edge": 0.5, "color": "red", "face": "red", "size": 1.0},
+			"Beads":    {"border": 0.4, "edge": 0.5, "color": "orange", "face": "orange", "size": 1.0},
 			"Past":     {"border": 0.2, "edge": 0.5, "color": "cyan", "face": "transparent", "size": 1.0},
 			"Future":   {"border": 0.2, "edge": 0.5, "color": "orange", "face": "transparent", "size": 1.0}}
 	"""Styles communs des points et des contours de ROI ; les classes filles peuvent les redéfinir."""

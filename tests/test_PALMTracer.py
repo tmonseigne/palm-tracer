@@ -28,7 +28,7 @@ from tests.Utils import add_basic_file
 # --------------------------------------------------
 @pytest.fixture
 def pt():
-	"""fixture interne."""
+	"""Fournit une instance PALMTracer et ferme son journal après le scénario."""
 	obj = PALMTracer()
 	yield obj
 	with suppress(Exception): obj._logger.close()
@@ -1819,6 +1819,43 @@ def test_hr_track_crossing_roi():
 	ref[2, 0:2] = 1
 	np.testing.assert_array_equal(viz, ref)
 	np.testing.assert_array_equal(plot, [[1, 2, 2, 1]])
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("tracks, dimension", [pytest.param(True, 0, id="tracks-outside-roi"), pytest.param(False, 1, id="z-stack-outside-roi")])
+def test_hr_beads_without_points_in_roi(pt, tracks: bool, dimension: int):
+	"""Vide le calque des billes sans point normal dans la ROI, même si une bille s'y trouve."""
+	pt._stack = np.zeros((2, 5, 7), dtype=np.uint16)
+	pt.settings.rois.set_size(7, 5)
+	pt.settings.rois.set_xy_roi(1, 4, 0, 5, add=False)
+	pt.settings.filters["ROI"].active = True
+	locations = pd.DataFrame({"Track":                [1, 1], "Plane": [1, 2], "X": [0.0, 6.0], "Y": [2.0, 2.0], "Z": [0.0, 2.0],
+							  "Integrated Intensity": [100.0, 100.0], "Sigma X": [1.0, 1.0], "Sigma Y": [1.0, 1.0], "Theta": [0.0, 0.0]})
+	pt.results["trc" if tracks else "loc"] = locations.copy()
+	beads = locations.iloc[:1].copy()
+	beads["X"], beads["Bead"] = 2.0, 1
+	pt.results["bds"] = beads.copy()
+
+	s = pt.settings.hr
+	s["Type"].value, s["Dimension"].value = int(tracks), dimension
+	s["Ratio"].value, s["Source"].value = 1, 0  # Source Count.
+	s["Remove Beads"].value = s["Drift Correction"].value = s["Crop"].value = False
+	s.gaussian.active = False
+	s.hr_3d["Z Step"].value = 1
+
+	data = pt.hr()
+
+	assert data["plot_data"].shape == (0, 4 if tracks else 3)
+	assert data["plot_is_bead"].shape == (0,)
+	assert data["plot_beads"].shape == (0, 3)
+	if tracks:
+		# Les extrémités sont hors ROI, mais le segment doit toujours la traverser.
+		expected: np.ndarray = np.zeros((5, 3), dtype=np.uint16)
+		expected[2, :] = 1
+		np.testing.assert_array_equal(data["visualization"], expected)
+	else: np.testing.assert_array_equal(data["visualization"], np.zeros((1, 5, 3), dtype=np.uint16))
+	pd.testing.assert_frame_equal(pt.results["bds"], beads)
+	pd.testing.assert_frame_equal(pt.results["trc" if tracks else "loc"], locations)
 
 
 # --------------------------------------------------

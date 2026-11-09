@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
 "Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
-"POT-Creation-Date: 2026-11-03 09:49+0100\n"
-"PO-Revision-Date: 2026-11-03 09:52+0100\n"
+"POT-Creation-Date: 2026-11-09 10:38+0100\n"
+"PO-Revision-Date: 2026-11-09 10:39+0100\n"
 "Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
@@ -190,8 +190,8 @@ msgid "Génère une représentation en haute résolution des données."
 msgstr "Generates a high-resolution representation of the data."
 
 #: of palm_tracer.PALMTracer.PALMTracer.hr:3
-msgid "Dictionnaire contenant l'image ``visualization``, les coordonnées vectorielles ``plot_data`` et, si les localisations actives sont filtrées, les coordonnées des points exclus ``plot_filtered``. Ces points partagent le repère du rendu sans contribuer à l'image."
-msgstr "Dictionary containing the ``visualization`` image, the ``plot_data`` vector coordinates and, when the active localizations are filtered, the ``plot_filtered`` coordinates of the excluded points. These points share the rendering coordinate system without contributing to the image."
+msgid "Dictionnaire contenant l'image ``visualization``, les coordonnées vectorielles ``plot_data`` et, si les localisations actives sont filtrées, les coordonnées des points exclus ``plot_filtered``, sans les billes. Les billes ``plot_beads`` partagent le même repère ; le masque ``plot_is_bead`` permet de les séparer du calque des points conservés sans modifier l'image."
+msgstr "Dictionary containing the ``visualization`` image, the ``plot_data`` vector coordinates and, when the active localizations are filtered, the ``plot_filtered`` coordinates of excluded points, without beads. The ``plot_beads`` beads share the same coordinate system; the ``plot_is_bead`` mask separates them from the retained points layer without changing the image."
 
 #: of palm_tracer.PALMTracer.PALMTracer.crop:1
 msgid "Recadre automatiquement l'image (ou le volume) en supprimant les zones nulles autour, avec une marge configurable."

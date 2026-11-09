@@ -981,7 +981,8 @@ class PALMTracer:
 		Génère une représentation en haute résolution des données.
 
 		:return: Dictionnaire contenant l'image ``visualization``, les coordonnées vectorielles ``plot_data`` et, si les localisations actives sont
-			filtrées, les coordonnées des points exclus ``plot_filtered``. Ces points partagent le repère du rendu sans contribuer à l'image.
+			filtrées, les coordonnées des points exclus ``plot_filtered``, sans les billes. Les billes ``plot_beads`` partagent le même repère ;
+			le masque ``plot_is_bead`` permet de les séparer du calque des points conservés sans modifier l'image.
 		"""
 		data: dict[str, np.ndarray] = {"visualization": np.zeros((1, 1), dtype=np.uint16), "plot_data": np.zeros((1, 1), dtype=float)}
 		if self._stack is None: return data
@@ -1042,6 +1043,7 @@ class PALMTracer:
 			viz = self._renderer.track_stack(viz_data, color_mode, bg_color, head_size, tail_width, tail_length, fade_type, raw, upscale_type, color_lut)
 			# Aligne les trajectoires Napari sur le premier plan retenu par le renderer.
 			if data["plot_data"].shape[0] > 0: data["plot_data"][:, 1] -= first_plane
+			if "plot_beads" in data: data["plot_beads"][:, 0] -= first_plane
 			data["visualization"] = viz
 			return data
 
@@ -1057,6 +1059,8 @@ class PALMTracer:
 		Les trajectoires conservent leurs points extérieurs dans les données de rendu afin que les segments traversant la ROI soient correctement recadrés.
 		Seules les coordonnées transmises au calque Napari sont limitées à la zone affichée.
 		Pour les localisations filtrées, le DataFrame complet est transformé une seule fois avant de séparer les points conservés et exclus.
+		Le masque des billes est établi avant la correction de dérive ; il accompagne les points conservés et exclut les billes des points filtrés.
+		Les coordonnées des billes utilisent le même cadre XY, la même origine Z ou le même intervalle temporel que les points affichés.
 
 		:param tracks: True pour préparer des trajectoires, False pour préparer des localisations.
 		:param dimension: Type de rendu demandé.
@@ -1076,14 +1080,26 @@ class PALMTracer:
 			# La suppression des billes réinitialise les index : mémorise la sélection avant les transformations.
 			df["_HR Retained"] = df.index.isin(self.results.localizations.index)
 		else: df = self.results[key].copy()
+		# Identifie les billes avant les corrections, qui peuvent modifier leurs coordonnées et les index.
+		df["_HR Bead"] = False
+		if not self.results.beads.empty:
+			df["_HR Row"] = np.arange(len(df))
+			non_bead_rows = Drift.remove_beads(df, self.results.beads)["_HR Row"].to_numpy()
+			df["_HR Bead"] = ~df.pop("_HR Row").isin(non_bead_rows)
+		beads = self.results.beads.copy()
+		if not beads.empty: beads = self._correct_drift(beads)
 		# Suppression des billes et correction du drift (modifie les index)
-		if self.settings.hr["Remove Beads"].value: df = Drift.remove_beads(df, self.results.beads)
+		if self.settings.hr["Remove Beads"].value and not self.results.beads.empty: df = df.loc[~df["_HR Bead"]].copy().reset_index(drop=True)
 		df = self._correct_drift(df)
 		if df.empty: return None, plot, 0.0
 
 		# Ajout de la couleur.
 		max_color = MAX_UI_16 if source == "Z" else 0
-		if tracks: df = self._renderer.add_colors_to_tracks(df, source)
+		if tracks:
+			# La coloration trie les trajectoires et ne conserve que les colonnes du renderer.
+			bead_mask = df.sort_values(["Track", "Plane"], kind="mergesort")["_HR Bead"].to_numpy(dtype=bool) if df["_HR Bead"].any() else False
+			df = self._renderer.add_colors_to_tracks(df, source)
+			df["_HR Bead"] = bead_mask
 		elif filtered:
 			# Les points exclus ne doivent pas changer la normalisation des couleurs du rendu conservé.
 			retained_mask = df["_HR Retained"]
@@ -1119,6 +1135,7 @@ class PALMTracer:
 		# Récupération des éléments.
 		viz_data = (df.loc[retained, viz_columns] if filtered else df[viz_columns]).to_numpy(dtype=float)
 		plot_data = df[plot_columns].to_numpy(dtype=float, copy=True)
+		is_bead = df["_HR Bead"].to_numpy(dtype=bool)
 		y_index, x_index = plot_columns.index("Y"), plot_columns.index("X")
 		plot_data[:, [y_index, x_index]] *= upscale
 
@@ -1128,6 +1145,7 @@ class PALMTracer:
 			coords = np.round(plot_data[:, [y_index, x_index]])
 			valid = (coords[:, 0] >= 0) & (coords[:, 0] <= height * upscale) & (coords[:, 1] >= 0) & (coords[:, 1] <= width * upscale)
 			plot_data = plot_data[valid]
+			is_bead = is_bead[valid]
 		elif dimension == 0:
 			plot_data = np.column_stack((np.zeros(plot_data.shape[0], dtype=plot_data.dtype), plot_data))
 		elif plot_data.shape[0] > 0:
@@ -1141,14 +1159,32 @@ class PALMTracer:
 			# Aligne le point vectoriel sur le plan choisi par le rendu ponctuel.
 			if dimension == 1: plot_data[:, z_index] = np.floor(plot_data[:, z_index])
 
-		if filtered: plot["plot_data"], plot["plot_filtered"] = plot_data[retained], plot_data[~retained]
+		if filtered: plot["plot_data"], plot["plot_filtered"] = plot_data[retained], plot_data[~retained & ~is_bead]
 		else: plot["plot_data"] = plot_data
+		if self.results.beads.empty: return viz_data, plot, uniform_z_step
+		plot["plot_is_bead"] = is_bead[retained] if filtered else is_bead
+		# Les billes restent consultables même lorsque leur contribution au rendu est désactivée.
+		plot["plot_beads"] = np.empty((0, 3), dtype=float)
+		if not beads.empty and dimension != 2:
+			beads = beads[beads["X"].between(x0, x1) & beads["Y"].between(y0, y1)]
+			bead_points = beads[["Plane" if tracks else "Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
+			bead_points[:, 1:] = (bead_points[:, 1:] - [y0, x0]) * upscale
+			if tracks:
+				# Les observations hors de l'intervalle affiché ne doivent pas prolonger l'axe temporel du viewer.
+				if plot_data.shape[0] > 0:
+					bead_points = bead_points[(bead_points[:, 0] >= plot_data[:, 1].min()) & (bead_points[:, 0] <= plot_data[:, 1].max())]
+				else: bead_points = np.empty((0, 3), dtype=float)
+			else:
+				if dimension == 0: bead_points[:, 0] = 0
+				elif plot_data.shape[0] > 0: bead_points[:, 0] = np.floor((bead_points[:, 0] - z_origin) / z_step)
+				else: bead_points = np.empty((0, 3), dtype=float)
+			plot["plot_beads"] = bead_points
 		return viz_data, plot, uniform_z_step
 
 	# --------------------------------------------------
 	def _correct_drift(self, data: pd.DataFrame) -> pd.DataFrame:
 		"""
-		Vérifie si la correction de drift est activé, faisable et l'applique.
+		Applique la correction de dérive XY lorsqu'elle est activée et que des billes sont disponibles.
 
 		:param data: Données à corriger.
 		:return: Données corrigées.
