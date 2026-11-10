@@ -7,8 +7,10 @@ from pathlib import Path
 from typing import cast
 
 import numpy as np
+from qtpy.QtWidgets import QPushButton
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList
 from palm_tracer.Tools import FileIO
 
@@ -41,12 +43,21 @@ class Batch(BaseSettingGroup):
 	"""Profondeur TIFF indexée par chemin, taille et date de modification du fichier."""
 
 	# --------------------------------------------------
+	def get_ui(self, name: str = "default", mode: int = -1) -> BaseUIGroup:
+		"""Relie aussi le bouton Clear au retour au mode « Only one » lors de la création de l'interface."""
+		if name in self._uis: return self._uis[name]
+		ui = super().get_ui(name, mode)
+		clear_button = cast(QPushButton, cast(FileList, self._settings["Files"]).get_ui(name).boxes[2])
+		clear_button.clicked.connect(self._settings["Mode"].reset)
+		return ui
+
+	# --------------------------------------------------
 	def get_paths(self, suffix: str = "_PALM_Tracer") -> list[str]:
 		"""
-		Génère un chemin basé sur les fichiers du Batch et le mode sélectionné.
+		Construit les chemins des dossiers de résultats selon les fichiers du lot et le mode sélectionné.
 
-		:param suffix: Suffixe à ajouter au nom du dossier créé.
-		:return: Chemin complet du dossier généré.
+		:param suffix: Suffixe ajouté au nom de chaque fichier sans extension pour former le chemin du dossier de résultats.
+		:return: Chemins des dossiers de résultats ; si la liste est vide, chemin du suffixe dans le répertoire courant.
 		"""
 		file_list = cast(FileList, self._settings["Files"])
 		mode = self._settings["Mode"].value
@@ -61,14 +72,14 @@ class Batch(BaseSettingGroup):
 				results.append(str(path.with_suffix("")) + suffix)
 			return results
 
-		return [str(Path.cwd() / suffix)]  # Retourne le chemin courant si aucun fichiers
+		return [str(Path.cwd() / suffix)]  # Utilise le répertoire courant si aucun fichier n'est présent.
 
 	# --------------------------------------------------
 	def get_stacks(self) -> list[np.ndarray]:
 		"""
 		Récupère la liste de piles en fonction des paramètres.
 
-		:return: Une liste de piles en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de piles).
+		:return: Pile sélectionnée, piles séparées ou pile concaténée selon le mode ; liste vide si le lot ne contient aucun fichier.
 		:raises ValueError: Si les dimensions des piles ne permettent pas leur concaténation.
 		"""
 		res = list[np.ndarray]()
@@ -81,7 +92,7 @@ class Batch(BaseSettingGroup):
 		else:  # .										   Mode fichiers séparés ou concaténés
 			for file in files:
 				res.append(FileIO.open_tif(file))
-			if mode == 2:  # .							   Mode fichiers Concaténés
+			if mode == 2:  # .							   Mode fichiers concaténés
 				try:
 					res = [np.concatenate(res, axis=0)]  # On concatène la liste des fichiers
 				except ValueError as e:
@@ -92,14 +103,15 @@ class Batch(BaseSettingGroup):
 	# --------------------------------------------------
 	def get_plane_count(self) -> int | None:
 		"""
-		Retourne le nombre de plans du fichier courant ou de l'acquisition concaténée.
+		Retourne le nombre de plans selon le mode de traitement, avec mise en cache des profondeurs TIFF.
 
-		:return: Nombre de plans, ou ``None`` si aucun fichier n'est sélectionné.
+		:return: Profondeur du fichier sélectionné, profondeur maximale des fichiers séparés ou somme des profondeurs des fichiers concaténés.
+			Renvoie ``None`` si aucun fichier n'est disponible dans le mode sélectionné.
 		"""
 		file_list = cast(FileList, self._settings["Files"])
 		for path in self._plane_cache.keys() - set(file_list.items): del self._plane_cache[path]  # Si la liste a été réduite, le cache doit être revu.
-		files = file_list.items if self._settings["Mode"].value != 0 else [file_list.current_text]  # Mode All in one ou only one
-		if not files or not files[0]: return None  # Aucun Fichier
+		files = file_list.items if self._settings["Mode"].value != 0 else [file_list.current_text]  # Tous les fichiers ou seulement le fichier sélectionné.
+		if not files or not files[0]: return None  # Aucun fichier
 
 		plane_count = 0
 		for file in files:

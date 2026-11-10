@@ -1,14 +1,17 @@
 """Teste les groupes de paramètres."""
 
 import copy
+from pathlib import Path
+from typing import Any
 
+import numpy as np
 import pytest
-from qtpy.QtWidgets import QFormLayout
+from qtpy.QtWidgets import QFormLayout, QWidget
 
 from palm_tracer.Settings import Groups as sg
 from palm_tracer.Settings import Types as st
 from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
-from tests.Utils import *
+from tests.Utils import INPUT_DIR
 
 
 # --------------------------------------------------
@@ -32,7 +35,7 @@ def group_base_test(group: sg.BaseSettingGroup, names: list[str],
 
 	# Utilisation du dictionnaire
 	group[names[0]].value = change
-	assert group[names[0]].value == change, "Valeur défini non valide."
+	assert group[names[0]].value == change, "Valeur définie non valide."
 	min_dictionary = copy.deepcopy(group.to_compact_dict())
 	group.reset()
 	assert group[names[0]].value == default, "Valeur par défaut non valide."
@@ -104,7 +107,7 @@ def test_base_group(qtbot):
 	"""Vérifie la classe abstraite."""
 	group = sg.BaseSettingGroup()
 	group.value = None
-	assert group.value is None, "Get Value ne doit rien retourné pour la classe mère."
+	assert group.value is None, "Get Value ne doit rien retourner pour la classe mère."
 
 	received: list[Any] = []
 	group.connect(lambda v: received.append(v))
@@ -126,10 +129,8 @@ def test_group_update_notifies_after_all_values():
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("setting_type", [
-		pytest.param(st.CheckRangeFloat, id="float-range"), pytest.param(st.CheckRangeInt, id="integer-range")])
-@pytest.mark.parametrize("active, label", [
-		pytest.param(False, "Deactivate", id="inactive"), pytest.param(True, "Activate", id="active")])
+@pytest.mark.parametrize("setting_type", [pytest.param(st.CheckRangeFloat, id="float-range"), pytest.param(st.CheckRangeInt, id="integer-range")])
+@pytest.mark.parametrize("active, label", [pytest.param(False, "Deactivate", id="inactive"), pytest.param(True, "Activate", id="active")])
 def test_base_group_tostring_range(setting_type, active: bool, label: str):
 	"""Vérifie la description des plages avec un tuple de classes compatible Python 3.9."""
 	group = sg.BaseSettingGroup()
@@ -146,6 +147,33 @@ def test_base_group_tostring_range(setting_type, active: bool, label: str):
 # ==================================================
 # region Batch
 # ==================================================
+def test_batch(qtbot):
+	"""Vérifie la classe Batch (constructeur, getter, setter)."""
+	batch = sg.Batch()
+	group_base_test(batch, ["Files", "Mode"], st.FileList, -1, -1)
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("mode", [pytest.param(0, id="only-one"), pytest.param(1, id="separate-files"), pytest.param(2, id="all-in-one")])
+@pytest.mark.parametrize("files", [pytest.param([], id="empty-list"), pytest.param(["first.tif", "second.tif"], id="populated-list")])
+def test_batch_clear_resets_mode(qtbot, mode, files):
+	"""Vérifie que Clear vide les fichiers et rétablit le mode dans toutes les interfaces du groupe."""
+	batch = sg.Batch()
+	for name in ("default", "second"):
+		qtbot.addWidget(batch.get_ui(name).widget)
+		assert batch.get_ui(name) is batch.get_ui(name)
+	batch["Files"].items = files.copy()
+	batch["Mode"].value = mode
+	batch["Files"].get_ui("second").boxes[2].click()
+	assert batch["Files"].items == []
+	assert batch["Files"].value == -1
+	assert batch["Mode"].value == 0
+	for name in ("default", "second"):
+		assert batch["Files"].get_ui(name).boxes[3].count() == 0
+		assert batch["Mode"].get_ui(name).boxes[0].currentIndex() == 0
+
+
+# --------------------------------------------------
 @pytest.mark.parametrize("suffix, accepted", [
 		pytest.param(".tif", True, id="tif"),
 		pytest.param(".tiff", True, id="tiff"),
@@ -166,13 +194,6 @@ def test_batch_filters_new_acquisition_files(tmp_path, fake_qfiledialog, suffix,
 	else: files.add_files([str(path)])
 	assert files.items == ([str(path)] if accepted else [])
 	assert files.current_text == (str(path) if accepted else "")
-
-
-# --------------------------------------------------
-def test_batch(qtbot):
-	"""Vérifie la classe Batch (constructeur, getter, setter)."""
-	batch = sg.Batch()
-	group_base_test(batch, ["Files", "Mode"], st.FileList, -1, -1)
 
 
 # --------------------------------------------------
@@ -263,7 +284,7 @@ def test_localization_spline_missing_file(qtbot, with_ui):
 	loc["Fit"].value = 2
 	assert loc.get_fit() == 5, "Numéro du Fit incorrect"
 	with pytest.raises(OSError) as exception_info: loc.get_fit_params()
-	assert exception_info.type is OSError, "L'erreur relevé n'est pas correcte."
+	assert exception_info.type is OSError, "L'erreur relevée n'est pas correcte."
 
 
 # ==================================================
@@ -437,6 +458,7 @@ def test_hr(qtbot):
 	assert isinstance(g.gaussian, sg.HRGaussian)
 	assert isinstance(g.hr_3d, sg.HR3D)
 	assert isinstance(g.track_stack, HRTrackStack)
+
 
 # --------------------------------------------------
 @pytest.mark.parametrize("dimension", [1, 2, 3], ids=["z-stack", "rotation", "track-stack"])

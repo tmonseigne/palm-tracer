@@ -3,10 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>POT-Creation-Date: 2026-10-30 10:35+0100\n"
-"POT-Creation-Date: 2026-11-09 10:38+0100\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
+"POT-Creation-Date: 2026-11-10 11:46+0100\n"
 "PO-Revision-Date: 2026-11-09 10:39+0100\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>Language: en\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
 "Language-Team: English\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -35,7 +35,8 @@ msgstr "``Files`` (:class:`~palm_tracer.Settings.Types.FileList.FileList`): file
 msgid "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : traite un seul fichier, chaque fichier séparément ou tous les fichiers comme une acquisition unique."
 msgstr "``Mode`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): processes a single file, each file separately, or all files as a single acquisition."
 
-#: ../../api/palm_tracer.Settings.Groups.Batch.rst
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst of
+#: palm_tracer.Settings.Groups.Batch.Batch.get_ui
 msgid "Paramètres"
 msgstr "Parameters"
 
@@ -55,33 +56,38 @@ msgstr "Methods"
 msgid "Divers"
 msgstr "Miscellaneous"
 
+#: of palm_tracer.Settings.Groups.Batch.Batch.get_ui:1
+msgid "Relie aussi le bouton Clear au retour au mode « Only one » lors de la création de l'interface."
+msgstr "Also connects the Clear button to restore the \"Only one\" mode when creating the interface."
+
+#: ../../api/palm_tracer.Settings.Groups.Batch.rst of
+#: palm_tracer.Settings.Groups.Batch.Batch.get_ui
+msgid "Type renvoyé"
+msgstr "Return type"
+
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_paths:1
-msgid "Génère un chemin basé sur les fichiers du Batch et le mode sélectionné."
-msgstr "Generates a path based on the files in the batch and the selected mode."
+msgid "Construit les chemins des dossiers de résultats selon les fichiers du lot et le mode sélectionné."
+msgstr "Builds the result folder paths based on the files in the batch and the selected mode."
 
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_paths:3
-msgid "Suffixe à ajouter au nom du dossier créé."
-msgstr "Suffix to add to the name of the created folder."
+msgid "Suffixe ajouté au nom de chaque fichier sans extension pour former le chemin du dossier de résultats."
+msgstr "Suffix appended to each file name without its extension to form the result folder path."
 
 #: ../../api/palm_tracer.Settings.Groups.Batch.rst
 msgid "Renvoie"
 msgstr "Returns"
 
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_paths:4
-msgid "Chemin complet du dossier généré."
-msgstr "Full path of the generated folder."
-
-#: ../../api/palm_tracer.Settings.Groups.Batch.rst
-msgid "Type renvoyé"
-msgstr "Return type"
+msgid "Chemins des dossiers de résultats ; si la liste est vide, chemin du suffixe dans le répertoire courant."
+msgstr "Result folder paths; if the list is empty, the path formed by the suffix within the current directory."
 
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_stacks:1
 msgid "Récupère la liste de piles en fonction des paramètres."
 msgstr "Retrieves the list of stacks based on the settings."
 
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_stacks:3
-msgid "Une liste de piles en fonction du Batch (une seule pile, un ensemble de piles concaténées ou un groupe de piles)."
-msgstr "A list of stacks based on the batch (a single stack, a set of concatenated stacks, or a group of stacks)."
+msgid "Pile sélectionnée, piles séparées ou pile concaténée selon le mode ; liste vide si le lot ne contient aucun fichier."
+msgstr "The selected stack, separate stacks, or a concatenated stack depending on the mode; an empty list if the batch contains no files."
 
 #: ../../api/palm_tracer.Settings.Groups.Batch.rst
 msgid "Lève"
@@ -92,9 +98,9 @@ msgid "Si les dimensions des piles ne permettent pas leur concaténation."
 msgstr "If the stack dimensions do not allow concatenation."
 
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_plane_count:1
-msgid "Retourne le nombre de plans du fichier courant ou de l'acquisition concaténée."
-msgstr "Returns the number of planes in the current file or the combined acquisition."
+msgid "Retourne le nombre de plans selon le mode de traitement, avec mise en cache des profondeurs TIFF."
+msgstr "Returns the number of planes according to the processing mode, caching TIFF stack depths."
 
 #: of palm_tracer.Settings.Groups.Batch.Batch.get_plane_count:3
-msgid "Nombre de plans, ou ``None`` si aucun fichier n'est sélectionné."
-msgstr "Number of planes, or ``None`` if no file is selected."
+msgid "Profondeur du fichier sélectionné, profondeur maximale des fichiers séparés ou somme des profondeurs des fichiers concaténés. Renvoie ``None`` si aucun fichier n'est disponible dans le mode sélectionné."
+msgstr "The depth of the selected file, the maximum depth of separate files, or the sum of the depths of concatenated files. Returns ``None`` if no file is available in the selected mode."
