@@ -903,6 +903,45 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 # ==================================================
 
 
+def test_disable_filters_clears_filtered_results(pt):
+	"""Vérifie que désactiver le groupe vide les résultats filtrés et conserve les données et les critères."""
+	pt.settings.filters["Plane"].active = True
+	pt.settings.filters["Plane"].value = [2, 3]
+	criteria = pt.settings.filters["Plane"].to_compact_dict()
+	data = pd.DataFrame({"Plane": [1, 2, 3]})
+	for key in pt.results:
+		pt.results[key] = data.iloc[1:].copy() if key.startswith("f_") else data.copy()
+	states = []
+	pt.results.connect(lambda _: states.append(all(pt.results[key].empty for key in pt.results if key.startswith("f_"))))
+
+	pt.settings.filters.active = False
+
+	assert states == [True]
+	for key in pt.results:
+		if key.startswith("f_"): assert pt.results[key].empty
+		else: pd.testing.assert_frame_equal(pt.results[key], data)
+	assert pt.settings.filters["Plane"].to_compact_dict() == criteria
+	pd.testing.assert_frame_equal(pt.results.localizations, data)
+	pd.testing.assert_frame_equal(pt.results.tracks, data)
+
+	pt.settings.filters.active = True
+	assert states == [True]
+	assert pt.settings.filters["Plane"].to_compact_dict() == criteria
+
+
+# --------------------------------------------------
+def test_change_active_filters_keeps_filtered_results(pt):
+	"""Vérifie qu'un changement de critère du groupe actif conserve les résultats calculés."""
+	data = pd.DataFrame({"Plane": [2]})
+	pt.results["f_loc"] = data.copy()
+
+	pt.settings.filters["Plane"].active = True
+	pt.settings.filters["Plane"].value = [2, 3]
+
+	pd.testing.assert_frame_equal(pt.results["f_loc"], data)
+
+
+# --------------------------------------------------
 def test_reset_filtered(capsys, pt):
 	"""Vérifie la suppréssion des tableaux filtrés."""
 

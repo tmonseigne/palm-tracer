@@ -68,6 +68,7 @@ class PALMTracer:
 	def __post_init__(self):
 		"""Méthode appelée automatiquement après l'initialisation du dataclass."""
 		self.filtering = Filtering(self.settings.filters, self.settings.rois)
+		self.settings.filters.connect(self._on_filters_changed)
 
 		self._STEPS: list[Step] = [
 				Step("localization", ["loc"], self._localization, self.filtering.localization),
@@ -573,6 +574,15 @@ class PALMTracer:
 	# ==================================================
 	# region Filtrage
 	# ==================================================
+	def _on_filters_changed(self, _value: Any = None):
+		"""
+		Vide les résultats filtrés lorsque le groupe est désactivé, sans modifier ses critères.
+
+		:param _value: Valeur du signal, ignorée.
+		"""
+		if not self.settings.filters.active: self.results.reset_filtered()
+
+	# --------------------------------------------------
 	def reset_filtered(self):
 		"""Désactive les filtres, vide les résultats filtrés et enregistre les paramètres du groupe Filters pour le traitement courant."""
 		with self.settings.signal_blocked(): self.settings.filters.deactivate_filters()
