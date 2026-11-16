@@ -1763,6 +1763,52 @@ def test_hr_filtered_plot_data(monkeypatch, dimension, key, selection):
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("dimension", [pytest.param(0, id="2d"), pytest.param(1, id="z-stack"), pytest.param(2, id="rotation-3d")])
+@pytest.mark.parametrize("key", [pytest.param("loc", id="raw"), pytest.param("dft", id="corrected")])
+@pytest.mark.parametrize("state", [pytest.param("active", id="plane-and-intensity"), pytest.param("planes", id="plane-only"),
+								   pytest.param("disabled", id="plane-disabled"), pytest.param("inactive", id="filters-inactive")])
+def test_hr_filtered_points_exclude_planes(pt, dimension, key, state):
+	"""Les plans exclus disparaissent du calque filtré, mais les autres rejets restent consultables dans les bornes incluses."""
+	pt._stack = np.zeros((4, 8, 8), dtype=np.uint16)
+	pt.settings.rois.set_size(8, 8)
+	locations = pd.DataFrame({"Plane":   [1, 2, 2, 3, 3, 4], "X": [1, 2, 3, 4, 5, 6], "Y": [1, 2, 3, 4, 5, 6],
+							  "Z":       [0, 2, 4, 6, 8, 10], "Integrated Intensity": [1, 10, 1, 10, 1, 1],
+							  "Sigma X": [1.0] * 6, "Sigma Y": [1.0] * 6, "Theta": [0.0] * 6},
+							 index=[10, 20, 30, 40, 50, 60])
+	filters = pt.settings.filters
+	filters.active = state != "inactive"
+	filters["Plane"].value, filters["Plane"].active = [2, 3], state != "disabled"
+	kept = locations.iloc[1:5].copy() if state == "planes" else locations.iloc[[1, 3]].copy()
+	pt.results[key], pt.results[f"f_{key}"] = locations.copy(), kept.copy()
+	s = pt.settings.hr
+	s["Dimension"].value, s["Ratio"].value = dimension, 2
+	s["Remove Beads"].value = s["Drift Correction"].value = s["Crop"].value = False
+	s.gaussian.active = False
+	s.hr_3d["Z Step"].value, s.hr_3d["Frames"].value = 2, 4
+
+	data = pt.hr()
+
+	excluded = locations.iloc[0:0] if state == "planes" else locations.iloc[[2, 4] if state == "active" else [0, 2, 4, 5]]
+	expected = excluded[["Z", "Y", "X"]].to_numpy(dtype=float, copy=True)
+	expected[:, 1:] *= 2
+	if dimension == 0: expected[:, 0] = 0
+	else:
+		z_step = 2 if dimension == 1 else pt._get_uniform_z_step()
+		expected[:, 0] = (expected[:, 0] - kept["Z"].min()) / z_step
+		if dimension == 1: expected[:, 0] = np.floor(expected[:, 0])
+	np.testing.assert_allclose(data["plot_filtered"], expected)
+	pd.testing.assert_frame_equal(pt.results[key], locations)
+	pd.testing.assert_frame_equal(pt.results[f"f_{key}"], kept)
+
+	# Le calque filtré ne doit modifier ni les points conservés ni l'image reconstruite.
+	pt.results.reset_filtered()
+	pt.results[key] = kept.copy()
+	reference = pt.hr()
+	np.testing.assert_array_equal(data["visualization"], reference["visualization"])
+	np.testing.assert_array_equal(data["plot_data"], reference["plot_data"])
+
+
+# --------------------------------------------------
 @pytest.mark.parametrize("filtered", [pytest.param(False, id="unfiltered"), pytest.param(True, id="filtered")])
 def test_hr_localization_z_source(pt, filtered):
 	"""Le rendu Z normalise les points conservés sur uint16 sans inclure les points exclus dans les extrema."""

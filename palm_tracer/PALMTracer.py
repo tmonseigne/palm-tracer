@@ -259,7 +259,7 @@ class PALMTracer:
 
 		with self.results.signal_blocked():  # Blocage temporaire des émissions pour éviter les rafraîchissements intermédiaires des viewers.
 			# --- Parcours du batch ---
-			for self._path, self._stack in zip(paths, stacks):
+			for self._path, self._stack in zip(paths, stacks, strict=False):
 				# Réinitialisation des DataFrames de résultats
 				self.results.reset()
 
@@ -1073,6 +1073,7 @@ class PALMTracer:
 		Les trajectoires conservent leurs points extérieurs dans les données de rendu afin que les segments traversant la ROI soient correctement recadrés.
 		Seules les coordonnées transmises au calque Napari sont limitées à la zone affichée.
 		Pour les localisations filtrées, le DataFrame complet est transformé une seule fois avant de séparer les points conservés et exclus.
+		Les points exclus par le filtre des plans ne figurent pas dans le calque des points filtrés.
 		Le masque des billes est établi avant la correction de dérive ; il accompagne les points conservés et exclut les billes des points filtrés.
 		Les coordonnées des billes utilisent le même cadre XY, la même origine Z ou le même intervalle temporel que les points affichés.
 
@@ -1173,7 +1174,12 @@ class PALMTracer:
 			# Aligne le point vectoriel sur le plan choisi par le rendu ponctuel.
 			if dimension == 1: plot_data[:, z_index] = np.floor(plot_data[:, z_index])
 
-		if filtered: plot["plot_data"], plot["plot_filtered"] = plot_data[retained], plot_data[~retained & ~is_bead]
+		if filtered:
+			excluded = ~retained & ~is_bead
+			plane_filter = cast(CheckRangeInt, self.settings.filters["Plane"])
+			if self.settings.filters.active and plane_filter.active:
+				excluded &= df["Plane"].between(*plane_filter.value).to_numpy()
+			plot["plot_data"], plot["plot_filtered"] = plot_data[retained], plot_data[excluded]
 		else: plot["plot_data"] = plot_data
 		if self.results.beads.empty: return viz_data, plot, uniform_z_step
 		plot["plot_is_bead"] = is_bead[retained] if filtered else is_bead
@@ -1213,6 +1219,17 @@ class PALMTracer:
 		return Drift.remove_drift(data, drift, is_3d=False)
 
 	# --------------------------------------------------
+	def _get_uniform_z_step(self) -> float:
+		"""
+		Calcule le pas en nanomètre sur Z pour une échelle uniforme.
+
+		:return: Pas sur Z identique au pas sur X et Y.
+		"""
+		pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en Nanomètres
+		upscale = self.settings.hr["Ratio"].value
+		return pixel_size / upscale
+
+	# --------------------------------------------------
 	def crop(self, img: np.ndarray, margin: int = 5) -> np.ndarray:
 		"""
 		Recadre automatiquement l'image (ou le volume) en supprimant les zones nulles autour, avec une marge configurable.
@@ -1242,17 +1259,6 @@ class PALMTracer:
 			slices.append(slice(axis_min, axis_max + 1))
 
 		return img[tuple(slices)]
-
-	# --------------------------------------------------
-	def _get_uniform_z_step(self) -> float:
-		"""
-		Calcule le pas en nanomètre sur Z pour une échelle uniforme.
-
-		:return: Pas sur Z identique au pas sur X et Y.
-		"""
-		pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en Nanomètres
-		upscale = self.settings.hr["Ratio"].value
-		return pixel_size / upscale
 
 	# --------------------------------------------------
 	def _visualization_hr(self):
