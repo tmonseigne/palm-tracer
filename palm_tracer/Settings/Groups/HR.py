@@ -13,8 +13,8 @@ from palm_tracer.Settings.Groups.HRTrackStack import HRTrackStack
 from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, Combo, SpinFloat, SpinInt
 
 DATA_SRC: dict[str, list] = {
-		"Localization": ["Count", "Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
-						 "Surface", "MSE XY", "MSE Z", "Z"],
+		"Localization": ["Count", "Integrated Intensity", "Z", "Sigma X", "Sigma Y", "Circularity", "Theta",
+						 "Surface", "MSE XY", "MSE Z"],
 		"Tracking":     ["Track ID", "Plane Number", "Track Intensity", "Relative Plane", "Track Duration", "Track Length"]
 		}
 
@@ -61,7 +61,7 @@ class HR(BaseSettingGroup):
 													   "Keep a 5-pixel margin."), True),
 			"Remove Beads":     CheckBox("Remove Beads", "Remove beads during reconstruction.", True),
 			"Drift Correction": CheckBox("Drift Correction", "Apply a drift correction (Note: The beads must have been extracted before.)", True),
-			"Smooth Drift":     CheckBox("Smooth Drift", "Smooth the drift correction.", True),
+			# "Smooth Drift":     CheckBox("Smooth Drift", "Smooth the drift correction.", True),
 			"Gaussian":         HRGaussian(),
 			"3D":               HR3D(),
 			"T-Stack":          HRTrackStack(),

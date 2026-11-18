@@ -378,7 +378,7 @@ def test_results_refresh_bead_options(qtbot, monkeypatch):
 	w = ViewerHRWidget(viewer, PALMTracer())
 	qtbot.addWidget(w)
 	generate.reset_mock()
-	options = [w._hr_settings[key].get_ui(w.UI_NAME) for key in ("Remove Beads", "Drift Correction", "Smooth Drift")]
+	options = [w._hr_settings[key].get_ui(w.UI_NAME) for key in ("Remove Beads", "Drift Correction")]
 
 	w.pt.results["bds"] = pd.DataFrame({"Bead": [1]})
 	qtbot.waitUntil(lambda: generate.call_count == 1)
@@ -595,7 +595,7 @@ def test_generate_beads_layer(generated_widget, dimension, remove_beads, correct
 		s["Type"].value, s["Dimension"].value = 0, dimension
 		s["Ratio"].value, s["Crop"].value = 2, False
 		s["Remove Beads"].value, s["Drift Correction"].value = remove_beads, correct_drift
-		s["Smooth Drift"].value = False
+		# s["Smooth Drift"].value = False
 		s.hr_3d["Z Step"].value = 2
 		s.gaussian.active = False
 	w._generate()

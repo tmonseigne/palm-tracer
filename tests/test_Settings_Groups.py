@@ -454,7 +454,7 @@ def test_hr(qtbot):
 	g["Dimension"].value = 3  # Passage à Track Stack
 	g["Dimension"].reset()
 	group_base_test(g, ["Dimension", "Type", "Source", "Scaling", "Color mode", "Background", "Ratio", "Crop", "Remove Beads",
-						"Drift Correction", "Smooth Drift", "Gaussian", "3D", "T-Stack"], st.ButtonGroup, 1, 0)
+						"Drift Correction", "Gaussian", "3D", "T-Stack"], st.ButtonGroup, 1, 0)
 	assert isinstance(g.gaussian, sg.HRGaussian)
 	assert isinstance(g.hr_3d, sg.HR3D)
 	assert isinstance(g.track_stack, HRTrackStack)

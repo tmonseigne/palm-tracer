@@ -205,7 +205,7 @@ class ViewerHRWidget(BaseNapariWidget):
 		Affiche les options liées aux billes lorsque leurs résultats sont disponibles, sinon les masque.
 		L'interface principale conserve toutes ces options, car les billes peuvent être extraites pendant le traitement.
 		"""
-		s_list = ["Remove Beads", "Drift Correction", "Smooth Drift"]
+		s_list = ["Remove Beads", "Drift Correction"]
 		if self.pt.results.beads.empty:
 			for s in s_list: self._hr_settings[s].get_ui(self.UI_NAME).hide()
 		else:

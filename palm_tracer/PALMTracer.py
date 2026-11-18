@@ -1215,7 +1215,7 @@ class PALMTracer:
 		if beads.empty: return data
 		# Application de la correction de drift
 		drift = Drift.get_drift(beads, is_3d=False)
-		if s["Smooth Drift"].value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
+		# if s["Smooth Drift"].value: drift[["X", "Y", "Z"]] = Drift.median_filter_centered(drift[["X", "Y", "Z"]].to_numpy())
 		return Drift.remove_drift(data, drift, is_3d=False)
 
 	# --------------------------------------------------
