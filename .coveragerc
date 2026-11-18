@@ -1,3 +1,6 @@
+[run]
+data_file = _output/.coverage
+
 [coverage:run]
 branch = True
 source = palm_tracer  # Analyse seulement ce module

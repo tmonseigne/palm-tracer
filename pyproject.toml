@@ -92,7 +92,11 @@ exclude = ["docs", "tests"]
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
 
+[tool.mypy]
+cache_dir = '$MYPY_CONFIG_FILE_DIR/_output/cache/mypy'
+
 [tool.ruff]
+cache-dir = "_output/cache/ruff"
 line-length = 160
 target-version = "py312"
 fix = true
