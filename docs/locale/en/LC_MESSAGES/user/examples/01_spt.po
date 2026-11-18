@@ -3,281 +3,278 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-11-23 16:06+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../user/examples/01_SPT.rst:2
 msgid "Cas 1 : Single Particle Tracking (SPT)"
 msgstr "Case 1: Single Particle Tracking (SPT)"
 
 #: ../../user/examples/01_SPT.rst:4
-msgid "Contexte : Le :term:`Suivi de particules individuelles (SPT) <SPT (Single-Particle Tracking)>` permet de suivre le mouvement de particules individuelles dans des échantillons biologiques. Cette technique est largement utilisée pour étudier la dynamique des protéines, des organites et d'autres structures cellulaires. Dans ce cas d'utilisation, nous allons explorer comment utiliser Napari et PALMTracer pour analyser des données de SPT."
-msgstr "Context: :term:`Single-particle tracking (SPT) <SPT (Single-Particle Tracking)>` allows us to track the movement of individual particles in biological samples. This technique is widely used to study the dynamics of proteins, organelles, and other cellular structures. In this use case, we will explore how to use Napari and PALMTracer to analyze SPT data."
+msgid "Ce tutoriel montre comment régler la localisation sur une pile de :term:`SPT <SPT (Single-Particle Tracking)>`, puis calculer et vérifier les trajectoires."
+msgstr "This tutorial shows how to tune localization on an :term:`SPT <SPT (Single-Particle Tracking)>` stack, then calculate and check the tracks."
+
+#: ../../user/examples/01_SPT.rst:6
+msgid "Après l':ref:`installation <install_page>`, ouvrez :menuselection:`Plugins --> PALM Tracer --> PALM Tracer` dans Napari."
+msgstr "After :ref:`installation <install_page>`, open :menuselection:`Plugins --> PALM Tracer --> PALM Tracer` in Napari."
 
 #: ../../user/examples/01_SPT.rst:9
-msgid "Ouvrir Napari et PALMTracer"
-msgstr "Open Napari and PALMTracer"
+msgid "Ouvrir les fichiers"
+msgstr "Open the files"
 
 #: ../../user/examples/01_SPT.rst:11
-msgid "Suivez les instructions d'installation pour PALMTracer, puis lancez-le (plus d'informations :ref:`ici <install_page>`). Assurez-vous que vous avez les données de SPT prêtes à être analysées."
-msgstr "Follow the installation instructions for PALMTracer, then launch it (more information :ref:`here <install_page>`). Make sure you have the SPT data ready for analysis."
+msgid "L'acquisition comprend cinq piles MetaMorph de 4 000 plans, soit 20 000 plans au total. Leurs noms vont de :file:`EOS2-20ms-4000f002.stk` à :file:`EOS2-20ms-4000f010.stk` par pas de deux. Gardez :file:`Full-GFP.stk` à part comme image de référence."
+msgstr "The acquisition comprises five MetaMorph stacks of 4,000 frames each, for a total of 20,000 frames. Their filenames run from :file:`EOS2-20ms-4000f002.stk` to :file:`EOS2-20ms-4000f010.stk` in steps of two. Keep :file:`Full-GFP.stk` as a separate reference image."
 
-#: ../../user/examples/01_SPT.rst:14
-msgid "La méthode d'accès aux données peut être une source de ralentissement. Si vous accédez à vos données via un réseau, il est recommandé de les copier localement pour accélérer le traitement. De plus, si vous avez des données volumineuses, assurez-vous d'avoir suffisamment de mémoire RAM pour les traiter efficacement. Un fichier de 20Go nécessite au moins 32Go de RAM. En dessous de cette limite, d'importants ralentissements pourront être présents."
-msgstr "The method of accessing the data can cause slowdowns. If you are accessing your data over a network, it is recommended that you copy it locally to speed up processing. Additionally, if you have large datasets, ensure you have sufficient RAM to process them efficiently. A 20GB file requires at least 32GB of RAM; below this limit, significant slowdowns may occur."
+#: ../../user/examples/01_SPT.rst:15
+msgid "Cinq piles EOS2 numérotées 002, 004, 006, 008 et 010, et le fichier de référence Full-GFP.stk."
+msgstr "Five EOS2 stacks numbered 002, 004, 006, 008 and 010, plus the Full-GFP.stk reference file."
 
 #: ../../user/examples/01_SPT.rst:21
-msgid "Ouvrir le(s) fichier(s) de données"
-msgstr "Open the data file(s)"
+msgid "Commencez avec :file:`EOS2-20ms-4000f002.stk`. Ajoutez-la avec :guilabel:`Batch` → :guilabel:`Add` ou déposez-la dans Napari, puis laissez :guilabel:`Only one` sélectionné. Une seule pile suffit pour régler les paramètres et vérifier les premières trajectoires."
+msgstr "Start with :file:`EOS2-20ms-4000f002.stk`. Add it using :guilabel:`Batch` → :guilabel:`Add` or drop it into Napari, then leave :guilabel:`Only one` selected. A single stack is enough to tune the settings and check the first tracks."
 
-#: ../../user/examples/01_SPT.rst:23
-msgid "Dans notre exemple, nous avons des données de SPT sous forme de fichiers :file:`STK` de Metamorph (ce sont simplement des fichiers :file:`TIFF`, mais Metamorph insère sa propre extension). Nous avons 5 fichiers qui constituent une seule :term:`pile <Pile d'images>` de 5*4000 :term:`frames <Plan (frame)>` ainsi qu'une image de base en GFP pour la visualisation."
-msgstr "In our example, we have SPT data in the form of Metamorph :file:`STK` files (these are simply :file:`TIFF` files, but Metamorph adds its own extension). We have 5 files that make up a single :term:`stack <Pile d'images>` of 5*4000 :term:`frames <Plan (frame)>`, as well as a GFP base image for visualization."
+#: ../../user/examples/01_SPT.rst:24 ../../user/examples/01_SPT.rst:30
+#, fuzzy
+msgid "Batch avec les fichiers..."
+msgstr "Open the files"
 
-#: ../../user/examples/01_SPT.rst:28
-msgid "Explorateur Windows."
-msgstr "Windows Explorer."
+#: ../../user/examples/01_SPT.rst:32
+msgid "Dans :guilabel:`Calibration`, les captures indiquent une taille de pixel de 0,160 µm. Vérifiez cette valeur avec la calibration du microscope. Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Exposure Time (s/frame)`. Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence."
+msgstr "In :guilabel:`Calibration`, the screenshots show a pixel size of 0.160 µm. Check this value against the microscope calibration. To convert durations and calculate diffusion, enter the interval between frames in :guilabel:`Exposure Time (s/frame)`. The filenames indicate a 20 ms exposure. Enter 0.020 s per frame if the metadata confirms that frame interval."
 
-#: ../../user/examples/01_SPT.rst:35
-msgid "Pour tester le traitement et les paramètres, nous n'allons charger qu'un seul fichier pour le moment. Vous pouvez cliquer sur le bouton :guilabel:`+` dans la section Batch du plugin PALMTracer, allez chercher votre fichier pour l'ajouter."
-msgstr "To test the processing and settings, we will load only one file for now. You can click the :guilabel:`+` button in the Batch section of the PALMTracer plugin, then browse for your file to add it."
+#: ../../user/examples/01_SPT.rst:36 ../../user/examples/01_SPT.rst:42
+msgid "Calibration Paramétré."
+msgstr ""
 
-#: ../../user/examples/01_SPT.rst:38
-msgid "Pour charger les 4 fichiers, vous devez les ajouter un par un."
-msgstr "To load all 4 files, you must add them one by one."
+#: ../../user/examples/01_SPT.rst:45
+#, fuzzy
+msgid "Le calque :guilabel:`Raw` s'ouvre au plan central. Ajustez le contraste et parcourez les plans avec le curseur de dimensions. **Ajouter un point sur les autres calques (peut-etre aussi le lien où je parle du volet calque dnas manuel)**"
+msgstr "The :guilabel:`Raw` layer opens at the middle frame. Adjust the contrast and browse the frames with the dimension slider."
 
-#: ../../user/examples/01_SPT.rst:40
-msgid "Paramètres de Batch."
-msgstr "Batch settings."
+#: ../../user/examples/01_SPT.rst:48
+#, fuzzy
+msgid "Visualisation de Napari"
+msgstr "Localization visualization."
 
-#: ../../user/examples/01_SPT.rst:47
-msgid "Une fois le fichier chargé, vous avez une prévisualisation de votre pile (par défaut positionné au plan central de la pile). Vous pouvez modifier le contraste et la colormap pour bien visualiser les données. Vous pouvez parcourir les plans avec les flèches gauche et droite du clavier ou directement sur le bas de la partie visualisation de Napari."
-msgstr "Once the file is loaded, you'll see a preview of your stack (positioned by default at the center of the stack). You can adjust the contrast and color map to view the data clearly. You can navigate through the planes using the left and right arrow keys on your keyboard or directly at the bottom of the Napari visualization pane."
+#: ../../user/examples/01_SPT.rst:54
+msgid "Visualisation de Napari **changer la color map pour voir un peu plus mieux, aussi les rectangles rouge pour voir qui est ou dnas ce qu'on raconte**"
+msgstr ""
 
-#: ../../user/examples/01_SPT.rst:51
-msgid "Visualisation de Napari."
-msgstr "Napari visualization."
-
-#: ../../user/examples/01_SPT.rst:59
+#: ../../user/examples/01_SPT.rst:57
 msgid "Localisation"
 msgstr "Localization"
 
-#: ../../user/examples/01_SPT.rst:62
+#: ../../user/examples/01_SPT.rst:60
 msgid "Prévisualisation"
 msgstr "Preview"
 
-#: ../../user/examples/01_SPT.rst:64
-msgid "La première étape consiste à trouver les paramètres de :term:`localisation <Localisation>` optimaux pour vos données. Il suffit de cliquer sur localisation pour activer cette étape de traitement, puis de cliquer sur le bouton :guilabel:`Preview` pour voir les points détectés en temps réel sur votre image."
-msgstr "The first step is to find the optimal :term:`localization <Localisation>` parameters for your data. Simply click on Localization to activate this processing step, then click the :guilabel:`Preview` button to see the detected points in real time on your image."
+#: ../../user/examples/01_SPT.rst:62
+msgid "Dans :guilabel:`Processing`, activez :guilabel:`Localization`, puis cochez :guilabel:`Preview`. Sur le plan illustré, :guilabel:`Auto Threshold` propose 130,86. À cette valeur, certains points faibles disparaissent de l'aperçu. Abaissez le seuil à 60 pour les récupérer et éviter des ruptures de trajectoires. Ce réglage ajoute aussi des détections de fond. Parcourez plusieurs plans pour vérifier que les points supplémentaires suivent des signaux visibles avant d'affiner le filtrage."
+msgstr "In :guilabel:`Processing`, enable :guilabel:`Localization` and check :guilabel:`Preview`. On the frame shown here, :guilabel:`Auto Threshold` suggests 130.86. At this value, some faint spots are missing from the preview. Lower the threshold to 60 to recover them and avoid breaks in the tracks. This setting also picks up some background detections. Check several frames to see whether the additional detections follow visible signals before refining the filters."
 
-#: ../../user/examples/01_SPT.rst:68
-msgid "Le bouton :guilabel:`Auto Threshold` permet de trouver un :term:`seuil <Seuil (Threshold)>` de :term:`détection <Détection>` automatique, mais il est souvent nécessaire de le modifier."
-msgstr "The :guilabel:`Auto Threshold` button allows you to find an automatic :term:`detection <Détection>` :term:`threshold <Seuil (Threshold)>`, but it is often necessary to adjust it."
+#: ../../user/examples/01_SPT.rst:72
+msgid "Aperçu des détections au seuil automatique de 130,86."
+msgstr "Preview of detections at the automatic threshold of 130.86."
 
-#: ../../user/examples/01_SPT.rst:70
-msgid "On est en recherche d'un :term:`suivi <Suivi>`, donc on va régler ce seuil pour être un peu plus permissif et éviter trop de coupures de :term:`trajectoires <Trajectoire>` au prix de faux positifs."
-msgstr "Since the goal is :term:`tracking <Suivi>`, we will set this threshold to be slightly more permissive to avoid excessive :term:`track <Trajectoire>` breaks at the cost of false positives."
+#: ../../user/examples/01_SPT.rst:77
+msgid "Seuil automatique de 130,86"
+msgstr "Automatic threshold of 130.86"
 
-#: ../../user/examples/01_SPT.rst:77 ../../user/examples/01_SPT.rst:83
-msgid "Seuil automatique calculé à 130.86"
-msgstr "Automatic threshold calculated at 130.86"
+#: ../../user/examples/01_SPT.rst:79
+msgid "Aperçu au seuil de 60, avec davantage de détections."
+msgstr "Preview at a threshold of 60, with more detections."
 
-#: ../../user/examples/01_SPT.rst:85 ../../user/examples/01_SPT.rst:91
+#: ../../user/examples/01_SPT.rst:84
 msgid "Seuil défini à 60"
 msgstr "Threshold set to 60"
 
-#: ../../user/examples/01_SPT.rst:93
-msgid "Vous pouvez voir un code couleur pour les points détectés :"
-msgstr "You can see a color-coded representation of the detected points:"
+#: ../../user/examples/01_SPT.rst:86
+msgid ":guilabel:`Points Present` et :guilabel:`ROI Present` montrent en vert les détections retenues du plan courant et le contour autour de chacune."
+msgstr ":guilabel:`Points Present` and :guilabel:`ROI Present` show the retained detections in the current frame and the outline around each one in green."
 
-#: ../../user/examples/01_SPT.rst:95
-msgid "Les points verts sont ceux qui ont été détectés dans le plan actuel."
-msgstr "Green points are those detected in the current frame."
+#: ../../user/examples/01_SPT.rst:87
+msgid ":guilabel:`Points Past` (cyan) et :guilabel:`Points Future` (orange) montrent les détections des plans précédent et suivant."
+msgstr ":guilabel:`Points Past` (cyan) and :guilabel:`Points Future` (orange) show detections in the previous and next frames."
+
+#: ../../user/examples/01_SPT.rst:88
+msgid ":guilabel:`Points Filtered` montre en rouge les détections écartées sur le plan courant."
+msgstr ":guilabel:`Points Filtered` shows rejected detections in the current frame in red."
+
+#: ../../user/examples/01_SPT.rst:90
+msgid "Activez :guilabel:`Watershed` pour séparer des détections voisines qui se confondent. Réglez :guilabel:`ROI Size` sur 7 pixels. La fenêtre d'ajustement de 7 × 7 pixels doit couvrir la tache lumineuse (PSF) tout en limitant le fond et les contributions voisines. Dans :ref:`Gaussian Fit <fit_page>`, le script utilise le mode :guilabel:`X, Y, SigmaX, SigmaY` et un :guilabel:`σ` initial de 1 pixel. Les largeurs peuvent ainsi varier indépendamment suivant X et Y. L'angle reste fixe et l'estimation de Z est désactivée pour ce suivi en 2D."
+msgstr "Enable :guilabel:`Watershed` to separate nearby detections that overlap. Set :guilabel:`ROI Size` to 7 pixels. The 7 × 7 pixel fitting window should cover the spot (PSF) while limiting background and contributions from nearby spots. In :ref:`Gaussian Fit <fit_page>`, the script uses :guilabel:`X, Y, SigmaX, SigmaY` mode and an initial :guilabel:`σ` of 1 pixel. This lets the widths vary independently along X and Y. The angle stays fixed and Z estimation is disabled for this 2D tracking example."
 
 #: ../../user/examples/01_SPT.rst:96
-msgid "Les points bleus sont ceux qui ont été détectés dans le plan précédent."
-msgstr "Blue points are those detected in the previous frame."
-
-#: ../../user/examples/01_SPT.rst:97
-msgid "Les points oranges sont ceux qui ont été détectés dans le plan suivant."
-msgstr "Orange points are those detected in the next frame."
-
-#: ../../user/examples/01_SPT.rst:98
-msgid "Les points rouges sont ceux qui ont été détectés dans le plan actuel, mais qui ont été filtrés par les :term:`filtres de localisation <Filtrage des résultats>`."
-msgstr "Red points are those detected in the current frame but filtered out by the :term:`location filters <Filtrage des résultats>`."
-
-#: ../../user/examples/01_SPT.rst:99
-msgid "Un cercle vert apparait autour des points détectés dans le plan actuel, il permet de montrer la zone d'ajustement. Dans cet exemple, une zone de 7x7 signifie un cercle de 3 pixels de rayon autour du point détecté pour faire le :term:`fit gaussien <Ajustement gaussien>` ensuite."
-msgstr "A green circle appears around the detected points in the current plane, indicating the fitting ROI. In this example, a 7x7 ROI corresponds to a circle with a 3-pixel radius around the detected point, which is then used for the :term:`Gaussian fit <Ajustement gaussien>`."
-
-#: ../../user/examples/01_SPT.rst:102
-msgid "Dans les paramètres de localisation, vous avez le :term:`watershed <Watershed>` qui est une méthode de séparation de points très proches. Il est quasiment toujours activé pour éviter d'avoir des points fusionnés."
-msgstr "In the localization settings, you'll find the :term:`watershed <Watershed>` method, which is used to separate points that are very close together. It is almost always enabled to prevent points from merging."
-
-#: ../../user/examples/01_SPT.rst:105
-msgid "La méthode d'ajustement permet d'affiner la détection initiale sur X et Y, mais également pour l'ajustement gaussien de définir la forme de la :term:`PSF <PSF (Point Spread Function)>` avec :term:`Sigma X <Sigma (largeur gaussienne)>` (largeur horizontale), Sigma Y (largeur verticale) et Theta (orientation). Selon le mode d'ajustement gaussien, vous avez les paramètres qui seront ajustés (:guilabel:`X, Y` signifie que seule la position sera ajustée, alors que :guilabel:`X, Y, SigmaX, SigmaY, Theta` signifie que la position, la forme et l'orientation de la PSF seront ajustées, plus d'informations :ref:`ici <fit_page>`)."
-msgstr "The fitting method allows you to refine the initial detection on X and Y, but also, for Gaussian fitting, to define the shape of the :term:`PSF <PSF (Point Spread Function)>` using :term:`Sigma X <Sigma (largeur gaussienne)>` (horizontal width), Sigma Y (vertical width), and Theta (orientation). Depending on the Gaussian fit mode, you have the parameters that will be adjusted (:guilabel:`X, Y` means that only the position will be adjusted, while :guilabel:`X, Y, SigmaX, SigmaY, Theta` means that the position, shape, and orientation of the PSF will be adjusted; more information :ref:`here <fit_page>`)."
-
-#: ../../user/examples/01_SPT.rst:110
-msgid "La taille de la zone d'intérêt (:term:`ROI <ROI (Region Of Interest)>`) est importante, car elle doit être assez grande pour englober la PSF, mais pas trop pour ne pas inclure d'autres localisations ou trop de :term:`fond <Fond et bruit>`. Ici, on choisit 7x7 pixels."
-msgstr "The size of the region of interest (:term:`ROI <ROI (Region Of Interest)>`) is important, as it must be large enough to encompass the PSF, but not so large as to include other locations or too much :term:`background <Fond et bruit>`. Here, we choose 7x7 pixels."
-
-#: ../../user/examples/01_SPT.rst:114
 msgid "Filtres"
 msgstr "Filters"
 
+#: ../../user/examples/01_SPT.rst:98
+msgid "Dans :guilabel:`Filtering`, cochez :guilabel:`MSE XY`. Ce libellé historique désigne aujourd'hui un score de qualité d'ajustement compris entre 0 et 1, calculé à partir du carré de la corrélation de Pearson. Les valeurs proches de 1 correspondent à un meilleur accord avec le modèle. Pour sélectionner les meilleurs ajustements, essayez une plage de 0,80 à 1,00, puis observez les points écartés dans :guilabel:`Points Filtered`. Masquez les deux plans voisins si nécessaire. Si des signaux faibles mais bien isolés disparaissent, abaissez la borne inférieure et vérifiez l'effet sur plusieurs plans."
+msgstr "In :guilabel:`Filtering`, check :guilabel:`MSE XY`. This historical label now refers to a fit quality score from 0 to 1 based on the squared Pearson correlation. Values close to 1 indicate a better fit to the model. To select the best fits, try a range of 0.80 to 1.00 and look at the rejected detections in :guilabel:`Points Filtered`. Hide the two neighboring frames if needed. If faint but isolated signals disappear, lower the minimum and check the effect across several frames."
+
+#: ../../user/examples/01_SPT.rst:104
+msgid "Aperçu des détections et du filtre MSE XY dans une version antérieure de PALM Tracer."
+msgstr "Preview of detections and the MSE XY filter in an earlier version of PALM Tracer."
+
+#: ../../user/examples/01_SPT.rst:110
+msgid "Aperçu historique du filtrage. Utilisez la plage ci-dessus pour retenir les scores élevés dans la version actuelle."
+msgstr "Filtering preview from an earlier version. Use the range above to retain high scores in the current version."
+
+#: ../../user/examples/01_SPT.rst:114
+msgid "Zone d'intérêt (ROI)"
+msgstr "Region of interest (ROI)"
+
 #: ../../user/examples/01_SPT.rst:116
-msgid "On peut déjà commencer à essayer les filtres de localisation pour voir leur effet sur les points détectés, par exemple le filtre de MSE XY qui permet de filtrer les points en fonction de la qualité de l'ajustement gaussien. Les points actuels qui ont été supprimés sont maintenant affichés en rouge, cela permet de voir l'effet du filtre sur les points détectés."
-msgstr "You can already start experimenting with location filters to see how they affect the detected points; for example, the MSE XY filter allows you to filter points based on the quality of the Gaussian fit. The current points that have been removed are now displayed in red, which helps you see the filter's effect on the detected points."
+msgid "Sélectionnez le calque :guilabel:`ROI Filter` et dessinez la zone à analyser avec les outils de formes de Napari. Dans :guilabel:`Filtering`, activez :guilabel:`ROI` et choisissez le numéro de la zone. La zone active apparaît en jaune. Le rectangle de la capture couvre environ X = 115–155 et Y = 25–70, en pixels de la pile. Restreindre le suivi à cette région permet de se concentrer sur les particules étudiées. Vérifiez que les trajectoires qui vous intéressent restent dans la zone, car un point qui en sort est écarté avant le suivi."
+msgstr "Select the :guilabel:`ROI Filter` layer and draw the region to analyze using the Napari shape tools. In :guilabel:`Filtering`, enable :guilabel:`ROI` and select the region number. The active region appears in yellow. The rectangle in the screenshot covers approximately X = 115–155 and Y = 25–70 in stack pixels. Restricting tracking to this region lets you focus on the particles of interest. Check that their tracks stay within the region, since any point outside it is discarded before tracking."
 
-#: ../../user/examples/01_SPT.rst:120
-msgid "Il est possible de désactiver les différents calques dans la visualisation et chaque code couleur correspond à un calque différent. Donc si vous avez trop d'informations, vous pouvez, par exemple, ne conserver que les points du plan actuel et les points filtrés durant cette étape."
-msgstr "You can disable the different layers in the visualization, and each color corresponds to a different layer. So if you have too much information, you can, for example, keep only the points from the current map and the points filtered during this step."
+#: ../../user/examples/01_SPT.rst:122
+msgid "Filtrage par zone d'intérêt dans une version antérieure."
+msgstr "Region-of-interest filtering in an earlier version."
 
-#: ../../user/examples/01_SPT.rst:123
-msgid "Visuel avec un Filtre."
-msgstr "Visualization with a Filter."
+#: ../../user/examples/01_SPT.rst:130
+msgid "Activer le suivi et la reconnexion"
+msgstr "Enable tracking and reconnection"
 
 #: ../../user/examples/01_SPT.rst:132
-msgid "Zones d'Intérêt (ROI)"
-msgstr "Region of Interest (ROI)"
-
-#: ../../user/examples/01_SPT.rst:134
-msgid "Pour le moment, il est possible de définir une Zone d'intérêt à partir des positions X et Y dans la section filtre. Les zones d'intérêts dessinées à la main seront présentes dans une mise à jour ultérieure."
-msgstr "Currently, you can define a Region of Interest using X and Y coordinates in the filter section. Hand-drawn regions of interest will be available in a future update."
+msgid "Activez :guilabel:`Tracking` et réglez :guilabel:`Max Distance` sur 3 pixels entre deux plans successifs, soit 0,48 µm avec des pixels de 0,160 µm. Une distance trop petite coupe les trajectoires des particules rapides. Une distance trop grande augmente le risque de relier deux particules voisines."
+msgstr "Enable :guilabel:`Tracking` and set :guilabel:`Max Distance` to 3 pixels between consecutive frames, or 0.48 µm at a pixel size of 0.160 µm. A distance that is too small breaks the tracks of fast particles. A distance that is too large makes it easier to link two nearby particles by mistake."
 
 #: ../../user/examples/01_SPT.rst:136
-msgid "Filtre sur une zone d'intérêts."
-msgstr "Filter on a region of interest."
+msgid "Pour examiner les candidats, affichez le contour circulaire de :guilabel:`ROI Present` et les points des deux plans voisins. Avec :guilabel:`ROI Size` réglé à 7 pixels, le cercle donne un repère visuel pour une distance de l'ordre de 3 pixels. Sur la capture, parmi les quatre détections du groupe au centre, celle du haut à gauche a un candidat orange mais aucun candidat cyan. Les trois autres ont des candidats dans les deux plans. Le suivi décide des associations à partir des distances entre détections."
+msgstr "To inspect the candidates, show the circular :guilabel:`ROI Present` outline and the points from both neighboring frames. With :guilabel:`ROI Size` set to 7 pixels, the circle gives a visual guide for a distance of about 3 pixels. Of the four detections at the center of the screenshot, the upper left detection has an orange candidate but no cyan candidate. The other three have candidates in both frames. The tracker determines the links based on the distances between detections."
 
-#: ../../user/examples/01_SPT.rst:145
-msgid "Activation du Suivi et de la reconnexion"
-msgstr "Enabling Tracking and Reconnection"
+#: ../../user/examples/01_SPT.rst:141
+msgid "Quatre contours verts autour des détections du plan courant, avec les candidats des plans précédent en cyan et suivant en orange."
+msgstr "Four green outlines around the detections in the current frame, with candidates from the previous frame in cyan and the next frame in orange."
 
 #: ../../user/examples/01_SPT.rst:147
-msgid "La longueur peut être réglée grâce à la prévisualisation de la localisation, il faut trouver un compromis entre ne pas couper les trajectoires et ne pas faire de fausses connexions."
-msgstr "The length can be adjusted using the location preview; you need to find a balance between not cutting off the paths and not creating false connections."
-
-#: ../../user/examples/01_SPT.rst:150
-msgid "Si vous considérez une distance maximale entre 2 plans de N Pixels, vous pouvez régler la taille de la zone d'intérêt à 2*N+1 pixels. Vous pourrez ainsi avoir un aperçu des éléments qui seront connectés en direct lors de la prévisualisation."
-msgstr "If you set the maximum distance between two planes to N pixels, you can set the size of the region of interest to 2*N+1 pixels. This will allow you to see a preview of the elements that will be connected in real time during the preview."
+msgid "Laissez :guilabel:`Blinking Reconnection` désactivé pour le premier essai. Si une particule disparaît brièvement, essayez ensuite de reconnecter les segments. Réglez :guilabel:`Max Duration (plane)` sur la durée maximale de l'interruption en plans et ajustez :guilabel:`Max Distance` en pixels par plan. Vérifiez sur quelques trajectoires que les segments réunis correspondent à la même particule."
+msgstr "Leave :guilabel:`Blinking Reconnection` off for the first run. If a particle briefly disappears, try reconnecting the segments afterward. Set :guilabel:`Max Duration (plane)` to the maximum gap in frames and adjust :guilabel:`Max Distance` in pixels per frame. Inspect a few tracks to check that the linked segments belong to the same particle."
 
 #: ../../user/examples/01_SPT.rst:153
-msgid "Dans l'exemple ci-dessous, la distance maximale est de 3 pixels, donc la zone d'intérêt est de 7x7 pixels. On n'a conservé que les calques des points précédents, suivants ainsi que la zone d'intérêt du point actuel pour mieux visualiser les connexions qui seront faites. On peut voir 4 détections sur le plan actuel, mais celui en haut à gauche ne possède pas de points précédents (en bleu) dans la zone de connexion, il ne sera donc pas connecté à une trajectoire présente dans le plan précédent. Les 3 autres points seront connectés aux deux plans connexes, car ils ont un point précédent et un point suivant dans la zone de connexion."
-msgstr "In the example below, the maximum distance is 3 pixels, so the region of interest is 7x7 pixels. We have retained only the layers of the previous and subsequent points, as well as the region of interest for the current point, to better visualize the connections that will be made. We can see 4 detections on the current plane, but the one in the top left has no previous points (in blue) in the connection zone, so it will not be connected to a track present in the previous plane. The other 3 points will be connected to the two adjacent planes, as they have a previous point and a subsequent point in the connection zone."
-
-#: ../../user/examples/01_SPT.rst:158
-msgid "Visuel avec les points précédents et suivants."
-msgstr "Visualization with previous and subsequent points."
-
-#: ../../user/examples/01_SPT.rst:166
 msgid "Premier lancement du traitement"
 msgstr "First run of the processing"
 
-#: ../../user/examples/01_SPT.rst:168
+#: ../../user/examples/01_SPT.rst:155
 msgid "Schéma du pipeline de traitement."
 msgstr "Diagram of the processing pipeline."
 
-#: ../../user/examples/01_SPT.rst:176
-msgid "Dans le terminal qui a lancé Napari, vous pouvez voir le log du traitement qui s'affiche en temps réel. Chaque ligne correspond à une étape du traitement, il est important de les comprendre pour savoir ce qui a été fait et identifier d'éventuels problèmes."
-msgstr "In the terminal where Napari was launched, you can see the processing log displayed in real time. Each line corresponds to a step in the process; it is important to understand them to know what has been done and to identify any potential issues."
+#: ../../user/examples/01_SPT.rst:162
+msgid "Pour ce premier passage, activez la localisation et le suivi. Laissez l'extraction de billes, la reconnexion, l'analyse de trajectoires, la galerie et les rendus automatiques désactivés. Cochez :guilabel:`Save filtered` pour enregistrer aussi les tableaux filtrés en CSV, puis cliquez sur :guilabel:`Start Processing`."
+msgstr "For this first pass, enable localization and tracking. Leave bead extraction, reconnection, track analysis, the gallery and automatic rendering disabled. Check :guilabel:`Save filtered` to also write the filtered tables to CSV, then click :guilabel:`Start Processing`."
 
-#: ../../user/examples/01_SPT.rst:201
-msgid "Tout d'abord, on voit que le log a été ouvert et que le traitement a commencé, le dossier de sortie est indiqué ainsi que la sauvegarde des paramètres et des métadonnées. On peut voir que le fichier de log possède un timestamp dans son nom, cela permet de différencier les différents traitements et de retrouver facilement le log correspondant à un traitement particulier. Ce fichier de log est une copie de toutes les lignes avec entre crochets la date et l'heure qui s'affichent. Si des lignes ne possèdent pas de timestamp, celles-ci sont indépendantes du log et peuvent être simplement des affichages intermédiaires durant le traitement."
-msgstr "First, you can see that the log has been opened and that processing has begun; the output directory is specified, along with the saving of settings and metadata. You can see that the log file has a timestamp in its name; this allows you to distinguish between different processing runs and easily find the log corresponding to a specific run. This log file is a copy of all the lines, with the date and time displayed in square brackets. If any lines do not have a timestamp, they are independent of the log and may simply be intermediate displays during processing."
+#: ../../user/examples/01_SPT.rst:166
+msgid "Sur la première pile, le journal de l'essai d'origine indique 115 533 localisations détectées. Après filtrage, il en reste 16 582, soit 98 951 rejets (85,6 %). Le fichier de suivi contient 16 582 **points**, répartis en trajectoires. Ces effectifs servent de repères pour lire le journal de cet essai. Ils dépendent des critères et de la zone appliqués."
+msgstr "On the first stack, the original run log reports 115,533 detections. Filtering retains 16,582 and discards 98,951 (85.6%). The tracking file contains 16,582 **points** grouped into tracks. Use these counts to interpret the log from that run. The counts depend on the criteria and region used."
 
-#: ../../user/examples/01_SPT.rst:205
-msgid "Ensuite, on voit que la localisation a été activée, que le fichier de localisation a été sauvegardé et que 115533 localisations ont été trouvées. Des filtres ont été activés pour la localisation, ce qui a permis de réduire le nombre de localisations à 16582, soit 98951 localisations supprimées. De même pour le Tracking, on voit que le suivi a été activé, que le fichier de suivi a été sauvegardé et que 16582 points ont été trouvés. Si une différence dans le nombre de points apparait, il s'agit de points n'ayant pas pu être validés durant l'ajustement (leur intensité est négative afin de les identifier facilement). Mais ils ont été déjà rejetés lors du filtrage initial après la localisation."
-msgstr "Next, we see that geolocation was enabled, that the geolocation file was saved, and that 115,533 locations were found. Filters were applied to the geolocation data, reducing the number of locations to 16,582—meaning 98,951 locations were removed. Similarly, for Tracking, we see that tracking has been enabled, that the tracking file has been saved, and that 16,582 points have been found. If a difference in the number of points appears, these are points that could not be validated during the adjustment (their intensity is negative in order to identify them). But they were already rejected during the initial filtering after localization."
+#: ../../user/examples/01_SPT.rst
+msgid "Voir l'extrait du journal du premier essai"
+msgstr "View an excerpt from the first run log"
 
-#: ../../user/examples/01_SPT.rst:211
-msgid "La dernière ligne sert à clôturer le log, mais également à vous avertir que l'interface de PALMTracer est à nouveau disponible pour lancer un nouveau traitement. En effet, durant le traitement, l'interface de PALMTracer est bloquée pour éviter de lancer plusieurs traitements en même temps ou de modifier les paramètres durant le traitement. Mais de nombreux clics sur une interface désactivée peuvent faire planter le logiciel. En cas de traitement particulièrement long, un œil sur le terminal vous permet de savoir ce qui ralentit le traitement et s'il a fini. Ici, on peut voir que toutes les opérations sont presque instantanées."
-msgstr "The last line serves to close the log, but also to notify you that the PALMTracer interface is available again to start a new processing run. This is because, during processing, the PALMTracer interface is locked to prevent multiple processing runs from starting at the same time or settings from being changed during processing. However, numerous clicks on a disabled interface can cause the software to crash. In the case of a particularly long processing run, keeping an eye on the terminal allows you to see what is slowing down the process and whether it has finished. Here, we can see that all operations are nearly instantaneous."
+#: ../../user/examples/01_SPT.rst:183
+msgid "Dans :guilabel:`Info`, survolez les compteurs pour consulter le détail du filtrage. Cliquez sur :guilabel:`Open results folder` pour retrouver les CSV et les fichiers :file:`log-<horodatage>.log` et :file:`settings-<horodatage>.json` du traitement. Le :ref:`pipeline de traitement <pipeline_page>` détaille quelles étapes utilisent les résultats filtrés."
+msgstr "In :guilabel:`Info`, hover over the counters to see the filtering details. Click :guilabel:`Open results folder` to find the CSV files and the :file:`log-<timestamp>.log` and :file:`settings-<timestamp>.json` files for the run. The :ref:`processing pipeline <pipeline_page>` explains which steps use filtered results."
 
-#: ../../user/examples/01_SPT.rst:218
-msgid "Filtrage des résultats (Utilisation du GraphViewer)"
-msgstr "Filtering Results (Using the GraphViewer)"
+#: ../../user/examples/01_SPT.rst:188
+msgid "Explorer les résultats"
+msgstr "Explore the results"
 
-#: ../../user/examples/01_SPT.rst:220
-msgid "Les résultats, ici, ont été filtrés avant d'être envoyés au tracking. Par exemple, une zone d'intérêt définit par un intervalle de X et Y peut être utilisée pour ne conserver que les localisations dans une région spécifique de l'image."
-msgstr "The results here were filtered before being sent to tracking. For example, an area of interest defined by an X and Y range can be used to retain only the locations within a specific region of the image."
+#: ../../user/examples/01_SPT.rst:190
+msgid "Dans :guilabel:`Visualization`, ouvrez le :ref:`Graph Viewer <viewer_graph_page>`. Sélectionnez :guilabel:`Histogram`, :guilabel:`Localization` et :guilabel:`Integrated Intensity` pour afficher la distribution des intensités intégrées. Vérifiez les échelles des axes avant de comparer les deux histogrammes et décochez :guilabel:`Count` si vous souhaitez comparer la forme des distributions en densité avec des effectifs différents."
+msgstr "In :guilabel:`Visualization`, open the :ref:`Graph Viewer <viewer_graph_page>`. Select :guilabel:`Histogram`, :guilabel:`Localization` and :guilabel:`Integrated Intensity` to display the integrated intensity distribution. Check the axis scales before comparing the two histograms and uncheck :guilabel:`Count` to compare the shapes of the distributions as densities when the sample sizes differ."
 
-#: ../../user/examples/01_SPT.rst:223
-msgid "Visuel avec une zone de filtre."
-msgstr "Visualization with a filter area."
+#: ../../user/examples/01_SPT.rst:195
+msgid "Pour afficher toutes les localisations, cliquez sur :guilabel:`Reset` dans :guilabel:`Filters`. Réactivez ensuite la ROI ou le filtre :guilabel:`MSE XY`, puis cliquez sur :guilabel:`Update`. L'histogramme aide à voir quelles intensités sont surtout affectées par la sélection. Pour examiner la distribution des scores, changez la source en :guilabel:`MSE XY`."
+msgstr "To display all localizations, click :guilabel:`Reset` in :guilabel:`Filters`. Then re-enable the ROI or :guilabel:`MSE XY` filter and click :guilabel:`Update`. The histogram shows which intensities are most affected by the selection. To inspect the distribution of the scores themselves, change the source to :guilabel:`MSE XY`."
 
-#: ../../user/examples/01_SPT.rst:230
-msgid "Il est également possible d'utiliser le Graphviewer de l'onglet visualisation afin d'avoir une visualisation graphique des statistiques des différents éléments de votre traitement, par exemple la distribution des localisations en fonction de leur position, de leur intensité ou de leur qualité d'ajustement (plus d'informations :ref:`ici <viewer_graph_page>`)."
-msgstr "You can also use the GraphViewer in the Visualization tab to get a graphical view of the statistics for the different elements of your processing, such as the distribution of localizations based on their position, intensity, or fit quality (more information :ref:`here <viewer_graph_page>`)."
-
-#: ../../user/examples/01_SPT.rst:237
+#: ../../user/examples/01_SPT.rst:204
 msgid "Histogramme initial de l’intensité intégrée des localisations"
 msgstr "Initial histogram of the integrated intensity of the localizations"
 
-#: ../../user/examples/01_SPT.rst:243
+#: ../../user/examples/01_SPT.rst:209
 msgid "Histogramme initial de l'intensité intégrée des localisations"
 msgstr "Initial histogram of the integrated intensity of the localizations"
 
-#: ../../user/examples/01_SPT.rst:245 ../../user/examples/01_SPT.rst:251
+#: ../../user/examples/01_SPT.rst:211 ../../user/examples/01_SPT.rst:216
 msgid "Histogramme de l'intensité intégrée des localisations filtrées"
 msgstr "Histogram of the integrated intensity of the filtered localizations"
 
-#: ../../user/examples/01_SPT.rst:255
+#: ../../user/examples/01_SPT.rst:220
 msgid "Reconstruction et visualisation"
 msgstr "Reconstruction and visualization"
 
-#: ../../user/examples/01_SPT.rst:262
+#: ../../user/examples/01_SPT.rst:222
+msgid "Ouvrez le :ref:`HR Viewer <viewer_hr_page>` dans :guilabel:`Visualization`. En mode :guilabel:`2D`, choisissez :guilabel:`Localization` et :guilabel:`Count` pour voir où se concentrent les détections, puis :guilabel:`Tracks` pour examiner la continuité des trajectoires. Cliquez sur :guilabel:`Generate` pour produire le rendu."
+msgstr "Open the :ref:`HR Viewer <viewer_hr_page>` from :guilabel:`Visualization`. In :guilabel:`2D` mode, select :guilabel:`Localization` and :guilabel:`Count` to see where detections are concentrated, then select :guilabel:`Tracks` to check track continuity. Click :guilabel:`Generate` to render the view."
+
+#: ../../user/examples/01_SPT.rst:226
+msgid "Pour la comparaison avec et sans filtre de longueur, gardez le même facteur d'agrandissement. Le script utilise un :guilabel:`Upscaling ratio` de 8 et la source :guilabel:`Track Intensity`, qui attribue à chaque trajectoire la somme des intensités intégrées de ses points. Dans :guilabel:`Filters`, essayez :guilabel:`Length` de 10 à 4 000 points sur la première pile et cliquez sur :guilabel:`Update`. La borne basse retire les segments courts. Comparez les deux images pour vérifier qu'elle ne masque pas les trajectoires courtes qui vous intéressent."
+msgstr "Use the same upscaling factor when comparing tracks with and without length filtering. The script uses an :guilabel:`Upscaling ratio` of 8 and the :guilabel:`Track Intensity` source, which assigns each track the sum of its points' integrated intensities. In :guilabel:`Filters`, try a :guilabel:`Length` range of 10 to 4,000 points on the first stack and click :guilabel:`Update`. The lower bound removes short segments. Compare the two images to check whether it hides short tracks of interest."
+
+#: ../../user/examples/01_SPT.rst:237
 msgid "Visualisation des localisations."
 msgstr "Localization visualization."
 
-#: ../../user/examples/01_SPT.rst:268
+#: ../../user/examples/01_SPT.rst:242
 msgid "Localisations"
 msgstr "Localizations"
 
-#: ../../user/examples/01_SPT.rst:270
+#: ../../user/examples/01_SPT.rst:244
 msgid "Visualisation des trajectoires avant filtrage."
 msgstr "Visualization of tracks before filtering."
 
-#: ../../user/examples/01_SPT.rst:276
+#: ../../user/examples/01_SPT.rst:249
 msgid "Trajectoires"
 msgstr "Tracks"
 
-#: ../../user/examples/01_SPT.rst:278
+#: ../../user/examples/01_SPT.rst:251
 msgid "Visualisation des trajectoires après filtrage."
 msgstr "Visualization of tracks after filtering."
 
-#: ../../user/examples/01_SPT.rst:284
+#: ../../user/examples/01_SPT.rst:256
 msgid "Trajectoires filtrées"
 msgstr "Filtered tracks"
 
-#: ../../user/examples/01_SPT.rst:287
-msgid "Script Version"
-msgstr ""
+#: ../../user/examples/01_SPT.rst:259
+msgid "Traiter l'acquisition complète"
+msgstr "Process the full acquisition"
 
-#: ../../user/examples/01_SPT.rst:289
-msgid "Il est possible de créer un script pour lancer le traitement de SPT avec des paramètres optimisés pour un type de données particulier. Ce script peut être utilisé pour lancer un batch de traitement de SPT sur plusieurs dossiers, par exemple pour traiter un grand nombre de fichiers de SPT avec les mêmes paramètres."
-msgstr "It is possible to create a script to run SPT processing with parameters optimized for a specific data type. This script can be used to run a batch of SPT processing on multiple folders, for example, to process a large number of SPT files with the same parameters."
+#: ../../user/examples/01_SPT.rst:261
+msgid "Une fois les réglages vérifiés, ajoutez les quatre autres piles dans l'ordre d'acquisition et choisissez :guilabel:`All in One`. Les dimensions X et Y doivent être identiques. La concaténation permet de poursuivre le suivi d'un fichier au suivant si la cadence d'acquisition est continue. Utilisez :guilabel:`Each File separately` pour les acquisitions indépendantes. Si vous utilisez le filtre :guilabel:`Length`, ajustez la borne haute à la longueur que vous souhaitez conserver sur les 20 000 plans."
+msgstr "Once the settings are checked, add the other four stacks in acquisition order and select :guilabel:`All in One`. The X and Y dimensions must match. Concatenation allows tracks to continue across file boundaries if the acquisition cadence is continuous. Select :guilabel:`Each File separately` for independent acquisitions. If you use the :guilabel:`Length` filter, adjust the upper bound to the maximum track length you want to keep across the 20,000 frames."
 
-#: ../../user/examples/01_SPT.rst:292
-msgid "Voici un exemple de script pour l'exemple de SPT que nous avons vu précédemment :"
-msgstr "Here is an example script for the SPT example we saw earlier:"
+#: ../../user/examples/01_SPT.rst:267
+msgid "Version scriptée"
+msgstr "Scripted workflow"
+
+#: ../../user/examples/01_SPT.rst:269
+msgid "Le script ci-dessous montre comment réutiliser les réglages sur d'autres piles. Remplacez ``FILES_PATH`` par votre liste de fichiers et reprenez, pour reproduire un traitement précis, les valeurs du fichier :file:`settings-<horodatage>.json`."
+msgstr "The script below shows how to reuse the settings on other stacks. Replace ``FILES_PATH`` with your file list. To reproduce a specific run, use the values from its :file:`settings-<timestamp>.json` file."
 
 #: ../../user/examples/01_SPT.rst
 msgid "Voir le code Python"
 msgstr "View Python code"
 
-#: ../../user/examples/01_SPT.rst:302
-msgid "L'API PALMTracer possède plusieurs niveaux d'abstraction, l'exemple donné montre le plus haut niveau. Les paramètres à entrer sont ceux présents dans le fichier :file:`settings` lors de l'exécution de vos tests."
-msgstr "The PALMTracer API has several levels of abstraction; the example provided shows the highest level. The parameters to be entered are those present in the :file:`settings` file when running your tests."
+#: ../../user/examples/01_SPT.rst:280
+msgid "Le script définit un rectangle X = 90–160 et Y = 20–80 pixels. Pour l'appliquer, activez aussi le filtre ROI avec ``filt_s[\"ROI\"].active = True`` après la création du rectangle. Pour retenir les meilleurs scores dans la version actuelle, remplacez la plage historique de ``MSE_FILTER`` par ``[0.8, 1.0]`` ou par la plage validée sur vos données. Réglez ``RESET_RESULT`` sur ``False`` pour conserver les résultats déjà présents lorsque vous exécutez le script."
+msgstr "The script defines a rectangle at X = 90–160 and Y = 20–80 pixels. To apply it, also enable the ROI filter with ``filt_s[\"ROI\"].active = True`` after creating the rectangle. To retain the best scores in the current version, replace the historical ``MSE_FILTER`` range with ``[0.8, 1.0]`` or the range you validated on your data. Set ``RESET_RESULT`` to ``False`` to preserve existing results when running the script."
 
-#: ../../user/examples/01_SPT.rst:304
-msgid "La documentation du code source, vous permet de facilement trouver les paramètres à entrer dans le script pour reproduire votre traitement de SPT ou d'autres équivalent. Il est également possible de faire du développement plus avancé en utilisant les fonctions de bas niveau de l'API pour personnaliser davantage votre traitement."
-msgstr "The source code documentation makes it easy to find the parameters you need to enter in the script to replicate your SPT processing or other equivalent processes. You can also perform more advanced development by using the API's low-level functions to further customize your processing."
+#~ msgid "Paramètres de Batch."
+#~ msgstr "Batch settings."
 
-#: ../../user/examples/01_SPT.rst:310
-msgid "FAQ"
-msgstr ""
+#~ msgid "Visualisation de Napari."
+#~ msgstr "Napari visualization."
+
+#~ msgid "Visualisation de Napari (changer la color map pour voir un peu plus mieux..."
+#~ msgstr ""

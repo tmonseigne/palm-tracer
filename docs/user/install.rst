@@ -1,10 +1,7 @@
 Installation
-=====================================
+============
 
 .. _install_page:
-
-.. role:: python(code)
-   :language: python
 
 .. role:: console(code)
    :language: console
@@ -29,169 +26,156 @@ Installation
    :height: 1.2em
    :alt: Terminal
 
-Ce guide vous aidera à installer le projet étape par étape.
+Récupérer PALM Tracer
+---------------------
 
-Installation automatique sous Windows
---------------------------------------
+Téléchargez et extrayez l'`archive ZIP du projet <https://github.com/tmonseigne/palm-tracer/archive/refs/heads/master.zip>`_, ou clonez le dépôt avec Git.
 
-Pour effectuer une installation standard, double-cliquez sur le fichier :file:`install.cmd` situé à la racine du projet,
-puis acceptez la demande de droits administrateur de Windows.
+.. code-block:: console
 
-Le script vérifie ou installe Python et les outils de compilation Microsoft, installe PALM Tracer dans l'interpréteur Python sélectionné,
-crée son raccourci sur le bureau et lance l'application. Aucun environnement virtuel n'est créé.
-
-.. warning::
-   L'installation des outils de compilation Microsoft peut nécessiter plusieurs gigaoctets et prendre plusieurs minutes.
-
-En cas d'échec, la console affiche l'erreur rencontrée et conserve un journal dans le dossier temporaire de Windows.
-Vous pouvez ensuite poursuivre avec les étapes manuelles ci-dessous.
-
-.. important::
-   | Toutes les lignes de commandes décrites sont effectuées à partir de |powershell| :console:`PowerShell` sous |windows| **Windows**.
-   | De préférence, le terminal doit être lancé en mode **administrateur** pour éviter des problèmes de droits. Dans le cas contraire, il est possible que des blocages apparaissent.
-   | Si vous êtes sur le terminal |terminal| :console:`cmd` ou un autre système d'exploitation (|macos| MacOS, |linux| Linux...), des différences peuvent apparaitre.
-   | Dans ce cas, référez-vous à la documentation de votre système et outil. (Ex : `$env:...` devient `export ...`)
-
-
-Étape 1 : Téléchargement de PalmTracer
-----------------------------------------
-
-Deux méthodes sont possibles pour récupérer le projet **PalmTracer**.
-Si vous utilisez déjà **Git**, la première méthode est recommandée, car elle facilite le suivi des mises à jour.
-Une `(très) courte introduction à Git <https://tmonseigne.github.io/Intro_Git/>`_ est disponible si vous souhaitez débuter avec Git.
-Sinon, vous pouvez télécharger une archive ZIP.
-
-Méthode 1 (recommandée) : via Git
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Si Git (ou toute interface graphique utilisant git) est installé sur votre machine, clonez simplement le dépôt :
-
-.. code-block:: powershell
-
-   cd C:\ # Pour installer le dépôt à la racine, mais vous pouvez le mettre où vous voulez
    git clone https://github.com/tmonseigne/palm-tracer.git
 
-Le dossier :file:`palm-tracer` sera alors créé dans le répertoire courant.
+Le dossier du projet contient notamment :file:`pyproject.toml` et :file:`install.cmd`.
 
-Méthode 2 : téléchargement manuel (ZIP)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Installation automatique sous Windows
+-------------------------------------
 
-1. `Téléchargez directement l'archive ZIP de PalmTracer <https://github.com/tmonseigne/palm-tracer/archive/refs/heads/master.zip>`_.
-2. Extrayez l'archive dans un dossier accessible (par exemple, :file:`C:\\palm-tracer`). Vous devez avoir ensuite plusieurs dossiers et fichiers :file:`palm_tracer, docs, README.md...`.
-   Ils ont peut-être été mis dans un sous-dossier :file:`palm-tracer-master` et doivent être remonté d'un cran.
-
-
-Étape 2 : Installation de Python et des éléments additionnels
-------------------------------------------------------------------------
-
-1. Téléchargez la dernière version de Python 64-bit compatible depuis le `site officiel <https://www.python.org/downloads/>`_ (`Python 3.14 <https://www.python.org/downloads/latest/python3.14/>`_).
-2. Pendant l'installation, assurez-vous de cocher l'option **Add Python to PATH**.
-   Installer pour tout les utilisateurs est recommandé, mais pas obligatoire. L'installation peut prendre quelques minutes.
-3. Une fois installé, vérifiez que Python fonctionne :
-
-   - Ouvrez un terminal ou une invite de commande (|powershell| :console:`PowerShell` sur Windows).
-   - Tapez la commande suivante :console:`python --version` et appuyez sur **Entrée**
+Double-cliquez sur :file:`install.cmd` et acceptez la demande de droits administrateur. Le script prépare Python et les outils de compilation Microsoft,
+installe PALM Tracer directement dans l'interpréteur sélectionné, crée son raccourci sur le bureau et lance l'application.
 
 .. note::
-   Vous devriez voir une version de Python (par exemple, :console:`Python 3.x.x`).
+   L'installation des outils de compilation peut prendre plusieurs minutes et occuper plusieurs gigaoctets.
+   En cas d'échec, consultez le journal :file:`palm-tracer-install.log` dans le dossier temporaire de Windows.
 
-   **Attention** : Si Python a changé de version récemment, certaines bibliothèques peuvent ne plus être compatibles.
-   Ex : Il a fallu attendre 8 mois après la sortie de python 3.14 pour que Napari soit compatible.
+Installation manuelle
+---------------------
 
-4. Les différentes bibliothèques nécessitent parfois des éléments additionnels pour fonctionner :
+Installez `Python <https://www.python.org/downloads/>`_ en version 64 bits, à partir de Python 3.12.
+Sous |windows| Windows, cochez **Add Python to PATH** lors de l'installation. Si une dépendance doit être compilée,
+installez les `Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_ avec la charge de travail C++.
 
-   - `Build Tools for Visual Studio <https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/>`_. Pendant l'installation, assurez-vous de cocher **C++ build tools**
-   - vcredist : celui-ci sera installé avec **Build Tools for Visual Studio**.
-
-
-Étape 3 (Optionnelle) : Création d'un environnement virtuel
-------------------------------------------------------------------------
-
-Un environnement virtuel permet de gérer les dépendances du projet de manière isolée.
-
-1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
-2. Créez un environnement virtuel avec la commande suivante :console:`python -m venv venv`
-3. Activez l'environnement virtuel :
-
-   - Sous Windows : :console:`.\\venv\\Scripts\\activate`
-   - Sous macOS/Linux : :console:`source venv/bin/activate`
-
-4. Vous verrez maintenant :console:`(venv)` au début de votre invite de commande, indiquant que l'environnement virtuel est actif.
-
-
-Étape 4 : Installation du plugin
-------------------------------------------------------------------------
-
-1. Ouvrez un terminal ou une invite de commande (|powershell| :console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
-2. Assurez-vous que l'environnement virtuel est activé si vous le souhaitez (voir Étape 3).
-3. Installez les dépendances nécessaires avec la commande :
+Ouvrez un terminal (|powershell| :console:`PowerShell` sous Windows). Utilisez :console:`cd` pour vous placer dans le dossier du projet.
+Par exemple, sous Windows, si vous avez extrait le projet dans :file:`C:\\Mon dossier\\palm-tracer`, tapez la commande suivante et appuyez sur **Entrée**.
 
 .. code-block:: powershell
 
-   python -m pip install -e .[testing,documentation]
+   cd "C:\Mon dossier\palm-tracer"
 
+Remplacez le chemin de l'exemple par celui de votre dossier. Gardez les guillemets si le chemin contient des espaces.
+Sous |macos| macOS ou |linux| Linux, utilisez la même commande avec votre chemin, par exemple :console:`cd "/chemin/vers/palm-tracer"`.
+Vérifiez avec :console:`dir` sous Windows ou :console:`ls` sous macOS et Linux que :file:`pyproject.toml` apparaît dans la liste.
+Après extraction du ZIP, ce fichier peut se trouver dans un sous-dossier :file:`palm-tracer-master`.
 
-Étape 5 : Vérification de l'installation en lançant le plugin
-------------------------------------------------------------------------
+Vérifiez ensuite la version de Python.
 
-1. Si vous avez créé un environnement virtuel, assurez-vous qu'il est activé (voir Étape 3).
-2. Lancez Napari avec la commande : :console:`napari`
-3. Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`
-4. Vous pouvez également lancer Napari avec le plugin directement activé via la commande : :console:`napari -w palm-tracer`
+.. code-block:: console
 
-Étape 6 (Optionnelle) : Création d'un raccourci sur le bureau
-------------------------------------------------------------------------
+   python --version
 
-Pour créer un raccourci **PALM Tracer** sur le bureau, lancez la commande suivante depuis le dossier du projet :
+Vous devriez voir une ligne de ce type.
+
+.. code-block:: text
+
+   Python 3.14.10
+
+Le numéro affiché peut varier. Il faut Python 3.12 ou une version ultérieure. Sous macOS ou Linux, si :console:`python` est introuvable,
+essayez :console:`python3 --version` et utilisez :console:`python3` dans les commandes Python du guide.
+
+Environnement virtuel (facultatif)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Depuis le dossier du projet, créez un environnement avec :console:`python -m venv venv`, puis activez-le.
+
+- Sous |windows| Windows dans |powershell| :console:`PowerShell`, exécutez :console:`.\venv\Scripts\Activate.ps1`.
+- Sous |macos| macOS et |linux| Linux, exécutez :console:`source venv/bin/activate`.
+
+L'invite du terminal affiche généralement :console:`(venv)`. Gardez ce terminal pour la suite. Si vous en ouvrez un autre, activez de nouveau l'environnement.
+
+Installer le plugin
+^^^^^^^^^^^^^^^^^^^
+
+Depuis le dossier du projet, installez PALM Tracer pour l'interpréteur actif.
+
+.. code-block:: console
+
+   python -m pip install -e ".[testing,documentation]"
+
+Une fois l’installation terminée, la commande :console:`python -m pip show palm-tracer` doit afficher les informations du paquet, dont son nom et sa version.
+
+.. _launch_palmtracer:
+
+Lancer PALM Tracer
+------------------
+
+Lancez Napari avec le plugin depuis l'environnement Python où vous l'avez installé.
+
+.. code-block:: console
+
+   napari -w palm-tracer
+
+Si Napari est déjà ouvert, sélectionnez :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`.
+
+Raccourci sur le bureau (Windows)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Dans |powershell| :console:`PowerShell`, exécutez cette commande depuis le dossier du projet.
 
 .. code-block:: powershell
 
    powershell -NoProfile -ExecutionPolicy Bypass -File .\make_shortcut.ps1
 
-Le raccourci lance directement le plugin dans Napari et ouvre une console qui affiche les journaux d'exécution.
-
-
-Étape 7 (Optionnelle) : Supprimer la mise à l'échelle Windows
-------------------------------------------------------------------------
-Napari utilise QT et celui-ci est paramétré sur la mise à l'échelle automatique de Windows qui permet, notamment, d'agrandir l'interface sur les petits écrans ayant une résolution élevée.
-Cela peut devenir parfois gênant avec une interface démesurée, il est possible de modifier ce comportement.
-
-1. Ouvrez un terminal ou une invite de commande (|powershell| :console:`PowerShell` sur Windows).
-2. Lancez la commande :console:`$env:QT_AUTO_SCREEN_SCALE_FACTOR="0"` dans |powershell| :console:`PowerShell` sous Windows
-   ou :console:`export QT_AUTO_SCREEN_SCALE_FACTOR=0` sous Linux et macOS.
-3. Pour réactiver la mise à l'échelle, lancez la commande : :console:`Remove-Item Env:\\QT_AUTO_SCREEN_SCALE_FACTOR` dans |powershell| :console:`PowerShell` sous Windows
-   ou :console:`unset QT_AUTO_SCREEN_SCALE_FACTOR` sous Linux et macOS.
-
-C'est terminé ! 🎉 Vous avez installé et configuré le plugin avec succès.
+Le raccourci ouvre PALM Tracer dans Napari et affiche les journaux dans une console.
 
 FAQ
 ---
 
-1. Pourquoi utiliser un environnement virtuel ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Pour éviter les conflits entre les dépendances de différents projets. Ou nécessaire lorsque vous n'avez pas les droits administrateur sur votre système.
+Pourquoi utiliser un environnement virtuel ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2. Et si je n'ai pas :console:`pip install` ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Cela signifie que Python n'est pas bien installé. Reprenez l'Étape 1 et assurez-vous d'avoir ajouté Python au :console:`PATH`.
+Il isole les dépendances de PALM Tracer de celles des autres projets. Il permet aussi d'installer les paquets Python dans un dossier où vous avez les droits d'écriture.
 
-3. La commande :console:`napari` provoque une erreur
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-La commande :console:`napari` peut provoquer une erreur malgré une installation réussie, il faut l'ajouter au :console:`PATH` (les variables d'environnement) de votre système.
-Le chemin à ajouter est :file:`<Path_to_python>\\Scripts\napari.exe`.
-Si vous n'avez pas les droits ou ne savez pas comment faire pour ajouter une variable d'environnement, vous pouvez tout de même lancer Napari avec la commande :console:`python -m napari` depuis le terminal ou l'invite de commande.
+Que faire si Python ou pip est introuvable ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4. Pourquoi, certaines commandes me mettent une erreur pour me dire que je n'ai pas les autorisations nécessaires ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Certaines commandes nécessitent des droits administrateur. Il faut lancer le terminal en mode administrateur sous Windows.
+Si :console:`python` est introuvable sous Windows, vérifiez que l'option **Add Python to PATH** a été cochée, puis ouvrez un nouveau |terminal| terminal.
+Si Python fonctionne, vérifiez pip avec :console:`python -m pip --version`. Si Python signale que le module pip manque, essayez :console:`python -m ensurepip --upgrade`.
+Sous Linux, vérifiez les paquets Python et pip de votre distribution si :console:`ensurepip` est indisponible.
 
-5. Je dois tout recommencer à chaque mise à jour ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Si vous avez utilisé la commande :console:`python -m pip install -e .[testing,documentation]` remplacer les fichiers devrait mettre automatiquement à jour votre Napari.
-Mais il est possible d'observer des blocages, dans ce cas, il est nécessaire de réinstaller le plugin avec la commande précédente.
+Que faire si Napari ne démarre pas ou si le plugin n'apparaît pas ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6. Où puis-je trouver plus d'aide ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Consultez la documentation officielle de Python, Napari ou contactez le support du projet.
+Si la commande :console:`napari` est introuvable, lancez :console:`python -m napari -w palm-tracer` depuis l'environnement où vous avez installé le plugin.
+Si le plugin manque dans le menu, vérifiez son installation avec :console:`python -m pip show palm-tracer` dans ce même environnement.
+Si Napari demande le nom du widget, utilisez :console:`napari -w palm-tracer "PALM Tracer"`.
+
+Que faire si Windows refuse l'accès pendant l'installation ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+L'installation automatique et celle des outils de compilation Microsoft peuvent demander les droits administrateur.
+Pour une installation manuelle avec un Python déjà disponible, placez le projet dans un dossier accessible en écriture et utilisez un environnement virtuel.
+
+Dois-je réinstaller PALM Tracer après chaque mise à jour ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Avec l'installation en mode éditable (:console:`-e`), Napari charge le code depuis le dossier du projet. Après avoir mis à jour ce dossier, relancez Napari.
+Si les dépendances ont changé, exécutez de nouveau la commande d'installation du plugin.
+
+Que faire si l'interface est trop grande ?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Vérifiez d'abord la mise à l'échelle dans les paramètres d'affichage de votre système.
+Sous Windows, pour essayer temporairement de désactiver la mise à l'échelle Qt, fermez Napari et lancez ces commandes dans |powershell| :console:`PowerShell`.
+
+.. code-block:: powershell
+
+   $env:QT_ENABLE_HIGHDPI_SCALING = "0"
+   napari -w palm-tracer
+
+Pour rétablir le réglage par défaut, fermez ce terminal ou exécutez ``Remove-Item Env:\QT_ENABLE_HIGHDPI_SCALING`` avant de relancer Napari.
+`Mise à l'échelle dans Qt 6 <https://doc.qt.io/qt-6/highdpi.html#environment-variable-reference>`_
+
+Où trouver de l'aide ?
+^^^^^^^^^^^^^^^^^^^^^^
+
+Consultez la `documentation de démarrage de Napari <https://napari.org/stable/getting_started/launch_napari.html>`_.
+Si le problème concerne PALM Tracer, relevez le message d'erreur avant de contacter le support du projet.

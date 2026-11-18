@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-18 10:01+0100\n"
+"POT-Creation-Date: 2026-11-18 11:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -19,611 +19,386 @@ msgstr ""
 msgid "Manuel d'utilisation"
 msgstr "User manual"
 
+#: ../../user/manual.rst:9
+msgid "PALM Tracer est un plugin Napari pour localiser des émetteurs, suivre des particules et explorer les résultats d'une acquisition."
+msgstr "PALM Tracer is a Napari plugin for localizing emitters, tracking particles, and exploring acquisition results."
+
 #: ../../user/manual.rst:12
-msgid "Ce guide décrit l'utilisation de PALMTracer, un plugin Napari, dédié à l'analyse de données :term:`PALM <PALM (Photoactivated Localization Microscopy)>`/STORM et au traitement des :term:`localisations <Localisation>`, incluant preview, :term:`détection <Détection>`, :term:`suivi <Suivi>`, visualisation 2D/3D et :term:`filtrage des résultats <Filtrage des résultats>`."
-msgstr "This guide describes the use of PALMTracer, a Napari plugin, dedicated to :term:`PALM <PALM (Photoactivated Localization Microscopy)>`/STORM data analysis and :term:`localization <Localisation>` processing, including preview, :term:`detection <Détection>`, :term:`tracking <Suivi>`, 2D/3D visualization, and :term:`result filtering <Filtrage des résultats>`."
-
-#: ../../user/manual.rst:14
-msgid "PALMTracer fonctionne comme un widget intégré dans l'interface de Napari, offrant un ensemble d'outils organisés en onglets : Processing, Visualization et Filtering."
-msgstr "PALMTracer operates as a widget integrated into the Napari interface, providing a set of tools organized into tabs: Processing, Visualization, and Filtering."
-
-#: ../../user/manual.rst:18
 msgid "Lancement"
 msgstr "Launch"
 
-#: ../../user/manual.rst:20
-msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. For example, for :file:`C:\\\\palm-tracer`, open the terminal, type :console:`cd C:\\\\palm_tracer`, and press **Enter**."
+#: ../../user/manual.rst:14
+msgid "Pour lancer Napari et ouvrir le widget principal, suivez les instructions de :ref:`lancement de PALM Tracer <launch_palmtracer>`."
+msgstr "To start Napari and open the main widget, follow the instructions for :ref:`launching PALM Tracer <launch_palmtracer>`."
 
-#: ../../user/manual.rst:22
-msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."
-msgstr "Make sure the virtual environment is activated if you are using one."
-
-#: ../../user/manual.rst:23
-msgid "Lancez Napari avec la commande : :console:`napari`"
-msgstr "Launch Napari with the command: :console:`napari`"
-
-#: ../../user/manual.rst:26
-msgid "Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où."
-msgstr "If you did not create a virtual environment, Napari can be launched from anywhere."
-
-#: ../../user/manual.rst:28
-msgid "Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`"
-msgstr "Enable the plugin in Napari: :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`"
-
-#: ../../user/manual.rst:31
-msgid "Il est possible de lancer Napari directement avec le plugin avec la commande : :console:`napari -w palm-tracer`"
-msgstr "It is possible to launch Napari directly with the plugin using the command: :console:`napari -w palm-tracer`"
-
-#: ../../user/manual.rst:35
+#: ../../user/manual.rst:18
 msgid "Organisation de l'interface"
 msgstr "Interface organization"
 
-#: ../../user/manual.rst:37
+#: ../../user/manual.rst:20
 msgid "L'interface Napari avec PALMTracer est organisée en trois volets principaux :"
 msgstr "The Napari interface with PALMTracer is organized into three main sections:"
 
-#: ../../user/manual.rst:39
+#: ../../user/manual.rst:22
 msgid "À gauche : le panneau des calques (Layers)"
 msgstr "On the left: the layers panel (Layers)"
 
-#: ../../user/manual.rst:40
+#: ../../user/manual.rst:23
 msgid "Au centre : la fenêtre de visualisation"
 msgstr "In the center: the visualization window"
 
-#: ../../user/manual.rst:41
+#: ../../user/manual.rst:24
 msgid "À droite : le widget PALMTracer"
 msgstr "On the right: the PALMTracer widget"
 
-#: ../../user/manual.rst:43 ../../user/manual.rst:50
+#: ../../user/manual.rst:26 ../../user/manual.rst:33
 msgid "Vue d'ensemble de Napari avec le widget PALMTracer"
 msgstr "Overview of Napari with the PALMTracer widget"
 
-#: ../../user/manual.rst:54
-msgid "Volet Calque"
+#: ../../user/manual.rst:37
+msgid "Volet des calques"
 msgstr "Layers panel"
 
-#: ../../user/manual.rst:56
-msgid "Le volet des calques est la zone où apparaissent tous les éléments visuels générés par PALMTracer :"
-msgstr "The layers panel is the area where all visual elements generated by PALMTracer appear:"
+#: ../../user/manual.rst:39
+msgid "Le volet des calques permet de retrouver les éléments affichés par le widget."
+msgstr "The layers panel lists the items displayed by the widget."
 
-#: ../../user/manual.rst:58
-msgid "Image brute (Raw)"
-msgstr "Raw image (Raw)"
+#: ../../user/manual.rst:41
+msgid ":guilabel:`Raw` contient l'image brute."
+msgstr ":guilabel:`Raw` contains the raw image."
 
-#: ../../user/manual.rst:59
-msgid "Points détectés (Points Past / Present / Future)"
-msgstr "Detected points (Points Past / Present / Future)"
+#: ../../user/manual.rst:42
+msgid ":guilabel:`Points Past`, :guilabel:`Points Present` et :guilabel:`Points Future` montrent les détections retenues dans l'aperçu sur les trois plans."
+msgstr ":guilabel:`Points Past`, :guilabel:`Points Present` and :guilabel:`Points Future` show the detections retained in the preview across the three frames."
 
-#: ../../user/manual.rst:60
-msgid ":term:`ROI <ROI (Region Of Interest)>` des localisations"
-msgstr "Localization :term:`ROIs <ROI (Region Of Interest)>`"
+#: ../../user/manual.rst:43
+msgid ":guilabel:`Points Filtered` montre les détections écartées sur le plan courant."
+msgstr ":guilabel:`Points Filtered` shows the detections rejected in the current frame."
 
-#: ../../user/manual.rst:61
-msgid ":term:`Visualisation haute résolution <Image haute résolution>`"
-msgstr ":term:`High-resolution visualization <Image haute résolution>`"
+#: ../../user/manual.rst:44
+msgid ":guilabel:`ROI Present` trace les contours des fenêtres autour des détections retenues sur le plan courant."
+msgstr ":guilabel:`ROI Present` outlines the windows around the retained detections in the current frame."
 
-#: ../../user/manual.rst:62
-msgid ":term:`Trajectoires <Trajectoire>` (Tracks)"
-msgstr ":term:`Trajectories <Trajectoire>` (Tracks)"
+#: ../../user/manual.rst:45
+msgid ":guilabel:`ROI Filter` contient les :term:`zones d'intérêt <ROI (Region Of Interest)>` dessinées pour le filtrage."
+msgstr ":guilabel:`ROI Filter` contains the :term:`regions of interest <ROI (Region Of Interest)>` drawn for filtering."
 
-#: ../../user/manual.rst:63
-msgid "Vues 3D ou graphiques externes"
-msgstr "3D views or external plots"
-
-#: ../../user/manual.rst:65
+#: ../../user/manual.rst:47
 msgid "Fonctionnalités principales :"
 msgstr "Main features:"
 
-#: ../../user/manual.rst:67
+#: ../../user/manual.rst:49
 msgid "Afficher / masquer un calque"
 msgstr "Show / hide a layer"
 
-#: ../../user/manual.rst:68
+#: ../../user/manual.rst:50
 msgid "Modifier la transparence"
 msgstr "Change transparency"
 
-#: ../../user/manual.rst:69
-msgid "Changer la colormap"
+#: ../../user/manual.rst:51
+msgid "Changer la palette de couleurs"
 msgstr "Change the colormap"
 
-#: ../../user/manual.rst:70
+#: ../../user/manual.rst:52
 msgid "Réorganiser l'ordre des calques"
 msgstr "Reorder layers"
 
-#: ../../user/manual.rst:72
+#: ../../user/manual.rst:54
 msgid "Volet calque de Napari."
 msgstr "Napari layers panel."
 
-#: ../../user/manual.rst:79
+#: ../../user/manual.rst:61
 msgid "Volet calque de Napari"
 msgstr "Napari layers panel"
 
-#: ../../user/manual.rst:82
+#: ../../user/manual.rst:64
 msgid "Volet de visualisation"
 msgstr "Visualization panel"
 
-#: ../../user/manual.rst:84
+#: ../../user/manual.rst:66
 msgid "La zone centrale de Napari affiche les données. Vous pouvez :"
 msgstr "The central area of Napari displays the data. You can:"
 
-#: ../../user/manual.rst:86
+#: ../../user/manual.rst:68
 msgid "Zoomer (molette de la souris)"
 msgstr "Zoom (mouse wheel)"
 
-#: ../../user/manual.rst:87
+#: ../../user/manual.rst:69
 msgid "Vous déplacer (clic gauche maintenu)"
 msgstr "Move around (left mouse button held)"
 
-#: ../../user/manual.rst:88
-msgid "Changer de :term:`plan Z <Plan (frame)>` via la barre de dimension"
-msgstr "Change the :term:`Z plane <Plan (frame)>` using the dimension bar"
+#: ../../user/manual.rst:70
+msgid "Changer de :term:`plan <Plan (frame)>` via la barre de dimension"
+msgstr "Change the :term:`frame <Plan (frame)>` with the dimension slider"
 
-#: ../../user/manual.rst:89
+#: ../../user/manual.rst:71
 msgid "Régler le contraste"
 msgstr "Adjust contrast"
 
-#: ../../user/manual.rst:91
+#: ../../user/manual.rst:73
 msgid "PALMTracer met automatiquement à jour cette zone à chaque changement de fichier ou lors de l'aperçu."
 msgstr "PALMTracer automatically updates this area each time a file is changed or during preview."
 
-#: ../../user/manual.rst:93
+#: ../../user/manual.rst:75
 msgid "Volet de visualisation de Napari."
 msgstr "Napari visualization panel."
 
-#: ../../user/manual.rst:100
+#: ../../user/manual.rst:82
 msgid "Volet de visualisation de Napari"
 msgstr "Napari visualization panel"
 
-#: ../../user/manual.rst:103
+#: ../../user/manual.rst:85
 msgid "Volet PALMTracer"
 msgstr "PALMTracer panel"
 
-#: ../../user/manual.rst:105
+#: ../../user/manual.rst:87
 msgid "Le volet de droite contient le widget principal de PALMTracer."
 msgstr "The right panel contains the main PALMTracer widget."
 
-#: ../../user/manual.rst:107
-msgid "Le widget est structuré comme suit :"
-msgstr "The widget is structured as follows:"
+#: ../../user/manual.rst:89
+msgid "En haut, :guilabel:`Load Setting` ouvre un fichier de paramètres JSON et :guilabel:`Reset Setting` rétablit les valeurs par défaut. Les sections :guilabel:`Batch` et :guilabel:`Calibration` s'appliquent à l'ensemble du traitement."
+msgstr "At the top, :guilabel:`Load Setting` opens a JSON settings file and :guilabel:`Reset Setting` restores the defaults. The :guilabel:`Batch` and :guilabel:`Calibration` settings apply to the entire run."
 
-#: ../../user/manual.rst:109
-msgid "Partie haute :"
-msgstr "Top section:"
+#: ../../user/manual.rst:92
+msgid ":guilabel:`Processing` règle la localisation, l'extraction des billes, le suivi, la reconnexion et l'analyse des trajectoires."
+msgstr ":guilabel:`Processing` configures localization, bead extraction, tracking, reconnection, and track analysis."
 
-#: ../../user/manual.rst:110
-msgid "Boutons :guilabel:`Load Setting` / :guilabel:`Reset Setting`"
-msgstr "Buttons :guilabel:`Load Setting` / :guilabel:`Reset Setting`"
+#: ../../user/manual.rst:93
+msgid ":guilabel:`Visualization` configure les rendus automatiques et ouvre les visionneuses."
+msgstr ":guilabel:`Visualization` configures automatic outputs and opens the viewers."
 
-#: ../../user/manual.rst:111
-msgid "Batch (gestion des fichiers)"
-msgstr "Batch (file management)"
+#: ../../user/manual.rst:94
+msgid ":guilabel:`Filtering` règle les critères de sélection des localisations et des trajectoires."
+msgstr ":guilabel:`Filtering` sets the criteria for selecting localizations and tracks."
 
-#: ../../user/manual.rst:112
-msgid ":term:`Calibration <Calibration spatiale et temporelle>`"
-msgstr ":term:`Calibration <Calibration spatiale et temporelle>`"
+#: ../../user/manual.rst:95
+msgid ":guilabel:`Info` affiche le fichier courant et les résultats chargés en mémoire."
+msgstr ":guilabel:`Info` shows the current file and the results loaded in memory."
 
-#: ../../user/manual.rst:113
-msgid "Onglets :"
-msgstr "Tabs:"
+#: ../../user/manual.rst:97
+msgid "En bas, :guilabel:`Start Processing` lance le traitement. :guilabel:`Load Last Result` recharge les derniers résultats et les paramètres associés."
+msgstr "At the bottom, :guilabel:`Start Processing` starts the run. :guilabel:`Load Last Result` reloads the latest results and their settings."
 
-#: ../../user/manual.rst:114
-msgid "Processing"
-msgstr ""
-
-#: ../../user/manual.rst:115
-msgid "Paramètres de localisation"
-msgstr "Localization settings"
-
-#: ../../user/manual.rst:116
-msgid "Paramètres de tracking"
-msgstr "Tracking settings"
-
-#: ../../user/manual.rst:117
-msgid "Paramètres d'analyse des trajectoires"
-msgstr "Tracks computation settings"
-
-#: ../../user/manual.rst:118
-msgid "Bouton Start Processing (traitement en thread séparé)"
-msgstr "Start Processing button (processing in a separate thread)"
-
-#: ../../user/manual.rst:119
-msgid "Visualization"
-msgstr ""
-
-#: ../../user/manual.rst:120
-msgid ":term:`Galerie de ROI <Galerie de détections>`."
-msgstr ":term:`ROI gallery <Galerie de détections>`."
-
-#: ../../user/manual.rst:121
-#, fuzzy
-msgid "Visualisation haute résolution"
-msgstr "High Resolution visualization"
-
-#: ../../user/manual.rst:122
-msgid "Viewer 3D"
-msgstr "3D viewer"
-
-#: ../../user/manual.rst:123
-msgid "Viewer graphique"
-msgstr "Graph viewer"
-
-#: ../../user/manual.rst:124
-msgid "Filtering"
-msgstr ""
-
-#: ../../user/manual.rst:125
-msgid "paramètres de filtrage des localisations et pistes"
-msgstr "Localization and track filtering settings"
-
-#: ../../user/manual.rst:126
-msgid "Boutons :guilabel:`Start Processing` / :guilabel:`Load Last Result`"
-msgstr "Buttons :guilabel:`Start Processing` / :guilabel:`Load Last Result`"
-
-#: ../../user/manual.rst:128
+#: ../../user/manual.rst:99
 msgid "Volet Widget de Napari."
 msgstr "Napari widget panel."
 
-#: ../../user/manual.rst:135
+#: ../../user/manual.rst:106
 msgid "Volet Widget de Napari"
 msgstr "Napari widget panel"
 
-#: ../../user/manual.rst:138
+#: ../../user/manual.rst:109
 msgid "Ouverture de fichiers"
 msgstr "Opening files"
 
-#: ../../user/manual.rst:140
-msgid "Dans le volet PALMTracer, cliquez sur le bouton :guilabel:`+` dans la section :guilabel:`Batch`."
-msgstr "In the PALMTracer panel, click the :guilabel:`+` button in the :guilabel:`Batch` section."
+#: ../../user/manual.rst:111
+msgid "Dans :guilabel:`Batch`, cliquez sur :guilabel:`Add` ou déposez des fichiers :file:`.tif`, :file:`.tiff` ou :file:`.stk` dans Napari. Le fichier sélectionné dans la liste s'affiche dans le calque :guilabel:`Raw`, au plan central. PALM Tracer cherche également les résultats déjà enregistrés."
+msgstr "In :guilabel:`Batch`, click :guilabel:`Add` or drop :file:`.tif`, :file:`.tiff`, or :file:`.stk` files into Napari. The selected file opens in the :guilabel:`Raw` layer at the middle frame. PALM Tracer also looks for saved results."
 
-#: ../../user/manual.rst:141
-msgid "Sélectionnez un fichier :file:`.tif` ou :file:`.tiff`."
-msgstr "Select a :file:`.tif` or :file:`.tiff` file."
+#: ../../user/manual.rst:114
+msgid "Choisissez le :guilabel:`Mode` selon l'acquisition."
+msgstr "Choose the :guilabel:`Mode` for the acquisition."
 
-#: ../../user/manual.rst:142
-msgid "Vous pouvez ouvrir plusieurs fichiers successivement : ils apparaissent dans une liste déroulante."
-msgstr "You can open multiple files successively: they will appear in a drop-down list."
+#: ../../user/manual.rst:116
+msgid ":guilabel:`Only one` traite la pile sélectionnée."
+msgstr ":guilabel:`Only one` processes the selected stack."
 
-#: ../../user/manual.rst:143
-msgid "Le paramètre Mode permet de définir le comportement lors des traitements :"
-msgstr "The Mode setting allows you to define the behavior during processing:"
+#: ../../user/manual.rst:117
+msgid ":guilabel:`Each File separately` traite chaque pile indépendamment."
+msgstr ":guilabel:`Each File separately` processes each stack independently."
 
-#: ../../user/manual.rst:145
-msgid "\"Only one\" : un seul fichier est analysé."
-msgstr "\"Only one\": only one file is analyzed."
+#: ../../user/manual.rst:118
+msgid ":guilabel:`All in One` concatène les piles dans l'ordre de la liste. Elles doivent avoir les mêmes dimensions X et Y."
+msgstr ":guilabel:`All in One` concatenates the stacks in list order. Their X and Y dimensions must match."
 
-#: ../../user/manual.rst:146
-msgid "\"Each File separately\" : chaque fichier est analysé indépendamment."
-msgstr "\"Each File separately\": each file is analyzed independently."
+#: ../../user/manual.rst:120
+msgid ":guilabel:`Remove` retire le fichier sélectionné de la liste. :guilabel:`Clear` vide la liste et rétablit le mode :guilabel:`Only one`."
+msgstr ":guilabel:`Remove` removes the selected file from the list. :guilabel:`Clear` empties the list and restores :guilabel:`Only one` mode."
 
-#: ../../user/manual.rst:147
-msgid "\"All in One\" : Tous les fichiers sont combinés et analysés comme un seul ensemble."
-msgstr "\"All in One\": all files are combined and analyzed as a single dataset."
-
-#: ../../user/manual.rst:149
-msgid "Lorsqu'un fichier est sélectionné, PALMTracer :"
-msgstr "When a file is selected, PALMTracer:"
-
-#: ../../user/manual.rst:151
-msgid "Efface les anciens calques."
-msgstr "Clears the previous layers."
-
-#: ../../user/manual.rst:152
-msgid "Charge automatiquement le fichier dans un calque Raw."
-msgstr "Automatically loads the file into a Raw layer."
-
-#: ../../user/manual.rst:153
-msgid "Mets à jour l'aperçu s'il est activé."
-msgstr "Updates the preview if it is enabled."
-
-#: ../../user/manual.rst:155
+#: ../../user/manual.rst:122
 msgid "Paramètres de Batch."
 msgstr "Batch settings."
 
-#: ../../user/manual.rst:162
+#: ../../user/manual.rst:129
 msgid "Paramètres de Batch"
 msgstr "Batch settings"
 
-#: ../../user/manual.rst:165
+#: ../../user/manual.rst:132
 msgid "Calibration de l'acquisition"
 msgstr "Acquisition calibration"
 
-#: ../../user/manual.rst:167
+#: ../../user/manual.rst:134
 msgid "Dans la section :guilabel:`Calibration`, renseignez :"
 msgstr "In the :guilabel:`Calibration` section, fill in:"
 
-#: ../../user/manual.rst:169
+#: ../../user/manual.rst:136
 msgid "Taille de pixel en micromètres (µm)."
 msgstr "Pixel size in micrometers (µm)."
 
-#: ../../user/manual.rst:170
+#: ../../user/manual.rst:137
 msgid "Temps d'exposition en secondes par image."
 msgstr "Exposure time in seconds per frame."
 
-#: ../../user/manual.rst:171
+#: ../../user/manual.rst:138
 msgid "Intensité lumineuse en photons par unités analogique-numériques (:term:`ADU <ADU (Analog-to-Digital Unit)>`)."
 msgstr "Light intensity in photons per analog-to-digital units (:term:`ADU <ADU (Analog-to-Digital Unit)>`)."
 
-#: ../../user/manual.rst:173
+#: ../../user/manual.rst:140
 msgid "Ces paramètres sont utilisés pour :"
 msgstr "These settings are used to:"
 
-#: ../../user/manual.rst:175
+#: ../../user/manual.rst:142
 msgid "Convertir les intensités brutes."
 msgstr "Convert raw intensities."
 
-#: ../../user/manual.rst:176
+#: ../../user/manual.rst:143
 msgid "Calibrer les trajectoires en unités physiques."
 msgstr "Calibrate tracks into physical units."
 
-#: ../../user/manual.rst:177
+#: ../../user/manual.rst:144
 msgid "Permettre des mesures physiques cohérentes, notamment pour le calcul des :term:`coefficients de diffusion <Coefficient de diffusion>`."
 msgstr "Enable consistent physical measurements, in particular for the computation of :term:`diffusion coefficients <Coefficient de diffusion>`."
 
-#: ../../user/manual.rst:179
+#: ../../user/manual.rst:146
 msgid "Paramètres de Calibration."
 msgstr "Calibration settings."
 
-#: ../../user/manual.rst:186
+#: ../../user/manual.rst:153
 msgid "Paramètres de Calibration"
 msgstr "Calibration settings"
 
-#: ../../user/manual.rst:189
+#: ../../user/manual.rst:156
 msgid "Onglet Processing"
 msgstr "Processing tab"
 
-#: ../../user/manual.rst:191
-msgid "L'onglet :guilabel:`Processing` regroupe l'ensemble des paramètres liés au traitement principal : la localisation et l'éventuel suivi des molécules (tracking), puis les analyses des trajectoires."
-msgstr "The :guilabel:`Processing` tab groups all settings related to the main processing: localization and optional molecule tracking, followed by computations on tracks."
+#: ../../user/manual.rst:158
+msgid "Activez les étapes nécessaires à votre acquisition dans :guilabel:`Processing`. :guilabel:`Beads Extraction` extrait les trajectoires des billes fiduciaires à partir des localisations. Elles peuvent servir à corriger la dérive ou être exclues de la reconstruction haute résolution."
+msgstr "Enable the steps needed for your acquisition in :guilabel:`Processing`. :guilabel:`Beads Extraction` extracts fiducial bead tracks from the localizations. These tracks can be used for drift correction or excluded from the high-resolution reconstruction."
 
-#: ../../user/manual.rst:194
-msgid "Il est constitué de trois modules :"
-msgstr "It is composed of three modules:"
-
-#: ../../user/manual.rst:195
-msgid "**Localisation**"
-msgstr "**Localization**"
-
-#: ../../user/manual.rst:196
-msgid "**Tracking**"
-msgstr ""
-
-#: ../../user/manual.rst:197
-msgid "**Analyses des trajectoires**"
-msgstr "**Track Analysis**"
-
-#: ../../user/manual.rst:199
+#: ../../user/manual.rst:162
 msgid "Onglet Processing du Widget."
 msgstr "Processing tab of the widget."
 
-#: ../../user/manual.rst:206
+#: ../../user/manual.rst:169
 msgid "Onglet Processing du Widget"
 msgstr "Processing tab of the widget"
 
-#: ../../user/manual.rst:209
+#: ../../user/manual.rst:172
 msgid "Localisation"
 msgstr "Localization"
 
-#: ../../user/manual.rst:211
+#: ../../user/manual.rst:174
 msgid "La section *Localisation* permet de configurer les paramètres qui influencent directement la détection des molécules sur chaque image."
 msgstr "The *Localization* section allows configuration of settings that directly influence molecule detection on each image."
 
-#: ../../user/manual.rst:213
-msgid "Les paramètres les plus courants incluent :"
-msgstr "The most common settings include:"
+#: ../../user/manual.rst:176
+msgid ":guilabel:`Preview` lance l'aperçu sur le plan courant et ses voisins."
+msgstr ":guilabel:`Preview` runs the preview on the current frame and its neighbors."
 
-#: ../../user/manual.rst:214
-msgid "**Preview** : si activé, lance la détection en temps réel sur l'image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`)."
-msgstr "**Preview**: if enabled, runs detection in real time on the previous, current, and next image (more information :ref:`here <preview_page>`)."
+#: ../../user/manual.rst:177
+msgid ":guilabel:`Threshold` règle le :term:`seuil de détection <Seuil (Threshold)>`. :guilabel:`Auto Threshold` l':ref:`estime sur le plan courant <auto_threshold_page>`."
+msgstr ":guilabel:`Threshold` sets the :term:`detection threshold <Seuil (Threshold)>`. :guilabel:`Auto Threshold` :ref:`estimates it from the current frame <auto_threshold_page>`."
 
-#: ../../user/manual.rst:215
-msgid "**Threshold** : :term:`seuil d'intensité <Seuil (Threshold)>` utilisé pour isoler les candidats moléculaires. Un bouton :guilabel:`Auto` peut estimer automatiquement un seuil optimal à partir de l'image courante (plus d'informations :ref:`ici <auto_threshold_page>`)."
-msgstr "**Threshold**: :term:`intensity threshold <Seuil (Threshold)>` used to isolate molecular candidates. A :guilabel:`Auto` button can automatically estimate an optimal threshold from the current image (more information :ref:`here <auto_threshold_page>`)."
+#: ../../user/manual.rst:178
+msgid ":guilabel:`ROI Size` règle la taille de la fenêtre d'ajustement. :guilabel:`ROI Shape` règle la forme de son contour dans l'aperçu."
+msgstr ":guilabel:`ROI Size` sets the size of the fitting window. :guilabel:`ROI Shape` sets the shape of its outline in the preview."
 
-#: ../../user/manual.rst:217
-msgid "**ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une zone carré en revanche."
-msgstr "**ROI Shape**: shape of the region of interest during preview (circle or square); however, calculations are always performed on a square ROI."
+#: ../../user/manual.rst:179
+msgid ":guilabel:`Watershed` aide à séparer les détections proches."
+msgstr ":guilabel:`Watershed` helps separate nearby detections."
 
-#: ../../user/manual.rst:218
-msgid "**ROI Size** : taille de la fenêtre extraite autour de chaque détection."
-msgstr "**ROI Size**: size of the window extracted around each detection."
+#: ../../user/manual.rst:180
+msgid ":guilabel:`Fit` choisit la méthode d':ref:`ajustement <fit_page>`. Avec l'ajustement gaussien, l'option :guilabel:`3D` estime Z à partir d'un modèle d'astigmatisme."
+msgstr ":guilabel:`Fit` selects the :ref:`fitting method <fit_page>`. With Gaussian fitting, :guilabel:`3D` estimates Z from an astigmatism model."
 
-#: ../../user/manual.rst:219
-msgid ":term:`Watershed <Watershed>` : active/désactive un prétraitement de séparation des détections proches."
-msgstr ":term:`Watershed <Watershed>`: enables/disables a pre-processing step to separate nearby detections."
-
-#: ../../user/manual.rst:220
-msgid "**Fit** : méthode d'ajustement utilisée pour localiser précisément les molécules (Aucune, :term:`Gaussienne <Ajustement gaussien>`, Spline) (plus d'informations :ref:`ici <fit_page>`)."
-msgstr "**Fit**: fitting method used to precisely localize molecules (None, :term:`Gaussian <Ajustement gaussien>`, Spline) (more information :ref:`here <fit_page>`)."
-
-#: ../../user/manual.rst:224
+#: ../../user/manual.rst:183
 msgid "Tracking"
-msgstr ""
+msgstr "Tracking"
 
-#: ../../user/manual.rst:226
+#: ../../user/manual.rst:185
 msgid "La section *Tracking* est utilisée pour relier les détections entre plans afin de reconstruire des trajectoires (si votre acquisition est adaptée à cette analyse)."
 msgstr "The *Tracking* section is used to link detections between frames in order to reconstruct tracks (if your acquisition is suitable for this analysis)."
 
-#: ../../user/manual.rst:228
-msgid "Les paramètres peuvent inclure :"
-msgstr "Settings may include:"
+#: ../../user/manual.rst:187
+msgid "Dans :guilabel:`Tracking`, :guilabel:`Max Distance` fixe le déplacement maximal en pixels entre deux plans consécutifs."
+msgstr "In :guilabel:`Tracking`, :guilabel:`Max Distance` sets the maximum displacement in pixels between consecutive frames."
 
-#: ../../user/manual.rst:229
-msgid "**Max Distance** : Distance maximale en pixel entre deux plans."
-msgstr "**Max Distance**: maximum distance in pixels between two frames."
+#: ../../user/manual.rst:189
+msgid "Activez :guilabel:`Blinking Reconnection` pour :term:`reconnecter les segments <Reconnexion des trajectoires>` interrompus par un :term:`scintillement <Scintillement>`. Choisissez le type de mouvement dans :guilabel:`Mode` (:guilabel:`Immobile`, :guilabel:`Diffuse` ou :guilabel:`Linear`), puis réglez le nombre maximal de plans manquants avec :guilabel:`Max Duration (plane)` et la distance maximale par plan en pixels avec :guilabel:`Max Distance`."
+msgstr "Enable :guilabel:`Blinking Reconnection` to :term:`reconnect segments <Reconnexion des trajectoires>` interrupted by :term:`blinking <Scintillement>`. Select the type of motion in :guilabel:`Mode` (:guilabel:`Immobile`, :guilabel:`Diffuse` or :guilabel:`Linear`). Set the maximum number of missing frames with :guilabel:`Max Duration (plane)` and the maximum distance per frame in pixels with :guilabel:`Max Distance`."
 
-#: ../../user/manual.rst:230
-msgid "**Blinking Reconnection** : Paramètres de :term:`reconnexion <Reconnexion des trajectoires>` en cas de :term:`scintillement <Scintillement>`."
-msgstr "**Blinking Reconnection**: :term:`reconnection <Reconnexion des trajectoires>` settings in case of :term:`blinking <Scintillement>`."
+#: ../../user/manual.rst:194
+msgid "Le suivi est calculé lors du traitement complet."
+msgstr "Tracking runs during full processing."
 
-#: ../../user/manual.rst:232
-msgid "**Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire)."
-msgstr "**Mode**: point motion model (immobile, diffusive, linear)."
-
-#: ../../user/manual.rst:233
-msgid "**Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire."
-msgstr "**Max Duration**: maximum number of missing frames between two track segments."
-
-#: ../../user/manual.rst:234
-msgid "**Max Speed** : Vitesse maximale du point en μm/plan."
-msgstr "**Max Speed**: maximum point speed in µm/frame."
-
-#: ../../user/manual.rst:237
-msgid "**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans l'aperçu."
-msgstr "**Note**: tracking is performed during full processing, not during preview."
-
-#: ../../user/manual.rst:241
+#: ../../user/manual.rst:198
 msgid "Analyses des trajectoires"
 msgstr "Track Analysis"
 
-#: ../../user/manual.rst:243
-msgid "Cette section permet d'appliquer différentes analyses des trajectoires reconstruites :"
-msgstr "This section allows applying different computations to the reconstructed tracks:"
+#: ../../user/manual.rst:200
+msgid "Dans :guilabel:`Track Analysis`, choisissez le :term:`déplacement quadratique moyen <MSD (Mean Squared Displacement)>` (:guilabel:`MSD`), la :term:`diffusion instantanée <Diffusion instantanée>` (:guilabel:`Instant Diffusion`) ou un modèle de mouvement (:guilabel:`Fit`). :guilabel:`Fit Length` règle le nombre de retards temporels initiaux du MSD utilisés pour l'ajustement. :guilabel:`3D` inclut la coordonnée Z dans les calculs."
+msgstr "In :guilabel:`Track Analysis`, choose :term:`mean squared displacement <MSD (Mean Squared Displacement)>` (:guilabel:`MSD`), :term:`instantaneous diffusion <Diffusion instantanée>` (:guilabel:`Instant Diffusion`), or a motion model (:guilabel:`Fit`). :guilabel:`Fit Length` sets the number of initial MSD time lags used for fitting. :guilabel:`3D` includes the Z coordinate in the calculations."
 
-#: ../../user/manual.rst:244
-msgid ":term:`MSD <MSD (Mean Squared Displacement)>` : (Mean Squared Displacement) : Calcul du MSD par trajectoire et par plans successifs."
-msgstr ":term:`MSD <MSD (Mean Squared Displacement)>`: (Mean Squared Displacement): computation of the MSD per track and over successive frames."
-
-#: ../../user/manual.rst:245
-msgid "**Instant Diffusion** : Calcul de la :term:`diffusion instantanée <Diffusion instantanée>` par trajectoire et par plans successifs."
-msgstr "**Instant Diffusion**: computation of :term:`instantaneous diffusion <Diffusion instantanée>` per track and over successive frames."
-
-#: ../../user/manual.rst:246
-msgid "**Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée."
-msgstr "**Fit Length**: length of the initial computation window for generic metrics and instantaneous diffusion."
-
-#: ../../user/manual.rst:247
-msgid "**3D** : Utilisation ou non de la coordonnée Z dans les calculs."
-msgstr "**3D**: whether or not to use the Z coordinate in computations."
-
-#: ../../user/manual.rst:248
-msgid "**Fit** : Méthode d'ajustement du mouvement de la trajectoire."
-msgstr "**Fit**: fitting method for the track motion."
-
-#: ../../user/manual.rst:252
+#: ../../user/manual.rst:209
 msgid "Onglet Visualization"
 msgstr "Visualization tab"
 
-#: ../../user/manual.rst:255
-msgid "Cet onglet regroupe les outils nécessaires pour visualiser graphiquement les résultats générés par **Processing**."
-msgstr "This tab groups the tools needed to graphically visualize results generated by **Processing**."
+#: ../../user/manual.rst:212
+msgid "Activez :guilabel:`Gallery`, :guilabel:`Graph` ou :guilabel:`High Resolution` pour produire automatiquement une galerie de détections, un graphique ou une reconstruction haute résolution pendant le traitement."
+msgstr "Enable :guilabel:`Gallery`, :guilabel:`Graph` or :guilabel:`High Resolution` to automatically generate a detection gallery, a plot or a high-resolution reconstruction during processing."
 
-#: ../../user/manual.rst:257
-msgid "Il comprend :"
-msgstr "It includes:"
+#: ../../user/manual.rst:215
+msgid "Pour explorer les résultats, ouvrez :guilabel:`Graph Viewer` (:ref:`graphiques <viewer_graph_page>`), :guilabel:`HR Viewer` (:ref:`haute résolution <viewer_hr_page>`) ou :guilabel:`3D Viewer` (:ref:`localisations 3D <viewer_3d_page>`)."
+msgstr "To explore the results, open :guilabel:`Graph Viewer` (:ref:`plots <viewer_graph_page>`), :guilabel:`HR Viewer` (:ref:`high-resolution reconstruction <viewer_hr_page>`), or :guilabel:`3D Viewer` (:ref:`3D localizations <viewer_3d_page>`)."
 
-#: ../../user/manual.rst:258
-msgid "**Gallery** : Outils permettant de créer une image :file:`.tif` avec toutes les détections à la suite en définissant la taille de la zone d'intérêt et le nombre de détections par lignes/colonnes. Si le nombre de détections dépasse, le nombre définit de lignes x colonnes, un nouveau plan est ajouté au résultat. Exemple : pour une acquisition de 1000 détections, en définissant 10 lignes/colonnes et une taille de zone d'intérêt à 9, le résultat sera une image de 90x90 pixels par plan, avec 10 plans."
-msgstr "**Gallery**: Tools that allow creating a :file:`.tif` image containing all detections in sequence by defining the region of interest size and the number of detections per rows/columns. If the number of detections exceeds the defined number of rows × columns, a new frame is added to the result. Example: for an acquisition of 1000 detections, by defining 10 rows/columns and a region of interest size of 9, the result will be a 90×90 pixel image per frame, with 10 frames."
-
-#: ../../user/manual.rst:261
-msgid "**Graph** : Permet la génération d'un graphique automatiquement."
-msgstr "**Graph**: Generates a graph automatically."
-
-#: ../../user/manual.rst:262
-msgid "**HR** : Permet de généré une image en haute résolution automatiquement."
-msgstr "**HR**: Generates a high-resolution image automatically."
-
-#: ../../user/manual.rst:263
-msgid "**Graph Viewer** : Ouvre une fenêtre dédiée aux représentations statistiques. (plus d'informations :ref:`ici <viewer_graph_page>`)"
-msgstr "**Graph Viewer**: Opens a window dedicated to statistical representations. (more information :ref:`here <viewer_graph_page>`)"
-
-#: ../../user/manual.rst:264
-msgid "**HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes résolutions. (plus d'informations :ref:`ici <viewer_hr_page>`)"
-msgstr "**HR Viewer**: Opens a window dedicated to high-resolution representations. (more information :ref:`here <viewer_hr_page>`)"
-
-#: ../../user/manual.rst:265
-msgid "**3D Viewer** : Ouvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)"
-msgstr "**3D Viewer**: Opens a window dedicated to 3D representations. (more information :ref:`here <viewer_3d_page>`)"
-
-#: ../../user/manual.rst:267
+#: ../../user/manual.rst:218
 msgid "Onglet Visualization du Widget."
 msgstr "Visualization tab of the widget."
 
-#: ../../user/manual.rst:274
+#: ../../user/manual.rst:225
 msgid "Onglet Visualization du Widget"
 msgstr "Visualization tab of the widget"
 
-#: ../../user/manual.rst:277
+#: ../../user/manual.rst:228
 msgid "Onglet Filtering"
 msgstr "Filtering tab"
 
-#: ../../user/manual.rst:279
-msgid "L'onglet **Filtering** permet de sélectionner ou d'exclure des points ou des trajectoires selon divers critères statistiques ou géométriques."
-msgstr "The **Filtering** tab allows selecting or excluding points or tracks according to various statistical or geometric criteria."
+#: ../../user/manual.rst:230
+msgid "Activez le groupe :guilabel:`Filters`, puis cochez les critères à appliquer aux localisations ou aux trajectoires. Pour ne retenir que les localisations d'une zone de l'image, dessinez un rectangle, une ellipse ou un polygone sur le calque :guilabel:`ROI Filter`. Cochez :guilabel:`ROI` et choisissez le numéro de la forme. La zone sélectionnée apparaît en jaune. Pour filtrer les trajectoires selon la proportion de leurs points dans cette zone, cochez :guilabel:`Time Inside ROI (%)` et réglez ses bornes. Ce critère conserve aussi les points situés hors de la zone sur les trajectoires retenues."
+msgstr "Enable the :guilabel:`Filters` group, then select the criteria to apply to localizations or tracks. To retain only localizations in a region of the image, draw a rectangle, ellipse or polygon on the :guilabel:`ROI Filter` layer. Enable :guilabel:`ROI` and select the shape number. The selected region is highlighted in yellow. To filter tracks by the proportion of their points in this region, enable :guilabel:`Time Inside ROI (%)` and set its bounds. This criterion also retains points outside the region on the selected tracks."
 
-#: ../../user/manual.rst:281
-msgid "Les filtres permettent de définir des seuils minimum et maximum pour divers paramètres comme une limitation des plans sur lesquels travailler, ou des critères basés sur les propriétés des points ou des trajectoires."
-msgstr "Filters allow defining minimum and maximum thresholds for various settings, such as limiting the frames to work on, or using criteria based on properties of points or tracks."
+#: ../../user/manual.rst:236
+msgid "L'aperçu de localisation tient compte des critères au fur et à mesure. Pour appliquer les filtres aux résultats déjà chargés, cliquez sur :guilabel:`Update`. Chaque mise à jour repart des résultats filtrés s'ils sont disponibles. Pour élargir une sélection, utilisez :guilabel:`Reset`, puis réactivez les critères voulus. :guilabel:`Reset` désactive les filtres et vide les résultats filtrés en mémoire. :guilabel:`Save` enregistre les tableaux filtrés disponibles. Activez :guilabel:`Save filtered` pour les enregistrer lors du traitement ou de l'application des filtres."
+msgstr "The localization preview reflects filter changes as you make them. To apply the filters to results already loaded, click :guilabel:`Update`. Each update starts from the filtered results when available. To broaden a selection, click :guilabel:`Reset` and then re-enable the criteria you want. :guilabel:`Reset` disables the filters and clears the filtered results from memory. :guilabel:`Save` writes the available filtered tables. Enable :guilabel:`Save filtered` to save them during processing or when applying filters."
 
-#: ../../user/manual.rst:284
-msgid "Une fois appliqués, les filtres affectent :"
-msgstr "Once applied, filters affect:"
-
-#: ../../user/manual.rst:285
-msgid "la visualisation High Resolution"
-msgstr "High Resolution visualization"
-
-#: ../../user/manual.rst:286
-msgid "les pistes affichées"
-msgstr "the displayed tracks"
-
-#: ../../user/manual.rst:287
-msgid "les graphiques du Graph Viewer"
-msgstr "the plots in the Graph Viewer"
-
-#: ../../user/manual.rst:288
-msgid "les exports de données éventuels (si l'option :guilabel:`Save filtered` est activée)."
-msgstr "any data exports (if the :guilabel:`Save filtered` option is enabled)."
-
-#: ../../user/manual.rst:290
+#: ../../user/manual.rst:241
 msgid "Onglet Filtering du Widget."
 msgstr "Filtering tab of the widget."
 
-#: ../../user/manual.rst:297
+#: ../../user/manual.rst:248
 msgid "Onglet Filtering du Widget"
 msgstr "Filtering tab of the widget"
 
-#: ../../user/manual.rst:300
-msgid "**Remarques** : Les filtres ne modifient pas les données brutes ou les résultats de traitement internes. Ils sont appliqués dynamiquement lors de la visualisation ou de l'exportation."
-msgstr "**Notes**: filters do not modify raw data or internal processing results. They are applied dynamically during visualization or export."
+#: ../../user/manual.rst:251 ../../user/manual.rst:268
+msgid "Onglet Info"
+msgstr "Info tab"
 
-#: ../../user/manual.rst:304
-msgid "Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtrée."
-msgstr "The filter on X or Y displays a red rectangle in the Napari visualization to dynamically identify the filtered area."
+#: ../../user/manual.rst:253
+msgid ":guilabel:`File` indique la pile courante. Les autres lignes comptent les localisations, les billes, les trajectoires avant et après reconnexion et les trajectoires pour lesquelles chaque analyse est disponible. Un compteur comme ``32/420`` indique que 32 résultats sur 420 sont conservés après filtrage. Survolez ce compteur pour voir les pourcentages de résultats conservés et écartés."
+msgstr ":guilabel:`File` shows the current stack. The other rows count localizations, beads, tracks before and after reconnection, and tracks with results for each analysis. A count such as ``32/420`` means that 32 of 420 results were retained after filtering. Hover over the count to see the percentages retained and excluded."
 
-#: ../../user/manual.rst:307
-msgid "FAQ"
-msgstr ""
+#: ../../user/manual.rst:258
+msgid "La croix rouge retire de la mémoire les résultats de sa ligne, y compris leur version filtrée. Les fichiers déjà enregistrés restent disponibles dans l'explorateur via :guilabel:`Open results folder`."
+msgstr "The red cross clears the results in its row from memory, including their filtered version. Use :guilabel:`Open results folder` to access previously saved files in your file manager."
 
-#: ../../user/manual.rst:310
-msgid "1. Pourquoi Napari se ferme-t-il lors du lancement du Plugin ?"
-msgstr "1. Why does Napari close when launching the plugin?"
+#: ../../user/manual.rst:261
+msgid "Onglet Info affichant la pile courante et les compteurs de résultats."
+msgstr "Info tab showing the current stack and result counts."
 
-#: ../../user/manual.rst:312
-msgid "Il arrive que Napari se ferme immédiatement après le lancement du plugin PALMTracer. Cela est généralement dû à une surcharge de Napari qui a du mal à gérer la mémoire nécessaire pour ouvrir le plugin. Vous devez réessayer d'ouvrir le plugin PALMTracer. Si le problème persiste, essayez de supprimer le fichier de configuration de PALMTracer situé dans le répertoire utilisateur (généralement :file:`C:\\\\Users\\\\YOUR_USER_NAME\\\\.palm_tracer`)."
-msgstr "Napari may close immediately after launching the PALMTracer plugin. This is usually due to Napari being overloaded and having difficulty handling the memory required to open the plugin. You should try opening the PALMTracer plugin again. If the problem persists, try deleting the PALMTracer configuration file located in the user directory (usually :file:`C:\\\\Users\\\\YOUR_USER_NAME\\\\.palm_tracer`)."
+#: ../../user/manual.rst:271
+msgid "Ordre des traitements"
+msgstr "Processing order"
 
-#: ../../user/manual.rst:316
-msgid "2. L'interface est énorme."
-msgstr "2. The interface is huge."
-
-#: ../../user/manual.rst:318
-msgid "Cela est probablement dû aux paramètres de mise à l'échelle automatique de Windows pour les applications QT. Reportez-vous à l'Étape 6 de la section d'installation pour désactiver cette fonctionnalité."
-msgstr "This is probably due to Windows automatic scaling settings for Qt applications. Refer to Step 6 of the installation section to disable this feature."
-
-#: ../../user/manual.rst:321
-msgid "3. Dans quel ordre fait-il les calculs ?"
-msgstr "3. In what order does it perform the computations?"
-
-#: ../../user/manual.rst:323
-msgid "Lors de l'appui sur :guilabel:`Start Processing` un :term:`pipeline <Pipeline>` se lance, la description de ce pipeline est disponible :ref:`ici <pipeline_page>`)."
-msgstr "When pressing :guilabel:`Start Processing`, a :term:`pipeline <Pipeline>` starts; the description of this pipeline is available :ref:`here <pipeline_page>`)."
-
-#: ../../user/manual.rst:326
-msgid "3. Où puis-je trouver plus d'aide ?"
-msgstr "3. Where can I find more help?"
-
-#: ../../user/manual.rst:328
-msgid "Consultez la documentation officielle de Napari ou contactez le support du projet."
-msgstr "Check the official Napari documentation or contact the project support."
+#: ../../user/manual.rst:273
+msgid "Le :ref:`pipeline de traitement <pipeline_page>` décrit les étapes exécutées par :guilabel:`Start Processing`, la réutilisation des résultats et les fichiers produits."
+msgstr "The :ref:`processing pipeline <pipeline_page>` describes the steps run by :guilabel:`Start Processing`, the reuse of results, and the files produced."

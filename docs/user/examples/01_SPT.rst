@@ -1,59 +1,57 @@
 Cas 1 : Single Particle Tracking (SPT)
 ===================================================
 
-Contexte : Le :term:`Suivi de particules individuelles (SPT) <SPT (Single-Particle Tracking)>` permet de suivre le mouvement de particules individuelles dans des échantillons biologiques.
-Cette technique est largement utilisée pour étudier la dynamique des protéines, des organites et d'autres structures cellulaires.
-Dans ce cas d'utilisation, nous allons explorer comment utiliser Napari et PALMTracer pour analyser des données de SPT.
+Ce tutoriel montre comment régler la localisation sur une pile de :term:`SPT <SPT (Single-Particle Tracking)>`, puis calculer et vérifier les trajectoires.
 
-Ouvrir Napari et PALMTracer
+Après l':ref:`installation <install_page>`, ouvrez :menuselection:`Plugins --> PALM Tracer --> PALM Tracer` dans Napari.
+
+Ouvrir les fichiers
 ---------------------------------------------------
 
-Suivez les instructions d'installation pour PALMTracer, puis lancez-le (plus d'informations :ref:`ici <install_page>`).
-Assurez-vous que vous avez les données de SPT prêtes à être analysées.
+L'acquisition comprend cinq piles MetaMorph de 4 000 plans, soit 20 000 plans au total. Leurs noms vont de
+:file:`EOS2-20ms-4000f002.stk` à :file:`EOS2-20ms-4000f010.stk` par pas de deux.
+Gardez :file:`Full-GFP.stk` à part comme image de référence.
 
-.. note:: La méthode d'accès aux données peut être une source de ralentissement.
-	Si vous accédez à vos données via un réseau, il est recommandé de les copier localement pour accélérer le traitement.
-	De plus, si vous avez des données volumineuses, assurez-vous d'avoir suffisamment de mémoire RAM pour les traiter efficacement.
-	Un fichier de 20Go nécessite au moins 32Go de RAM. En dessous de cette limite, d'importants ralentissements pourront être présents.
-
-
-Ouvrir le(s) fichier(s) de données
----------------------------------------------------
-
-Dans notre exemple, nous avons des données de SPT sous forme de fichiers :file:`STK` de Metamorph
-(ce sont simplement des fichiers :file:`TIFF`, mais Metamorph insère sa propre extension).
-Nous avons 5 fichiers qui constituent une seule :term:`pile <Pile d'images>` de 5*4000 :term:`frames <Plan (frame)>` ainsi qu'une image de base en GFP pour la visualisation.
-
-
-.. figure:: ../../_static/img/examples/spt/Explorer.png
+.. figure:: ../../_static/img/examples/spt/Files.svg
    :figclass: centered-caption
-   :alt: Explorateur Windows.
+   :alt: Cinq piles EOS2 numérotées 002, 004, 006, 008 et 010, et le fichier de référence Full-GFP.stk.
+   :align: center
+   :width: 60%
+
+Commencez avec :file:`EOS2-20ms-4000f002.stk`. Ajoutez-la avec :guilabel:`Batch` → :guilabel:`Add` ou déposez-la dans Napari,
+puis laissez :guilabel:`Only one` sélectionné. Une seule pile suffit pour régler les paramètres et vérifier les premières trajectoires.
+
+.. figure:: ../../_static/img/WIP.png
+   :figclass: centered-caption
+   :alt: Batch avec les fichiers...
    :align: center
    :width: 25%
-   :target: ../../_static/img/examples/spt/Explorer.png
 
-Pour tester le traitement et les paramètres, nous n'allons charger qu'un seul fichier pour le moment.
-Vous pouvez cliquer sur le bouton :guilabel:`+` dans la section Batch du plugin PALMTracer, allez chercher votre fichier pour l'ajouter.
+   Batch avec les fichiers...
 
-.. note:: Pour charger les 4 fichiers, vous devez les ajouter un par un.
+Dans :guilabel:`Calibration`, les captures indiquent une taille de pixel de 0,160 µm. Vérifiez cette valeur avec la calibration du microscope.
+Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Exposure Time (s/frame)`.
+Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence.
 
-.. figure:: ../../_static/img/manual/Batch.png
+.. figure:: ../../_static/img/WIP.png
    :figclass: centered-caption
-   :alt: Paramètres de Batch.
+   :alt: Calibration Paramétré.
    :align: center
    :width: 25%
-   :target: ../../_static/img/manual/Batch.png
 
-Une fois le fichier chargé, vous avez une prévisualisation de votre pile (par défaut positionné au plan central de la pile).
-Vous pouvez modifier le contraste et la colormap pour bien visualiser les données.
-Vous pouvez parcourir les plans avec les flèches gauche et droite du clavier ou directement sur le bas de la partie visualisation de Napari.
+   Calibration Paramétré.
 
-.. figure:: ../../_static/img/examples/Napari_Basic.png
+
+Le calque :guilabel:`Raw` s'ouvre au plan central. Ajustez le contraste et parcourez les plans avec le curseur de dimensions.
+**Ajouter un point sur les autres calques (peut-etre aussi le lien où je parle du volet calque dnas manuel)**
+
+.. figure:: ../../_static/img/WIP.png
    :figclass: centered-caption
-   :alt: Visualisation de Napari.
+   :alt: Visualisation de Napari
    :align: center
    :width: 80%
-   :target: ../../_static/img/examples/Napari_Basic.png
+
+   Visualisation de Napari **changer la color map pour voir un peu plus mieux, aussi les rectangles rouge pour voir qui est ou dnas ce qu'on raconte**
 
 Localisation
 ------------
@@ -61,13 +59,10 @@ Localisation
 Prévisualisation
 ^^^^^^^^^^^^^^^^^^^
 
-La première étape consiste à trouver les paramètres de :term:`localisation <Localisation>` optimaux pour vos données.
-Il suffit de cliquer sur localisation pour activer cette étape de traitement, puis de cliquer sur le bouton :guilabel:`Preview`
-pour voir les points détectés en temps réel sur votre image.
-
-Le bouton :guilabel:`Auto Threshold` permet de trouver un :term:`seuil <Seuil (Threshold)>` de :term:`détection <Détection>` automatique, mais il est souvent nécessaire de le modifier.
-
-On est en recherche d'un :term:`suivi <Suivi>`, donc on va régler ce seuil pour être un peu plus permissif et éviter trop de coupures de :term:`trajectoires <Trajectoire>` au prix de faux positifs.
+Dans :guilabel:`Processing`, activez :guilabel:`Localization`, puis cochez :guilabel:`Preview`.
+Sur le plan illustré, :guilabel:`Auto Threshold` propose 130,86. À cette valeur, certains points faibles disparaissent de l'aperçu.
+Abaissez le seuil à 60 pour les récupérer et éviter des ruptures de trajectoires. Ce réglage ajoute aussi des détections de fond.
+Parcourez plusieurs plans pour vérifier que les points supplémentaires suivent des signaux visibles avant d'affiner le filtrage.
 
 .. list-table::
    :align: center
@@ -76,91 +71,83 @@ On est en recherche d'un :term:`suivi <Suivi>`, donc on va régler ce seuil pour
 
    * - .. figure:: ../../_static/img/examples/spt/Preview_130.png
           :figclass: centered-caption
-          :alt: Seuil automatique calculé à 130.86
-          :width: 95%
-          :target: ../../_static/img/examples/spt/Preview_130.png
+          :alt: Aperçu des détections au seuil automatique de 130,86.
+          :width: 100%
 
-          Seuil automatique calculé à 130.86
+          Seuil automatique de 130,86
 
      - .. figure:: ../../_static/img/examples/spt/Preview_60.png
           :figclass: centered-caption
-          :alt: Seuil défini à 60
-          :width: 95%
-          :target: ../../_static/img/examples/spt/Preview_60.png
+          :alt: Aperçu au seuil de 60, avec davantage de détections.
+          :width: 100%
 
           Seuil défini à 60
 
-Vous pouvez voir un code couleur pour les points détectés :
+- :guilabel:`Points Present` et :guilabel:`ROI Present` montrent en vert les détections retenues du plan courant et le contour autour de chacune.
+- :guilabel:`Points Past` (cyan) et :guilabel:`Points Future` (orange) montrent les détections des plans précédent et suivant.
+- :guilabel:`Points Filtered` montre en rouge les détections écartées sur le plan courant.
 
-- Les points verts sont ceux qui ont été détectés dans le plan actuel.
-- Les points bleus sont ceux qui ont été détectés dans le plan précédent.
-- Les points oranges sont ceux qui ont été détectés dans le plan suivant.
-- Les points rouges sont ceux qui ont été détectés dans le plan actuel, mais qui ont été filtrés par les :term:`filtres de localisation <Filtrage des résultats>`.
-- Un cercle vert apparait autour des points détectés dans le plan actuel, il permet de montrer la zone d'ajustement.
-  Dans cet exemple, une zone de 7x7 signifie un cercle de 3 pixels de rayon autour du point détecté pour faire le :term:`fit gaussien <Ajustement gaussien>` ensuite.
-
-Dans les paramètres de localisation, vous avez le :term:`watershed <Watershed>` qui est une méthode de séparation de points très proches.
-Il est quasiment toujours activé pour éviter d'avoir des points fusionnés.
-
-La méthode d'ajustement permet d'affiner la détection initiale sur X et Y, mais également pour l'ajustement gaussien de définir la forme de la :term:`PSF <PSF (Point Spread Function)>`
-avec :term:`Sigma X <Sigma (largeur gaussienne)>` (largeur horizontale), Sigma Y (largeur verticale) et Theta (orientation).
-Selon le mode d'ajustement gaussien, vous avez les paramètres qui seront ajustés (:guilabel:`X, Y` signifie que seule la position sera ajustée,
-alors que :guilabel:`X, Y, SigmaX, SigmaY, Theta` signifie que la position, la forme et l'orientation de la PSF seront ajustées, plus d'informations :ref:`ici <fit_page>`).
-
-La taille de la zone d'intérêt (:term:`ROI <ROI (Region Of Interest)>`) est importante, car elle doit être assez grande pour englober la PSF,
-mais pas trop pour ne pas inclure d'autres localisations ou trop de :term:`fond <Fond et bruit>`. Ici, on choisit 7x7 pixels.
+Activez :guilabel:`Watershed` pour séparer des détections voisines qui se confondent. Réglez :guilabel:`ROI Size` sur 7 pixels.
+La fenêtre d'ajustement de 7 × 7 pixels doit couvrir la tache lumineuse (PSF) tout en limitant le fond et les contributions voisines.
+Dans :ref:`Gaussian Fit <fit_page>`, le script utilise le mode :guilabel:`X, Y, SigmaX, SigmaY` et un :guilabel:`σ` initial de 1 pixel.
+Les largeurs peuvent ainsi varier indépendamment suivant X et Y. L'angle reste fixe et l'estimation de Z est désactivée pour ce suivi en 2D.
 
 Filtres
 ^^^^^^^^^^^^^^
 
-On peut déjà commencer à essayer les filtres de localisation pour voir leur effet sur les points détectés, par exemple le filtre de MSE XY qui permet de filtrer
-les points en fonction de la qualité de l'ajustement gaussien.
-Les points actuels qui ont été supprimés sont maintenant affichés en rouge, cela permet de voir l'effet du filtre sur les points détectés.
-
-Il est possible de désactiver les différents calques dans la visualisation et chaque code couleur correspond à un calque différent.
-Donc si vous avez trop d'informations, vous pouvez, par exemple, ne conserver que les points du plan actuel et les points filtrés durant cette étape.
+Dans :guilabel:`Filtering`, cochez :guilabel:`MSE XY`. Ce libellé historique désigne aujourd'hui un score de qualité d'ajustement
+compris entre 0 et 1, calculé à partir du carré de la corrélation de Pearson. Les valeurs proches de 1 correspondent à un meilleur accord avec le modèle.
+Pour sélectionner les meilleurs ajustements, essayez une plage de 0,80 à 1,00, puis observez les points écartés dans
+:guilabel:`Points Filtered`. Masquez les deux plans voisins si nécessaire. Si des signaux faibles mais bien isolés disparaissent,
+abaissez la borne inférieure et vérifiez l'effet sur plusieurs plans.
 
 .. figure:: ../../_static/img/examples/spt/Filter.png
    :figclass: centered-caption
-   :alt: Visuel avec un Filtre.
+   :alt: Aperçu des détections et du filtre MSE XY dans une version antérieure de PALM Tracer.
    :align: center
    :width: 80%
-   :target: ../../_static/img/examples/spt/Filter.png
+
+   Aperçu historique du filtrage. Utilisez la plage ci-dessus pour retenir les scores élevés dans la version actuelle.
 
 
-Zones d'Intérêt (ROI)
+Zone d'intérêt (ROI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Pour le moment, il est possible de définir une Zone d'intérêt à partir des positions X et Y dans la section filtre. Les zones d'intérêts dessinées à la main seront présentes dans une mise à jour ultérieure.
+Sélectionnez le calque :guilabel:`ROI Filter` et dessinez la zone à analyser avec les outils de formes de Napari.
+Dans :guilabel:`Filtering`, activez :guilabel:`ROI` et choisissez le numéro de la zone.
+La zone active apparaît en jaune. Le rectangle de la capture couvre environ X = 115–155 et Y = 25–70, en pixels de la pile.
+Restreindre le suivi à cette région permet de se concentrer sur les particules étudiées. Vérifiez que les trajectoires qui vous
+intéressent restent dans la zone, car un point qui en sort est écarté avant le suivi.
 
 .. figure:: ../../_static/img/examples/spt/ROI.png
    :figclass: centered-caption
-   :alt: Filtre sur une zone d'intérêts.
+   :alt: Filtrage par zone d'intérêt dans une version antérieure.
    :align: center
    :width: 80%
-   :target: ../../_static/img/examples/spt/ROI.png
 
 
-Activation du Suivi et de la reconnexion
+Activer le suivi et la reconnexion
 ---------------------------------------------------
 
-La longueur peut être réglée grâce à la prévisualisation de la localisation,
-il faut trouver un compromis entre ne pas couper les trajectoires et ne pas faire de fausses connexions.
+Activez :guilabel:`Tracking` et réglez :guilabel:`Max Distance` sur 3 pixels entre deux plans successifs, soit 0,48 µm
+avec des pixels de 0,160 µm. Une distance trop petite coupe les trajectoires des particules rapides. Une distance trop grande
+augmente le risque de relier deux particules voisines.
 
-.. note:: Si vous considérez une distance maximale entre 2 plans de N Pixels, vous pouvez régler la taille de la zone d'intérêt à 2*N+1 pixels.
-	Vous pourrez ainsi avoir un aperçu des éléments qui seront connectés en direct lors de la prévisualisation.
-
-Dans l'exemple ci-dessous, la distance maximale est de 3 pixels, donc la zone d'intérêt est de 7x7 pixels.
-On n'a conservé que les calques des points précédents, suivants ainsi que la zone d'intérêt du point actuel pour mieux visualiser les connexions qui seront faites.
-On peut voir 4 détections sur le plan actuel, mais celui en haut à gauche ne possède pas de points précédents (en bleu) dans la zone de connexion, il ne sera donc pas connecté à une trajectoire présente dans le plan précédent.
-Les 3 autres points seront connectés aux deux plans connexes, car ils ont un point précédent et un point suivant dans la zone de connexion.
+Pour examiner les candidats, affichez le contour circulaire de :guilabel:`ROI Present` et les points des deux plans voisins.
+Avec :guilabel:`ROI Size` réglé à 7 pixels, le cercle donne un repère visuel pour une distance de l'ordre de 3 pixels.
+Sur la capture, parmi les quatre détections du groupe au centre, celle du haut à gauche a un candidat orange mais aucun candidat cyan.
+Les trois autres ont des candidats dans les deux plans. Le suivi décide des associations à partir des distances entre détections.
 
 .. figure:: ../../_static/img/examples/spt/PPF.png
    :figclass: centered-caption
-   :alt: Visuel avec les points précédents et suivants.
+   :alt: Quatre contours verts autour des détections du plan courant, avec les candidats des plans précédent en cyan et suivant en orange.
    :align: center
    :width: 80%
-   :target: ../../_static/img/examples/spt/PPF.png
+
+Laissez :guilabel:`Blinking Reconnection` désactivé pour le premier essai. Si une particule disparaît brièvement,
+essayez ensuite de reconnecter les segments. Réglez :guilabel:`Max Duration (plane)` sur la durée maximale de l'interruption
+en plans et ajustez :guilabel:`Max Distance` en pixels par plan. Vérifiez sur quelques trajectoires que les segments réunis
+correspondent à la même particule.
 
 Premier lancement du traitement
 ---------------------------------------------------
@@ -170,64 +157,44 @@ Premier lancement du traitement
    :alt: Schéma du pipeline de traitement.
    :align: center
    :width: 80%
-   :target: ../../_static/img/examples/spt/Pipeline.png
 
 
-Dans le terminal qui a lancé Napari, vous pouvez voir le log du traitement qui s'affiche en temps réel.
-Chaque ligne correspond à une étape du traitement, il est important de les comprendre pour savoir ce qui a été fait et identifier d'éventuels problèmes.
+Pour ce premier passage, activez la localisation et le suivi. Laissez l'extraction de billes, la reconnexion, l'analyse
+de trajectoires, la galerie et les rendus automatiques désactivés. Cochez :guilabel:`Save filtered` pour enregistrer aussi
+les tableaux filtrés en CSV, puis cliquez sur :guilabel:`Start Processing`.
 
-.. code-block:: console
+Sur la première pile, le journal de l'essai d'origine indique 115 533 localisations détectées. Après filtrage,
+il en reste 16 582, soit 98 951 rejets (85,6 %). Le fichier de suivi contient 16 582 **points**, répartis en trajectoires.
+Ces effectifs servent de repères pour lire le journal de cet essai. Ils dépendent des critères et de la zone appliqués.
 
-   [02-06-2026 11:57:26] Log opened : C:\Git\sptPALM\EOS2-20ms-4000f002_PALM_Tracer\log-20260602_115726.log
-   [02-06-2026 11:57:26] Start Processing.
-   [02-06-2026 11:57:26] Output folder: C:\Git\\sptPALM\EOS2-20ms-4000f002_PALM_Tracer
-   [02-06-2026 11:57:26] Meta file saved.
-   [02-06-2026 11:57:26] Settings saved.
-   [02-06-2026 11:57:26] Localization enabled.
-   [02-06-2026 11:57:28] 	Saving the localization file (115533 localization(s) found).
-   [02-06-2026 11:57:29] 		Filtering of file 16582 row(s) instead of 115533: 98951 deletion(s).
-   [02-06-2026 11:57:29] Beads Extraction disabled.
-   [02-06-2026 11:57:29] Tracking enabled.
-   [02-06-2026 11:57:29] 	Saving the tracking file (16582 point(s) found).
-   [02-06-2026 11:57:29] Blinking Reconnection disabled.
-   [02-06-2026 11:57:29] Track Analysis disabled.
-   [02-06-2026 11:57:29] Gallery generation disabled.
-   [02-06-2026 11:57:29] Graphical visualization disabled.
-   [02-06-2026 11:57:29] High-resolution visualization disabled.
-   [02-06-2026 11:57:29] Processing complete.
-   [02-06-2026 11:57:29] Log closed : C:\Git\palm-tracer\palm_tracer\_tests\input\big input\sptPALM\EOS2-20ms-4000f002_PALM_Tracer\log-20260602_115726.log
+.. dropdown:: Voir l'extrait du journal du premier essai
 
+   .. code-block:: console
 
-Tout d'abord, on voit que le log a été ouvert et que le traitement a commencé, le dossier de sortie est indiqué ainsi que la sauvegarde des paramètres et des métadonnées.
-On peut voir que le fichier de log possède un timestamp dans son nom, cela permet de différencier les différents traitements et de retrouver facilement le log correspondant à un traitement particulier.
-Ce fichier de log est une copie de toutes les lignes avec entre crochets la date et l'heure qui s'affichent. Si des lignes ne possèdent pas de timestamp, celles-ci sont indépendantes du log et peuvent être simplement des affichages intermédiaires durant le traitement.
+      [02-06-2026 11:57:26] Localization enabled.
+      [02-06-2026 11:57:28]     Saving the localization file (115533 localization(s) found).
+      [02-06-2026 11:57:29]         Filtering of file 16582 row(s) instead of 115533: 98951 deletion(s).
+      [02-06-2026 11:57:29] Tracking enabled.
+      [02-06-2026 11:57:29]     Saving the tracking file (16582 point(s) found).
+      [02-06-2026 11:57:29] Blinking Reconnection disabled.
+      [02-06-2026 11:57:29] Track Analysis disabled.
+      [02-06-2026 11:57:29] Processing complete.
 
-Ensuite, on voit que la localisation a été activée, que le fichier de localisation a été sauvegardé et que 115533 localisations ont été trouvées.
-Des filtres ont été activés pour la localisation, ce qui a permis de réduire le nombre de localisations à 16582, soit 98951 localisations supprimées.
-De même pour le Tracking, on voit que le suivi a été activé, que le fichier de suivi a été sauvegardé et que 16582 points ont été trouvés.
-Si une différence dans le nombre de points apparait, il s'agit de points n'ayant pas pu être validés durant l'ajustement (leur intensité est négative afin de les identifier facilement).
-Mais ils ont été déjà rejetés lors du filtrage initial après la localisation.
+Dans :guilabel:`Info`, survolez les compteurs pour consulter le détail du filtrage. Cliquez sur :guilabel:`Open results folder`
+pour retrouver les CSV et les fichiers :file:`log-<horodatage>.log` et :file:`settings-<horodatage>.json` du traitement.
+Le :ref:`pipeline de traitement <pipeline_page>` détaille quelles étapes utilisent les résultats filtrés.
 
-La dernière ligne sert à clôturer le log, mais également à vous avertir que l'interface de PALMTracer est à nouveau disponible pour lancer un nouveau traitement.
-En effet, durant le traitement, l'interface de PALMTracer est bloquée pour éviter de lancer plusieurs traitements en même temps ou de modifier les paramètres durant le traitement.
-Mais de nombreux clics sur une interface désactivée peuvent faire planter le logiciel. En cas de traitement particulièrement long, un œil sur le terminal vous permet de savoir ce qui ralentit le traitement et s'il a fini.
-Ici, on peut voir que toutes les opérations sont presque instantanées.
+Explorer les résultats
+----------------------
 
+Dans :guilabel:`Visualization`, ouvrez le :ref:`Graph Viewer <viewer_graph_page>`. Sélectionnez :guilabel:`Histogram`,
+:guilabel:`Localization` et :guilabel:`Integrated Intensity` pour afficher la distribution des intensités intégrées.
+Vérifiez les échelles des axes avant de comparer les deux histogrammes et décochez :guilabel:`Count` si vous souhaitez
+comparer la forme des distributions en densité avec des effectifs différents.
 
-Filtrage des résultats (Utilisation du GraphViewer)
----------------------------------------------------
-
-Les résultats, ici, ont été filtrés avant d'être envoyés au tracking.
-Par exemple, une zone d'intérêt définit par un intervalle de X et Y peut être utilisée pour ne conserver que les localisations dans une région spécifique de l'image.
-
-.. figure:: ../../_static/img/examples/spt/ROI.png
-   :figclass: centered-caption
-   :alt: Visuel avec une zone de filtre.
-   :align: center
-   :width: 80%
-   :target: ../../_static/img/examples/spt/ROI.png
-
-Il est également possible d'utiliser le Graphviewer de l'onglet visualisation afin d'avoir une visualisation graphique des statistiques des différents éléments de votre traitement, par exemple la distribution des localisations en fonction de leur position, de leur intensité ou de leur qualité d'ajustement (plus d'informations :ref:`ici <viewer_graph_page>`).
+Pour afficher toutes les localisations, cliquez sur :guilabel:`Reset` dans :guilabel:`Filters`. Réactivez ensuite la ROI
+ou le filtre :guilabel:`MSE XY`, puis cliquez sur :guilabel:`Update`. L'histogramme aide à voir quelles intensités sont
+surtout affectées par la sélection. Pour examiner la distribution des scores, changez la source en :guilabel:`MSE XY`.
 
 .. list-table::
    :align: center
@@ -237,22 +204,30 @@ Il est également possible d'utiliser le Graphviewer de l'onglet visualisation a
    * - .. figure:: ../../_static/img/examples/spt/GV.png
           :figclass: centered-caption
           :alt: Histogramme initial de l’intensité intégrée des localisations
-          :width: 95%
-          :target: ../../_static/img/examples/spt/GV.png
+          :width: 100%
 
           Histogramme initial de l'intensité intégrée des localisations
 
      - .. figure:: ../../_static/img/examples/spt/GV_Filtered.png
           :figclass: centered-caption
           :alt: Histogramme de l'intensité intégrée des localisations filtrées
-          :width: 95%
-          :target: ../../_static/img/examples/spt/GV_Filtered.png
+          :width: 100%
 
           Histogramme de l'intensité intégrée des localisations filtrées
 
 
 Reconstruction et visualisation
 ---------------------------------------------------
+
+Ouvrez le :ref:`HR Viewer <viewer_hr_page>` dans :guilabel:`Visualization`. En mode :guilabel:`2D`, choisissez
+:guilabel:`Localization` et :guilabel:`Count` pour voir où se concentrent les détections, puis :guilabel:`Tracks`
+pour examiner la continuité des trajectoires. Cliquez sur :guilabel:`Generate` pour produire le rendu.
+
+Pour la comparaison avec et sans filtre de longueur, gardez le même facteur d'agrandissement. Le script utilise un
+:guilabel:`Upscaling ratio` de 8 et la source :guilabel:`Track Intensity`, qui attribue à chaque trajectoire la somme des intensités
+intégrées de ses points. Dans :guilabel:`Filters`, essayez :guilabel:`Length` de 10 à 4 000 points sur la première pile et cliquez sur :guilabel:`Update`.
+La borne basse retire les segments courts. Comparez les deux images pour vérifier qu'elle ne masque pas les trajectoires
+courtes qui vous intéressent.
 
 .. list-table::
    :align: center
@@ -262,34 +237,37 @@ Reconstruction et visualisation
    * - .. figure:: ../../_static/img/examples/spt/Viz_loc.png
           :figclass: centered-caption
           :alt: Visualisation des localisations.
-          :width: 95%
-          :target: ../../_static/img/examples/spt/Viz_loc.png
+          :width: 100%
 
           Localisations
 
      - .. figure:: ../../_static/img/examples/spt/Viz_trc.png
           :figclass: centered-caption
           :alt: Visualisation des trajectoires avant filtrage.
-          :width: 95%
-          :target: ../../_static/img/examples/spt/Viz_trc.png
+          :width: 100%
 
           Trajectoires
 
      - .. figure:: ../../_static/img/examples/spt/Viz_filt.png
           :figclass: centered-caption
           :alt: Visualisation des trajectoires après filtrage.
-          :width: 95%
-          :target: ../../_static/img/examples/spt/Viz_filt.png
+          :width: 100%
 
           Trajectoires filtrées
 
-Script Version
+Traiter l'acquisition complète
 ---------------------------------------------------
 
-Il est possible de créer un script pour lancer le traitement de SPT avec des paramètres optimisés pour un type de données particulier.
-Ce script peut être utilisé pour lancer un batch de traitement de SPT sur plusieurs dossiers, par exemple pour traiter un grand nombre de fichiers de SPT avec les mêmes paramètres.
+Une fois les réglages vérifiés, ajoutez les quatre autres piles dans l'ordre d'acquisition et choisissez :guilabel:`All in One`.
+Les dimensions X et Y doivent être identiques. La concaténation permet de poursuivre le suivi d'un fichier au suivant si la
+cadence d'acquisition est continue. Utilisez :guilabel:`Each File separately` pour les acquisitions indépendantes.
+Si vous utilisez le filtre :guilabel:`Length`, ajustez la borne haute à la longueur que vous souhaitez conserver sur les 20 000 plans.
 
-Voici un exemple de script pour l'exemple de SPT que nous avons vu précédemment :
+Version scriptée
+---------------------------------------------------
+
+Le script ci-dessous montre comment réutiliser les réglages sur d'autres piles. Remplacez ``FILES_PATH`` par votre liste
+de fichiers et reprenez, pour reproduire un traitement précis, les valeurs du fichier :file:`settings-<horodatage>.json`.
 
 .. dropdown:: Voir le code Python
    :icon: code
@@ -299,12 +277,7 @@ Voici un exemple de script pour l'exemple de SPT que nous avons vu précédemmen
       :linenos:
 
 
-.. note:: L'API PALMTracer possède plusieurs niveaux d'abstraction, l'exemple donné montre le plus haut niveau. Les paramètres à entrer sont ceux présents dans le fichier :file:`settings` lors de l'exécution de vos tests.
-
-   La documentation du code source, vous permet de facilement trouver les paramètres à entrer dans le script pour reproduire votre traitement de SPT ou d'autres équivalent.
-   Il est également possible de faire du développement plus avancé en utilisant les fonctions de bas niveau de l'API pour personnaliser davantage votre traitement.
-
-
-
-FAQ
----------------------------------------------------
+Le script définit un rectangle X = 90–160 et Y = 20–80 pixels. Pour l'appliquer, activez aussi le filtre ROI
+avec ``filt_s["ROI"].active = True`` après la création du rectangle. Pour retenir les meilleurs scores dans la version actuelle,
+remplacez la plage historique de ``MSE_FILTER`` par ``[0.8, 1.0]`` ou par la plage validée sur vos données.
+Réglez ``RESET_RESULT`` sur ``False`` pour conserver les résultats déjà présents lorsque vous exécutez le script.

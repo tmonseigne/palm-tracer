@@ -8,7 +8,6 @@ Alignement
    :alt: Work In Progress
    :align: center
    :width: 50%
-   :target: ../_static/img/WIP.png
 
 L':term:`alignement de canaux <Alignement de canaux>` exprime les :term:`localisations <Localisation>` de plusieurs canaux dans le même repère.
 

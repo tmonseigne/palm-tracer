@@ -3,39 +3,21 @@ Visionneuse 3D
 
 .. _viewer_3d_page:
 
-.. role:: python(code)
-   :language: python
-
-.. role:: console(code)
-   :language: console
+La visionneuse affiche en trois dimensions des localisations déjà calculées.
 
 Lancement
 ---------
 
-1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
-2. Assurez-vous que l'environnement virtuel est activé si vous l'utilisez.
-3. Lancez Napari avec la commande : :console:`napari`
-
-.. note::
-   Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où.
-
-4. Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`
-
-.. note::
-   Il est possible de lancer Napari directement avec le plugin avec la commande : :console:`napari -w palm-tracer`
-
-5. Dans l'onglet :guilabel:`Visualization` de PALM Tracer, vous avez un bouton pour lancer la visionneuse de graphiques :guilabel:`Open 3D Viewer`.
-   Il est également possible de l'ouvrir directement à partir du menu Napari : :menuselection:`Plugins --> PALM Tracer --> Viewer 3D`
+Dans l':ref:`onglet Visualization <manual_visualization>` de PALM Tracer, cliquez sur :guilabel:`3D Viewer`.
+Vous pouvez aussi ouvrir la visionneuse depuis :menuselection:`Plugins --> PALM Tracer --> 3D Viewer`.
 
 .. figure:: ../_static/img/viewer_3d/launch.png
    :figclass: centered-caption
-   :alt: Bouton de lancement.
+   :alt: Lancement de la visionneuse.
    :align: center
    :width: 25%
-   :target: ../_static/img/viewer_3d/launch.png
 
-   Volet calque de Napari
+   Bouton de lancement de la visionneuse
 
 Organisation de l'interface
 ----------------------------------
@@ -45,31 +27,21 @@ Organisation de l'interface
    :alt: Vue d'ensemble de Napari avec le widget Viewer 3D
    :align: center
    :width: 80%
-   :target: ../_static/img/viewer_3d/main.png
 
    Vue d'ensemble de Napari avec le widget Viewer 3D
 
-L'interface Napari avec la visionneuse 3D est organisée en trois volets principaux :
-
-- À gauche : le panneau des calques (Layers).
-- Au centre : la fenêtre de visualisation.
-- À droite : le widget de la visionneuse.
-
-Volet Calque
+Volet des calques
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: ../_static/img/viewer_3d/layers.png
    :figclass: centered-caption
-   :alt: Volet calque de Napari.
+   :alt: Contrôles du calque Points 3D dans Napari.
    :align: center
-   :width: 25%
-   :target: ../_static/img/viewer_3d/layers.png
+   :width: 30%
 
-   Volet calque de Napari
+   Calque Points 3D
 
-Le volet des calques est la zone où apparaissent tous les éléments visuels générés par le widget pour Napari :
-
-- Points détectés (en précision flottante et zoomable à l'infini).
+À gauche, le calque :guilabel:`Points 3D` permet de modifier l'opacité, le symbole et la couleur des points.
 
 Volet de visualisation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -79,39 +51,16 @@ Volet de visualisation
    :alt: Volet de visualisation de Napari.
    :align: center
    :width: 60%
-   :target: ../_static/img/viewer_3d/vizu.png
 
    Volet de visualisation de Napari
 
-La zone centrale de Napari affiche les données. Vous pouvez :
-
-- Zoomer (molette de la souris)
-- Effectuer une rotation (clic gauche maintenu)
-
-Volet Widget
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. figure:: ../_static/img/viewer_3d/widget.png
-   :figclass: centered-caption
-   :alt: Volet Widget de Napari.
-   :align: center
-   :width: 25%
-   :target: ../_static/img/viewer_3d/widget.png
-
-   Volet Widget de Napari
-
-Le volet de droite contient le widget principal de la visionneuse.
-
-Le widget est structuré comme suit :
-
-- Bouton :guilabel:`Load CSV`
-- Les options de visualisation
+Dans la vue centrale, utilisez la molette pour zoomer et maintenez le clic gauche en déplaçant la souris pour faire pivoter le nuage de points.
 
 Ouverture des fichiers
 ----------------------------------
 
-Pour mettre à jour ou modifier le fichier utilisé par la visionneuse, il faut cliquer sur le bouton :guilabel:`Load CSV`.
-Pour être valide, le fichier doit contenir au moins les colonnes X, Y, Z et Integrated Intensity
+Dans le panneau à droite, cliquez sur :guilabel:`Load CSV` ou déposez un fichier de localisations CSV dans la fenêtre.
+Le fichier doit contenir les colonnes ``X`` et ``Y`` en pixels, ``Z`` en nanomètres et ``Integrated Intensity``.
 
 
 Options de visualisation
@@ -121,45 +70,36 @@ Options de visualisation
    :figclass: centered-caption
    :alt: Options de visualisation.
    :align: center
-   :width: 25%
-   :target: ../_static/img/viewer_3d/widget.png
+   :width: 30%
 
    Options de visualisation
 
-Les options de visualisation sont assez simples :
-
-- **Point Size** vous permet de définir le diamètre des points pour la représentation vectorielle.
-- **XY Scale** et **Z Scale** vous permettent de définir une échelle différente sur le plan XY ou l'axe Z.
-  Utile si vous avez des unités différentes comme des pixels pour X et Y et des nanomètres pour Z.
-- **Remove Outliers** vous permet de cacher les points dont l'intensité intégrée est à 0.
-  Ce marqueur peut être utilisé en cas d'erreur lors de l':term:`ajustement gaussien <Ajustement gaussien>`.
-  Par exemple, le point n'est pas supprimé, mais son intensité à 0 permet de le mettre à part facilement lors de la lecture du fichier pour des analyses ultérieures.
+- :guilabel:`Point Size` règle le diamètre des points en nanomètres dans la vue.
+- Renseignez :guilabel:`Pixel Size (nm)` avec la taille d'un pixel de l'acquisition. La visionneuse s'en sert pour convertir X et Y en nanomètres.
+- :guilabel:`XY Scale` et :guilabel:`Z Scale` multiplient les coordonnées à l'affichage. Laissez les deux facteurs à 1 pour conserver l'échelle physique.
+- :guilabel:`Remove Outliers` affiche uniquement les points dont l'intensité intégrée est strictement positive. Vous pouvez décocher l'option pour réafficher tous les points.
 
 .. figure:: ../_static/img/viewer_3d/outliers.png
    :figclass: centered-caption
-   :alt: Suppression des outliers.
+   :alt: Nuage de points après filtrage par intensité intégrée.
    :align: center
    :width: 80%
-   :target: ../_static/img/viewer_3d/outliers.png
 
-   Suppression des outliers
+   Affichage après filtrage par intensité intégrée
 
 Messages de l'application
 ----------------------------
 
-Des messages peuvent apparaitre à tout moment dans la console et dans les notifications Napari.
+Si le CSV ne contient pas les quatre colonnes attendues, Napari affiche cet avertissement.
 
 .. figure:: ../_static/img/viewer_3d/warning_notif.png
    :figclass: centered-caption
-   :alt: Notification de warning Napari.
+   :alt: Avertissement de Napari lorsque le CSV ne contient pas les colonnes attendues.
    :align: center
-   :width: 40%
-   :target: ../_static/img/viewer_3d/warning_notif.png
+   :width: 30%
 
    Notification Napari
 
 .. code-block:: console
 
-   WARNING: Le fichier doit contenir les colonnes X, Y, Z et Integrated Intensity.
-
-Ce message indique que le fichier sélectionné ne contient pas les 4 colonnes essentielles à la visualisation.
+   The file must contain the columns X, Y, Z, and Integrated Intensity.

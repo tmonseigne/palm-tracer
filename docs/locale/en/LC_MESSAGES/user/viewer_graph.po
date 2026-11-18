@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
 "Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
-"POT-Creation-Date: 2026-11-03 10:55+0100\n"
+"POT-Creation-Date: 2026-11-23 11:07+0100\n"
 "PO-Revision-Date: 2026-11-03 10:55+0100\n"
 "Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
@@ -16,387 +16,293 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../user/viewer_graph.rst:2
-msgid "Visionneuse de graphique"
-msgstr "Graph viewer"
+msgid "Visionneuse de graphiques"
+msgstr "Graph Viewer"
 
-#: ../../user/viewer_graph.rst:13
+#: ../../user/viewer_graph.rst:11
 msgid "Lancement"
 msgstr "Launch"
 
-#: ../../user/viewer_graph.rst:15
-msgid "Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet. Exemple pour :file:`C:\\\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\\\palm_tracer` et appuyez sur **Entrée**"
-msgstr "Open a terminal or command prompt (:console:`PowerShell` on Windows) in the folder where you extracted the project files. For example, for :file:`C:\\\\palm-tracer`, open the terminal, type :console:`cd C:\\\\palm_tracer`, and press **Enter**."
+#: ../../user/viewer_graph.rst:13
+msgid "Dans l'onglet :guilabel:`Visualization` de PALM Tracer, cliquez sur :guilabel:`Graph Viewer`. Vous pouvez aussi ouvrir la visionneuse depuis :menuselection:`Plugins --> PALM Tracer --> Graph Viewer`."
+msgstr "In PALM Tracer's :guilabel:`Visualization` tab, click :guilabel:`Graph Viewer`. You can also open it from :menuselection:`Plugins --> PALM Tracer --> Graph Viewer`."
 
-#: ../../user/viewer_graph.rst:17
-msgid "Assurez-vous que l'environnement virtuel est activé si vous l'utilisez."
-msgstr "Make sure the virtual environment is activated if you are using one."
-
-#: ../../user/viewer_graph.rst:18
-msgid "Lancez Napari avec la commande : :console:`napari`"
-msgstr "Launch Napari with the command: :console:`napari`"
-
-#: ../../user/viewer_graph.rst:20
-msgid "Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où."
-msgstr "If you did not create a virtual environment, Napari can be launched from anywhere."
+#: ../../user/viewer_graph.rst:16
+msgid "Bouton Graph Viewer mis en évidence dans l'onglet Visualization."
+msgstr "Graph Viewer button highlighted in the Visualization tab."
 
 #: ../../user/viewer_graph.rst:22
-msgid "Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`"
-msgstr "Enable the plugin in Napari: :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`"
+msgid "Bouton de lancement de la visionneuse"
+msgstr "Viewer launch button"
 
-#: ../../user/viewer_graph.rst:24
-msgid "Il est possible de lancer Napari directement avec le plugin avec la commande : :console:`napari -w palm-tracer`"
-msgstr "It is possible to launch Napari directly with the plugin using the command: :console:`napari -w palm-tracer`"
-
-#: ../../user/viewer_graph.rst:26
-msgid "Dans l'onglet :guilabel:`Visualization` de PALM Tracer, vous avez un bouton pour lancer la visionneuse de graphiques :guilabel:`Open graph Viewer`"
-msgstr "In the :guilabel:`Visualization` tab of PALM Tracer, there is a button to launch the graph viewer: :guilabel:`Open graph Viewer`"
-
-#: ../../user/viewer_graph.rst:28
-msgid "Bouton de lancement."
-msgstr "Launch button."
-
-#: ../../user/viewer_graph.rst:35
-msgid "Lancement de la visionneuse"
-msgstr "Launching the viewer"
-
-#: ../../user/viewer_graph.rst:38
+#: ../../user/viewer_graph.rst:25
 msgid "Organisation de l'interface"
 msgstr "Interface organization"
 
-#: ../../user/viewer_graph.rst:40 ../../user/viewer_graph.rst:47
-msgid "Vue d'ensemble de la visionneuse de graphiques"
-msgstr "Overview of the graph viewer"
+#: ../../user/viewer_graph.rst:27
+msgid "À gauche, les groupes :guilabel:`Information`, :guilabel:`Source`, :guilabel:`Display` et :guilabel:`Filters` donnent accès aux réglages. À droite, le graphique interactif se met à jour quand les options ou les résultats changent. Survolez le tracé pour lire les valeurs."
+msgstr "The groups on the left give access to :guilabel:`Information`, :guilabel:`Source`, :guilabel:`Display` and :guilabel:`Filters`. The interactive plot on the right updates when the options or results change. Hover over the plot to see the values."
+
+#: ../../user/viewer_graph.rst:32
+msgid "Faites un clic droit dans une zone libre du panneau de commandes et cochez :guilabel:`Always on top` pour garder la fenêtre au premier plan. Si le panneau est ancré dans Napari, détachez-le d'abord."
+msgstr "Right-click an empty area of the controls panel and check :guilabel:`Always on top` to keep the window above other windows. If the panel is docked in Napari, undock it first."
+
+#: ../../user/viewer_graph.rst:35
+msgid "Graph Viewer avec ses réglages à gauche et l'histogramme des intensités intégrées à droite."
+msgstr "Graph Viewer with its settings on the left and an integrated intensity histogram on the right."
+
+#: ../../user/viewer_graph.rst:41
+msgid "Graph Viewer en mode :guilabel:`Histogram`"
+msgstr "Graph Viewer in :guilabel:`Histogram` mode"
+
+#: ../../user/viewer_graph.rst:44
+msgid "Charger des résultats"
+msgstr "Load results"
+
+#: ../../user/viewer_graph.rst:46
+msgid "Déposez une pile :file:`.tif`, :file:`.tiff` ou :file:`.stk` dans la fenêtre pour charger ses derniers résultats enregistrés. Lorsque la visionneuse est ouverte depuis le widget principal, le dépôt ajoute aussi la pile à son :guilabel:`Batch`."
+msgstr "Drop a :file:`.tif`, :file:`.tiff` or :file:`.stk` stack into the window to load its latest saved results. When you open the viewer from the main widget, dropping the stack also adds it to the main widget's :guilabel:`Batch`."
 
 #: ../../user/viewer_graph.rst:49
-msgid "L'interface de la visionneuse de graphiques est organisée en 2 volets principaux :"
-msgstr "The graph viewer interface is organized into two main panels:"
+msgid "Le groupe :guilabel:`Information` affiche la pile courante et les compteurs de résultats. Survolez un compteur pour consulter le détail du filtrage. :guilabel:`Open results folder` ouvre le dossier sur disque. Le :doc:`manuel <manual>` détaille les compteurs et les actions de ce panneau dans la section **Onglet Info**."
+msgstr "The :guilabel:`Information` group shows the current stack and result counts. Hover over a count to see the filtering details. :guilabel:`Open results folder` opens the folder on disk. The **Info tab** section of the :doc:`user manual <manual>` explains the counts and actions in this panel."
 
-#: ../../user/viewer_graph.rst:51
-msgid "À gauche : le panneau des options permettant de paramétrer les graphiques"
-msgstr "On the left: the options panel used to configure the plots"
+#: ../../user/viewer_graph.rst:53
+msgid "Infobulle du compteur Localizations indiquant les pourcentages de localisations retenues et écartées."
+msgstr "Tooltip for the Localizations count showing the percentages of retained and excluded localizations."
 
-#: ../../user/viewer_graph.rst:52
-msgid "À droite : le graphique généré"
-msgstr "On the right: the generated plot"
+#: ../../user/viewer_graph.rst:59
+msgid "Détail du filtrage des localisations au survol"
+msgstr "Localization filtering details shown on hover"
 
-#: ../../user/viewer_graph.rst:55
-msgid "Volet paramètres"
-msgstr "Settings panel"
+#: ../../user/viewer_graph.rst:62
+msgid "Choisir quoi tracer"
+msgstr "Choose what to plot"
 
-#: ../../user/viewer_graph.rst:57 ../../user/viewer_graph.rst:64
-msgid "Volet Paramètres."
-msgstr "Settings panel."
+#: ../../user/viewer_graph.rst:64
+msgid "Dans :guilabel:`Source`, choisissez le mode, puis :guilabel:`Localization` ou :guilabel:`Tracks` et la grandeur à tracer. La liste des sources dépend du mode et de la famille de données. Les grandeurs issues d'une analyse nécessitent les résultats correspondants."
+msgstr "In :guilabel:`Source`, choose the plot mode, then select :guilabel:`Localization` or :guilabel:`Tracks` and the measurement to plot. The available sources depend on the mode and data type. Measurements from an analysis require the corresponding results."
 
-#: ../../user/viewer_graph.rst:66
-msgid "Le volet de gauche contient les paramètres principaux de manipulation des graphiques."
-msgstr "The left panel contains the main settings used to control the plots."
-
-#: ../../user/viewer_graph.rst:68
-msgid "Le widget est structuré comme suit :"
-msgstr "The widget is structured as follows:"
-
-#: ../../user/viewer_graph.rst:70 ../../user/viewer_graph.rst:111
-#: ../../user/viewer_graph.rst:118
-msgid "Onglet Informations"
-msgstr "Information tab"
-
-#: ../../user/viewer_graph.rst:71 ../../user/viewer_graph.rst:133
-#: ../../user/viewer_graph.rst:140
-msgid "Onglet Source"
-msgstr "Source tab"
-
-#: ../../user/viewer_graph.rst:72 ../../user/viewer_graph.rst:181
-#: ../../user/viewer_graph.rst:188
-msgid "Onglet Affichage"
-msgstr "Display tab"
+#: ../../user/viewer_graph.rst:67
+msgid "Groupe Source avec Histogram, Localization et Integrated Intensity sélectionnés."
+msgstr "Source group with Histogram, Localization and Integrated Intensity selected."
 
 #: ../../user/viewer_graph.rst:73
-msgid "Onglet Filtres"
-msgstr "Filters tab"
+msgid "Choix du mode, du type de données et de la grandeur à tracer"
+msgstr "Choosing the mode, data type and measurement to plot"
 
-#: ../../user/viewer_graph.rst:74
-msgid "Bouton :guilabel:`Export…`"
-msgstr ":guilabel:`Export…` button"
+#: ../../user/viewer_graph.rst:79
+msgid "Mode"
+msgstr ""
 
-#: ../../user/viewer_graph.rst:77
-msgid "Volet de visualisation"
-msgstr "Visualization panel"
+#: ../../user/viewer_graph.rst:80
+msgid "Ce que montre le graphique"
+msgstr "What the plot shows"
 
-#: ../../user/viewer_graph.rst:79 ../../user/viewer_graph.rst:86
-msgid "Volet de visualisation."
-msgstr "Visualization panel."
+#: ../../user/viewer_graph.rst:81
+msgid "Exemple"
+msgstr "Example"
 
-#: ../../user/viewer_graph.rst:88
-msgid "Le volet de droite affiche les graphiques générés. Vous pouvez survoler le graphique pour avoir les valeurs associées au graphique."
-msgstr "The right panel displays the generated plots. You can hover the plot to see the values associated with the plot."
+#: ../../user/viewer_graph.rst:82 ../../user/viewer_graph.rst:104
+msgid ":guilabel:`Histogram`"
+msgstr ""
 
-#: ../../user/viewer_graph.rst:92 ../../user/viewer_graph.rst:94
-msgid "Ajout d'une pile"
-msgstr "Add a stack"
+#: ../../user/viewer_graph.rst:83
+msgid "La distribution d'une grandeur."
+msgstr "The distribution of a measurement."
 
-#: ../../user/viewer_graph.rst:101
-msgid "La visionneuse est initialement faite pour être lancée et utilisée à partir de l'interface principale de PALMTracer sur Napari. Il est possible d'ajouter un fichier tif à partir de la visionneuse. Celle-ci sera automatiquement ajoutée au Batch de l'interface principale et les derniers éléments calculés pour ce nouveau fichier seront chargés."
-msgstr "The viewer is initially designed to be launched and used from the main PALMTracer interface on Napari. It is possible to add a tif file from the viewer. It will be automatically added to the batch in the main interface and the latest computes for this new file will be loaded."
+#: ../../user/viewer_graph.rst:84
+msgid "Les positions :guilabel:`Z` des localisations."
+msgstr "The :guilabel:`Z` positions of the localizations."
 
-#: ../../user/viewer_graph.rst:105
-msgid "La visionneuse peut également être lancée indépendamment de l'interface principale, l'ajout d'une :term:`pile <Pile d'images>` et le chargement des résultats ne se feront que par ce bouton."
-msgstr "The viewer can also be launched independently of the main interface; adding a :term:`stack <Pile d'images>` and load results can only be done using this button."
+#: ../../user/viewer_graph.rst:85 ../../user/viewer_graph.rst:111
+msgid ":guilabel:`Scatter`"
+msgstr ""
 
-#: ../../user/viewer_graph.rst:109
-msgid "Onglet informations"
-msgstr "Information tab"
+#: ../../user/viewer_graph.rst:86
+msgid "Des valeurs tracées au fil des plans, des retards temporels ou des fenêtres d'analyse, selon la source."
+msgstr "Values plotted by frame, time lag or analysis window, depending on the source."
+
+#: ../../user/viewer_graph.rst:87
+msgid ":guilabel:`Count per Plane` pour suivre le nombre de localisations au fil de l'acquisition."
+msgstr ":guilabel:`Count per Plane` to track the number of localizations over the acquisition."
+
+#: ../../user/viewer_graph.rst:88 ../../user/viewer_graph.rst:118
+msgid ":guilabel:`Dual Source`"
+msgstr ""
+
+#: ../../user/viewer_graph.rst:89
+msgid "La relation entre deux grandeurs mesurées sur les mêmes localisations ou trajectoires."
+msgstr "The relationship between two measurements from the same localizations or tracks."
+
+#: ../../user/viewer_graph.rst:90
+msgid ":guilabel:`Sigma X` et :guilabel:`Sigma Y` sur un nuage de points. :guilabel:`Show KDE` ajoute une carte de densité."
+msgstr ":guilabel:`Sigma X` and :guilabel:`Sigma Y` as a point cloud. :guilabel:`Show KDE` adds a density map."
+
+#: ../../user/viewer_graph.rst:92
+msgid "Les trois exemples ci-dessous utilisent des données simulées."
+msgstr "The three examples below use simulated data."
+
+#: ../../user/viewer_graph.rst:99
+msgid "Histogramme des positions Z, avec deux pics."
+msgstr "Histogram of Z positions showing two peaks."
+
+#: ../../user/viewer_graph.rst:106
+msgid "Nombre de localisations par plan au cours de l'acquisition."
+msgstr "Number of localizations per frame over the acquisition."
+
+#: ../../user/viewer_graph.rst:113
+msgid "Nuage de points comparant Sigma X et Sigma Y."
+msgstr "Point cloud comparing Sigma X and Sigma Y."
 
 #: ../../user/viewer_graph.rst:120
-msgid "Cet onglet contient le nom du fichier courant ainsi qu'un statut pour les différentes catégories de données (:term:`Localisation <Localisation>`, :term:`Trajectoires <Trajectoire>`, :term:`MSD <MSD (Mean Squared Displacement)>`, :term:`Diffusion instantanée <Diffusion instantanée>`, Fit)."
-msgstr "This tab contains the name of the current file, as well as a status for the different data categories (:term:`Localizations <Localisation>`, :term:`Tracks <Trajectoire>`, :term:`MSD <MSD (Mean Squared Displacement)>`, :term:`Instantaneous diffusion <Diffusion instantanée>`, Fit)."
-
-#: ../../user/viewer_graph.rst:122
-msgid "Le statut est défini comme suit:"
-msgstr "The status is defined as follows:"
+msgid "Avec :guilabel:`Tracks` en mode :guilabel:`Histogram`, la source :guilabel:`MSD` permet de choisir le retard temporel dans :guilabel:`MSD Step`, en plans. En mode :guilabel:`Scatter`, :guilabel:`MSD Mean` montre la moyenne des trajectoires en fonction de ce retard."
+msgstr "With :guilabel:`Tracks` in :guilabel:`Histogram` mode, select :guilabel:`MSD` and set the time lag in frames with :guilabel:`MSD Step`. In :guilabel:`Scatter` mode, :guilabel:`MSD Mean` shows the average across tracks as a function of this lag."
 
 #: ../../user/viewer_graph.rst:124
-msgid "**No** : Une absence de données."
-msgstr "**No**: No data."
-
-#: ../../user/viewer_graph.rst:125
-msgid "**Yes** : Un tableau standard."
-msgstr "**Yes**: A standard table."
+msgid "Options d'affichage"
+msgstr "Display options"
 
 #: ../../user/viewer_graph.rst:126
-msgid "**Yes (Filtered)** : Un tableau :term:`filtré <Filtrage des résultats>`."
-msgstr "**Yes (Filtered)**: A :term:`filtered <Filtrage des résultats>` table."
-
-#: ../../user/viewer_graph.rst:127
-msgid "**Yes (Reconnected)** : Un tableau de trajectoire ayant subi des :term:`reconnexions <Reconnexion des trajectoires>` dues au :term:`scintillement <Scintillement>`."
-msgstr "**Yes (Reconnected)**: A track table that has undergone :term:`reconnections <Reconnexion des trajectoires>` due to :term:`blinking <Scintillement>`."
+msgid "Dans :guilabel:`Display`, les options disponibles dépendent du mode."
+msgstr "The available :guilabel:`Display` options depend on the plot mode."
 
 #: ../../user/viewer_graph.rst:128
-msgid "**Yes (Reconnected and Filtered)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement et filtré."
-msgstr "**Yes (Reconnected and Filtered)**: A track table that has undergone reconnections due to blinking and has been filtered."
+msgid ":guilabel:`Count` affiche des effectifs. Décochez-le pour afficher une densité."
+msgstr ":guilabel:`Count` displays counts. Clear it to display density."
+
+#: ../../user/viewer_graph.rst:129
+msgid ":guilabel:`Bins` règle le nombre de classes de l'histogramme. Saisissez ``0`` pour laisser la visionneuse le choisir automatiquement, lorsque la source le permet."
+msgstr ":guilabel:`Bins` sets the number of histogram bins. Enter ``0`` to let the viewer choose it automatically when supported by the source."
+
+#: ../../user/viewer_graph.rst:130
+msgid ":guilabel:`Cumulative Histogram` cumule les valeurs de classe en classe."
+msgstr ":guilabel:`Cumulative Histogram` accumulates values across successive bins."
 
 #: ../../user/viewer_graph.rst:131
-msgid "Onglet source"
-msgstr "Source tab"
+msgid ":guilabel:`Apply Limits` restreint les valeurs tracées à trois écarts-types de part et d'autre de la moyenne. :guilabel:`Show σ` ajoute des repères à la moyenne et à un, deux et trois écarts-types de celle-ci."
+msgstr ":guilabel:`Apply Limits` restricts plotted values to within three standard deviations of the mean. :guilabel:`Show σ` marks the mean and one, two and three standard deviations on either side."
 
-#: ../../user/viewer_graph.rst:142
-msgid "Il existe 3 types de données à visualiser qui sont les informations relatives à la pile (*stack*) chargée, les localisations et les trajectoires."
-msgstr "There are three types of data to visualize: information related to the loaded stack, localizations, and tracks."
+#: ../../user/viewer_graph.rst:132
+msgid ":guilabel:`Log Scale` applique un logarithme en base 10 aux valeurs positives. Les valeurs nulles ou négatives sont écartées du tracé."
+msgstr ":guilabel:`Log Scale` applies a base-10 logarithm to positive values. Zero and negative values are excluded from the plot."
 
-#: ../../user/viewer_graph.rst:145
-msgid "La liste déroulante des sources s'adapte dynamiquement selon les sources disponibles, notamment pour les trajectoires dont les données disponibles varient selon l'ajustement."
-msgstr "The source dropdown list adapts dynamically depending on the available sources, especially for tracks where the available data vary depending on the fitting."
+#: ../../user/viewer_graph.rst:134
+msgid "Groupe Display en mode Histogram, avec les options de courbes, Count et Bins."
+msgstr "Display group in Histogram mode, with curve options, Count and Bins."
 
-#: ../../user/viewer_graph.rst:153 ../../user/viewer_graph.rst:200
-msgid "Affichage des sources disponibles pour les localisations"
-msgstr "Display of available sources for localizations"
+#: ../../user/viewer_graph.rst:140
+msgid "Réglages d'affichage d'un histogramme"
+msgstr "Histogram display settings"
+
+#: ../../user/viewer_graph.rst:147
+msgid "Histogramme des intensités intégrées avec des barres plus larges et un nombre de classes choisi automatiquement."
+msgstr "Integrated intensity histogram with wider bars and an automatically selected number of bins."
+
+#: ../../user/viewer_graph.rst:152
+msgid "Nombre de classes choisi automatiquement (:guilabel:`Bins` = ``0``)"
+msgstr "Automatically selected number of bins (:guilabel:`Bins` = ``0``)"
+
+#: ../../user/viewer_graph.rst:154
+msgid "Même histogramme avec des barres plus fines et un nombre de classes fixé à 200."
+msgstr "The same histogram with narrower bars and the number of bins set to 200."
 
 #: ../../user/viewer_graph.rst:159
-msgid "Sources pour les localisations"
-msgstr "Sources for localizations"
+msgid "Nombre de classes fixé à 200 (:guilabel:`Bins` = ``200``)"
+msgstr "Number of bins set to 200 (:guilabel:`Bins` = ``200``)"
 
-#: ../../user/viewer_graph.rst:161 ../../user/viewer_graph.rst:208
-#: ../../user/viewer_graph.rst:218
-msgid "Affichage des sources disponibles pour les trajectoires"
-msgstr "Display of available sources for tracks"
+#: ../../user/viewer_graph.rst:162
+msgid "Courbes et distributions"
+msgstr "Curves and distributions"
+
+#: ../../user/viewer_graph.rst:164
+msgid "En mode :guilabel:`Histogram`, vous pouvez superposer ces courbes aux barres."
+msgstr "In :guilabel:`Histogram` mode, you can overlay these curves on the bars."
+
+#: ../../user/viewer_graph.rst:166
+msgid ":guilabel:`Show Gaussian` affiche la gaussienne calculée à partir de la moyenne et de l'écart-type."
+msgstr ":guilabel:`Show Gaussian` displays the Gaussian curve calculated from the mean and standard deviation."
 
 #: ../../user/viewer_graph.rst:167
-msgid "Sources pour les trajectoires"
-msgstr "Sources for tracks"
+msgid ":guilabel:`Show Gaussian Mixture` ajuste deux gaussiennes et affiche leurs contributions ainsi que leur somme."
+msgstr ":guilabel:`Show Gaussian Mixture` fits two Gaussian components and displays their contributions and their sum."
+
+#: ../../user/viewer_graph.rst:168
+msgid ":guilabel:`Show KDE` affiche une estimation lissée de la densité à partir des données."
+msgstr ":guilabel:`Show KDE` displays a smoothed estimate of the density from the data."
 
 #: ../../user/viewer_graph.rst:169
-msgid "Affichage des sources disponibles pour les trajectoires sans les ajustements"
-msgstr "Display of available sources for tracks without fittings"
+msgid ":guilabel:`Show Poisson` superpose une loi de Poisson, adaptée aux comptages."
+msgstr ":guilabel:`Show Poisson` overlays a Poisson distribution, suitable for counts."
+
+#: ../../user/viewer_graph.rst:170
+msgid ":guilabel:`Show Exponential` superpose une loi exponentielle, par exemple pour des durées."
+msgstr ":guilabel:`Show Exponential` overlays an exponential distribution, for example for durations."
+
+#: ../../user/viewer_graph.rst:173
+msgid "Exemple avec deux populations en Z"
+msgstr "Example with two populations along Z"
 
 #: ../../user/viewer_graph.rst:175
-msgid "Sources pour les trajectoires sans les ajustements"
-msgstr "Sources for tracks without fittings"
+msgid "L'histogramme montre des localisations simulées à deux profondeurs. À gauche, la gaussienne unique place son maximum entre les deux pics. À droite, le mélange suit les deux pics. Il permet ici de décrire séparément les deux populations."
+msgstr "The histogram shows simulated localizations at two depths. On the left, the single Gaussian peaks between the two groups. On the right, the mixture follows both peaks, describing the two populations separately."
 
-#: ../../user/viewer_graph.rst:179
-msgid "Onglet affichage"
-msgstr "Display tab"
+#: ../../user/viewer_graph.rst:178
+msgid "Le même histogramme bimodal avec une gaussienne unique à gauche et la somme de deux composantes à droite."
+msgstr "The same bimodal histogram with a single Gaussian on the left and the sum of two components on the right."
+
+#: ../../user/viewer_graph.rst:185
+msgid "Deux populations simulées en Z (35 % / 65 %). Les axes et les classes de l'histogramme sont identiques."
+msgstr "Two simulated populations along Z, with weights of 35% and 65%. The axes and histogram bins are identical."
+
+#: ../../user/viewer_graph.rst:188
+msgid "Exemple de carte de densité en Dual Source"
+msgstr "Dual Source density map example"
 
 #: ../../user/viewer_graph.rst:190
-msgid "Cet onglet permet de définir quelques options d'affichage sans modifier les données :"
-msgstr "This tab allows you to define a few display options without modifying the data:"
+msgid "Dans le nuage :guilabel:`Sigma X` / :guilabel:`Sigma Y`, certains points se superposent. En mode :guilabel:`Dual Source`, activez :guilabel:`Show KDE` pour visualiser leur concentration. Le jaune indique les zones de plus forte densité, et le violet celles de plus faible densité."
+msgstr "Some points overlap in the :guilabel:`Sigma X` / :guilabel:`Sigma Y` point cloud. In :guilabel:`Dual Source` mode, enable :guilabel:`Show KDE` to see where points are concentrated. Yellow indicates the highest density and purple the lowest density."
 
-#: ../../user/viewer_graph.rst:192
-msgid "**Apply limits** permet de limiter l'intervalle d'affichage sur l'axe X en fonction de la règle des 3 sigmas (on n'affiche que les éléments situés à plus ou moins 3 sigmas de la moyenne)."
-msgstr "**Apply limits** limits the display range on the X axis using the 3-sigma rule (only elements within plus or minus 3 sigmas of the mean are displayed)."
+#: ../../user/viewer_graph.rst:193
+msgid "Nuage de points Sigma X et Sigma Y sur une carte de densité dont la zone centrale est jaune."
+msgstr "Sigma X and Sigma Y point cloud over a density map with a yellow central region."
 
-#: ../../user/viewer_graph.rst:206
-msgid "Affichage simple"
-msgstr "Simple display"
+#: ../../user/viewer_graph.rst:199
+msgid "Le nuage de points des exemples ci-dessus avec sa carte de densité."
+msgstr "The point cloud from the examples above with its density map."
 
-#: ../../user/viewer_graph.rst:214
-msgid "Affichage avec les limites"
-msgstr "Display with limits"
+#: ../../user/viewer_graph.rst:202
+msgid "Filtrer les résultats"
+msgstr "Filter results"
+
+#: ../../user/viewer_graph.rst:204
+msgid "Activez le groupe :guilabel:`Filters`, cochez les critères voulus et cliquez sur :guilabel:`Update`. La figure et les compteurs se mettent à jour. Lorsque la visionneuse partage les résultats du widget principal, les filtres s'y appliquent également. :guilabel:`Update` repart des résultats filtrés s'ils sont disponibles. Pour élargir la sélection, cliquez sur :guilabel:`Reset` pour effacer les résultats filtrés, puis réactivez les critères voulus."
+msgstr "Enable the :guilabel:`Filters` group, select the criteria you want and click :guilabel:`Update`. The plot and counts update. If the viewer shares results with the main widget, the filters apply there too. :guilabel:`Update` starts from the filtered results when available. To broaden the selection, click :guilabel:`Reset` to clear the filtered results, then re-enable the criteria you want."
+
+#: ../../user/viewer_graph.rst:208
+msgid "Pour reconstruire des trajectoires à partir de localisations filtrées, relancez le traitement avec les critères actifs dans le widget principal."
+msgstr "To reconstruct tracks from filtered localizations, run processing again with the desired filters enabled in the main widget."
+
+#: ../../user/viewer_graph.rst:210
+msgid "Histogramme des localisations après application des filtres Intensity et MSE XY, dont les bornes sont visibles."
+msgstr "Localization histogram after applying the Intensity and MSE XY filters, with their bounds visible."
 
 #: ../../user/viewer_graph.rst:216
-msgid "**Show Sigma** permet d'ajouter au graphique l'affichage de barres pour la moyenne (trait plein), moyenne plus ou moins 1, 2 et 3 sigmas (pointillé)."
-msgstr "**Show Sigma** adds bars to the plot for the mean (solid line), and the mean plus or minus 1, 2, and 3 sigmas (dashed)."
+msgid "Localisations filtrées selon l'intensité intégrée et la qualité de l'ajustement en XY (:guilabel:`MSE XY`)"
+msgstr "Localizations filtered by integrated intensity and XY fit quality (:guilabel:`MSE XY`)"
 
-#: ../../user/viewer_graph.rst:225
-msgid "Affichage avec les moyennes et écart-type"
-msgstr "Display with mean and standard deviation"
-
-#: ../../user/viewer_graph.rst:227
-msgid "**Show Gaussian** permet d'ajouter la gaussienne associée à la moyenne et l'écart-type calculés sur les données."
-msgstr "**Show Gaussian** adds the Gaussian associated with the mean and the standard deviation computed from the data."
-
-#: ../../user/viewer_graph.rst:229 ../../user/viewer_graph.rst:236
-msgid "Affichage avec la gaussienne"
-msgstr "Display with Gaussian"
-
-#: ../../user/viewer_graph.rst:238
-msgid "**Show KDE** permet d'ajouter le noyau de densité (Kernel Density) des données qui est l'estimation de la densité en tout point."
-msgstr "**Show KDE** adds the data kernel density estimate (KDE), which is the estimation of the density at every point."
-
-#: ../../user/viewer_graph.rst:240 ../../user/viewer_graph.rst:247
-msgid "Affichage avec le noyau de densité"
-msgstr "Display with kernel density"
-
-#: ../../user/viewer_graph.rst:249
-msgid "**Density** et **Count** permettent de définir la valeur sur l'axe Y."
-msgstr "**Density** and **Count** allow defining the value on the Y axis."
-
-#: ../../user/viewer_graph.rst:256 ../../user/viewer_graph.rst:262
-#: ../../user/viewer_graph.rst:279
-msgid "Affichage de la densité"
-msgstr "Density display"
-
-#: ../../user/viewer_graph.rst:264 ../../user/viewer_graph.rst:270
-#: ../../user/viewer_graph.rst:287 ../../user/viewer_graph.rst:314
-msgid "Affichage du compteur"
-msgstr "Count display"
-
-#: ../../user/viewer_graph.rst:272
-msgid "**Use Log Scale** permet de modifier l'échelle de l'axe X avec une échelle logarithmique ce qui peut rendre la distribution plus proche d'une loi normale."
-msgstr "**Use Log Scale** changes the scale of the X axis to a logarithmic scale, which can make the distribution closer to a normal distribution."
-
-#: ../../user/viewer_graph.rst:285
-msgid "Échelle standard"
-msgstr "Standard scale"
-
-#: ../../user/viewer_graph.rst:293
-msgid "Échelle logarithmique"
-msgstr "Logarithmic scale"
-
-#: ../../user/viewer_graph.rst:297
-msgid "Le Dual Source"
-msgstr "Dual Source"
-
-#: ../../user/viewer_graph.rst:299
-msgid "Le Dual Source permet de faire un graphique avec deux sources différentes. L'affichage des courbes associées aux distributions (gaussiennes ou noyau de densité) sera alors une Heatmap. Le noyau de densité (KDE) est alors une estimation de la densité en fonction des deux sources, ce qui, visuellement, peut-être plus explicite."
-msgstr "Dual Source allows you to create a graph with two different sources. The curves associated with the distributions (Gaussian or kernel density) will then be displayed as a heatmap. The kernel density (KDE) is an estimate of the density based on the two sources, which may be more visually explicit."
-
-#: ../../user/viewer_graph.rst:306 ../../user/viewer_graph.rst:312
-msgid "Affichage du Sigma en X et en Y."
-msgstr "Display of the Sigma in X and Y."
-
-#: ../../user/viewer_graph.rst:320
-msgid "Affichage de la Heatmap du noyau de densité."
-msgstr "Display Heatmap of kernel density"
-
-#: ../../user/viewer_graph.rst:324
-msgid "Onglet filtres"
-msgstr "Filters tab"
-
-#: ../../user/viewer_graph.rst:326
-msgid "Selon le type de données, la liste des filtres est mise à jour pour ne conserver que ceux concernant les données en cours d'affichage."
-msgstr "Depending on the data type, the list of filters is updated to keep only those related to the data currently being displayed."
-
-#: ../../user/viewer_graph.rst:333 ../../user/viewer_graph.rst:339
-msgid "Filtres pour la pile"
-msgstr "Filters for the stack"
-
-#: ../../user/viewer_graph.rst:341 ../../user/viewer_graph.rst:347
-msgid "Filtres pour les localisations"
-msgstr "Filters for localizations"
-
-#: ../../user/viewer_graph.rst:349 ../../user/viewer_graph.rst:355
-msgid "Filtres pour les trajectoires"
-msgstr "Filters for tracks"
-
-#: ../../user/viewer_graph.rst:357
-msgid "Chaque filtre doit être coché pour être effectif, mais ne sera pas appliqué avant un appui sur le bouton :guilabel:`Update`. À ce moment, les filtres seront appliqués au sein de l'interface principale sur les données initiales en mémoire, sans accumuler les filtrages successifs, les options de filtrage seront mises à jour également dans l'interface principale."
-msgstr "Each filter must be checked to be active, but it is not applied until you press the :guilabel:`Update` button. The filters are then applied within the main interface to the initial data in memory, without accumulating successive filtering operations, and the filtering options are also updated in the main interface."
-
-#: ../../user/viewer_graph.rst:361
-msgid "L'appui sur le bouton :guilabel:`Reset`, supprimera les données filtrées de la mémoire, le panneau d'information affichera cette mise à jour dans les statuts des fichiers. Les filtres ne seront pas effacés, pour que vous conserviez l'ensemble de vos paramètres et faire les petits ajustements nécessaires avant de relancer un filtrage. Le graphique actuel sera recalculé après la réinitialisation."
-msgstr "Pressing the :guilabel:`Reset` button will remove the filtered data from memory, and the information panel will show this update in the file statuses. The filters will not be cleared, so you keep all your settings and can make the small adjustments needed before running filtering again. The current plot will be recalculated after the reset."
-
-#: ../../user/viewer_graph.rst:370 ../../user/viewer_graph.rst:376
-msgid "Affichage avec filtres"
-msgstr "Display with filters"
-
-#: ../../user/viewer_graph.rst:378 ../../user/viewer_graph.rst:384
-msgid "Affichage avec filtres réinitialisés"
-msgstr "Display with reset filters"
-
-#: ../../user/viewer_graph.rst:389
-msgid "Si vous avez supprimé des localisations par le biais de filtres, les trajectoires ne sont pas recalculées. Certaines trajectoires peuvent alors contenir des points filtrés, un nouveau process avec les filtres actifs doit être lancé dans l'interface principale."
-msgstr "If you removed localizations using filters, the tracks are not recalculated. Some tracks may then contain filtered points, and a new processing run with the active filters must be started in the main interface."
-
-#: ../../user/viewer_graph.rst:394
-msgid "Lien avec l'interface principale"
-msgstr "Link with the main interface"
-
-#: ../../user/viewer_graph.rst:396
-msgid "Cette visionneuse est fortement liée à l'interface principale de PALMTracer et ne peut fonctionner à part. Il utilise les éléments calculés dans l'interface principale de façon dynamique."
-msgstr "This viewer is strongly linked to the main PALMTracer interface and cannot work on its own. It uses elements computed in the main interface dynamically."
-
-#: ../../user/viewer_graph.rst:399
-msgid "Les éléments suivants sont utilisés :"
-msgstr "The following elements are used:"
-
-#: ../../user/viewer_graph.rst:401
-msgid "Les localisations (filtrées ou non)"
-msgstr "Localizations (filtered or not)"
-
-#: ../../user/viewer_graph.rst:402
-msgid "Les trajectoires (reconnectées si elles l'ont été et filtré ou non)"
-msgstr "Trajectories (reconnected if they were, and filtered or not)"
-
-#: ../../user/viewer_graph.rst:403
-msgid "Les analyses des trajectoires : MSD, Diffusion instantanée, Ajustements (filtrés ou non)"
-msgstr "Track Analysis: MSD, instantaneous diffusion, fittings (filtered or not)"
-
-#: ../../user/viewer_graph.rst:405
-msgid "Plusieurs éléments permettent une communication bidirectionnelle entre les deux interfaces :"
-msgstr "Several elements allow bidirectional communication between the two interfaces:"
-
-#: ../../user/viewer_graph.rst:407
-msgid "Le graphique est automatiquement actualisé lorsque les résultats changent dans l'interface principale ou dans une visionneuse. Les mises à jour groupées des résultats ne déclenchent qu’un seul tracé à la sortie du regroupement."
-msgstr "The graph is automatically refreshed when results change in the main interface or in a viewer. Grouped result updates trigger a single plot update when the group of updates is complete."
-
-#: ../../user/viewer_graph.rst:408
-msgid ":guilabel:`Reset` permet de supprimer les tableaux filtrés pour repartir sur une base saine."
-msgstr ":guilabel:`Reset` removes the filtered tables to start again from the initial data."
-
-#: ../../user/viewer_graph.rst:409
-msgid ":guilabel:`Update` permet d'appliquer votre nouvelle sélection de filtres sur les tableaux initiaux, même si des tableaux filtrés existent déjà."
-msgstr ":guilabel:`Update` applies your new selection of filters to the initial tables, even when filtered tables already exist."
-
-#: ../../user/viewer_graph.rst:412
+#: ../../user/viewer_graph.rst:219
 msgid "Export"
 msgstr ""
 
-#: ../../user/viewer_graph.rst:414
-msgid "Lors d'un appui sur :guilabel:`Export…`, vous aurez le choix entre plusieurs formats de fichiers pour sauvegarder le graphique que vous avez actuellement :"
-msgstr "When you press :guilabel:`Export…`, you will have a choice between several file formats to save the plot you currently have:"
+#: ../../user/viewer_graph.rst:221
+msgid "Cliquez sur l'icône |camera| en haut à droite du graphique pour l'exporter rapidement en PNG."
+msgstr "Click the |camera| icon at the top right of the plot to quickly export it as a PNG."
 
-#: ../../user/viewer_graph.rst:416
-msgid "**HTML** enregistre une page web interactive (incluant PlotlyJS) comme sur la visionneuse."
-msgstr "**HTML** saves an interactive web page (including PlotlyJS), like in the viewer."
+#: ../../user/viewer_graph.rst:6
+msgid "Appareil photo"
+msgstr "Camera"
 
-#: ../../user/viewer_graph.rst:417
-msgid "**PNG** exporte une image du rendu du graphique."
-msgstr "**PNG** exports an image of the plot rendering."
-
-#: ../../user/viewer_graph.rst:418
-msgid "**PDF** exporte l'image dans un fichier PDF"
-msgstr "**PDF** exports the image into a PDF file."
-
-#: ../../user/viewer_graph.rst:420
-msgid "Vous pouvez également appuyer sur l'icône caméra (📷) au-dessus du graphique pour enregistrer une image PNG directement."
-msgstr "You can also click the camera icon (📷) above the plot to save a PNG image directly."
+#: ../../user/viewer_graph.rst:223
+msgid "Le bouton :guilabel:`Export figure` ouvre une boîte de dialogue où choisir le format de la figure affichée. Les formats disponibles sont PNG, SVG (vectoriel), WebP, HTML (interactif) et PDF."
+msgstr ":guilabel:`Export figure` opens a dialog where you can choose the file format for the displayed figure. Available formats are PNG, SVG (vector), WebP, HTML (interactive), and PDF."

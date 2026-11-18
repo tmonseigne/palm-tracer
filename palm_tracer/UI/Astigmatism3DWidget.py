@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from qtpy.QtCore import QSignalBlocker
 from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
@@ -108,21 +109,25 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._check_only_one = QCheckBox(grp)
 		self._check_only_one.setToolTip("If more than one localization appears on a plane, the one closest to the other localization is retained.")
 
-		form = Ui.make_form(None)
-		Ui.add_setting_row(form, "Only one bead:", self._check_only_one, tooltip=self._check_only_one.toolTip())
-		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_compute, tooltip=self._spin_px_compute.toolTip())
-		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_compute, tooltip=self._spin_z_compute.toolTip())
-		Ui.add_setting_row(form, "Get Z from plane:", self._check_z_from_plane, tooltip=self._check_z_from_plane.toolTip())
-		Ui.add_setting_row(form, "Plane Interval (nm):", self._spin_z_interval, tooltip=self._spin_z_interval.toolTip())
-		Ui.add_setting_row(form, "Center Z:", self._check_z_center, tooltip=self._check_z_center.toolTip())
-		Ui.add_setting_row(form, "Flip Z:", self._check_z_flip, tooltip=self._check_z_flip.toolTip())
+		compute_form = Ui.make_form(None)
+		self._compute_form = compute_form
+		Ui.add_setting_row(compute_form, "Only one bead:", self._check_only_one, tooltip=self._check_only_one.toolTip())
+		Ui.add_setting_row(compute_form, "Pixel Size (µm/px):", self._spin_px_compute, tooltip=self._spin_px_compute.toolTip())
+		Ui.add_setting_row(compute_form, "Z Max (nm):", self._spin_z_compute, tooltip=self._spin_z_compute.toolTip())
+		Ui.add_setting_row(compute_form, "Get Z from plane:", self._check_z_from_plane, tooltip=self._check_z_from_plane.toolTip())
+		self._z_interval_row = compute_form.rowCount()
+		Ui.add_setting_row(compute_form, "Plane Interval (nm):", self._spin_z_interval, tooltip=self._spin_z_interval.toolTip())
+		self._z_center_row = compute_form.rowCount()
+		Ui.add_setting_row(compute_form, "Center Z:", self._check_z_center, tooltip=self._check_z_center.toolTip())
+		Ui.add_setting_row(compute_form, "Flip Z:", self._check_z_flip, tooltip=self._check_z_flip.toolTip())
 		self._check_set_default_model = QCheckBox(grp)
 		self._check_set_default_model.setToolTip("Save model as the default astigmatism model in the user folder.")
-		Ui.add_setting_row(form, "Set as default model:", self._check_set_default_model, tooltip=self._check_set_default_model.toolTip())
+		Ui.add_setting_row(compute_form, "Set as default model:", self._check_set_default_model, tooltip=self._check_set_default_model.toolTip())
 
 		grp_layout.addWidget(self._btn_load_compute)
 		grp_layout.addWidget(self._lbl_compute)
-		grp_layout.addLayout(form)
+		grp_layout.addLayout(compute_form)
+		self._toggle_z_source(self._check_z_from_plane.isChecked())
 
 		# Bloc Type de graphe
 		grp_type = QGroupBox("Graph Type")
@@ -263,6 +268,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def _connect_signals(self):
 		"""Connecte les signaux aux callbacks."""
 		self._btn_load_compute.clicked.connect(self._on_load_loc)
+		self._check_z_from_plane.toggled.connect(self._toggle_z_source)
 		self._check_set_default_model.toggled.connect(self._on_set_default_model)
 		self._check_default_model.toggled.connect(self._on_default_model_toggled)
 
@@ -348,6 +354,19 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	# ==================================================
 	# region Fonctions de rappel
 	# ==================================================
+	def _toggle_z_source(self, from_plane: bool):
+		"""
+		Actualise les réglages visibles et impose le centrage si Z est déduit des plans.
+
+		:param from_plane: Indique si Z est déduit de la colonne ``Plane``.
+		"""
+		if from_plane:
+			# La bascule de la source de Z déclenche déjà le recalcul.
+			with QSignalBlocker(self._check_z_center): self._check_z_center.setChecked(True)
+		self._compute_form.setRowVisible(self._z_interval_row, from_plane)
+		self._compute_form.setRowVisible(self._z_center_row, not from_plane)
+
+	# --------------------------------------------------
 	def _check_loc(self):
 		"""Vérifie la validité du fichier de localisation et modifie les options sélectionnables en conséquence."""
 		if "Plane" not in self._loc.columns:

@@ -46,17 +46,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-all = [
-	"palm-tracer[testing,documentation]",
-]
+all = ["palm-tracer[testing,documentation]", ]
 
 testing = [
 	"PySide6>=6.12.0",
 	"PySide6-Addons>=6.12.0",
 	"tox",
-	"pytest", # https://docs.pytest.org/en/latest/contents.html
-	"pytest-cov", # https://pytest-cov.readthedocs.io/en/latest/
-	"pytest-qt", # https://pytest-qt.readthedocs.io/en/latest/
+	"pytest", # .       https://docs.pytest.org/en/latest/contents.html
+	"pytest-cov", # .   https://pytest-cov.readthedocs.io/en/latest/
+	"pytest-qt", # .    https://pytest-qt.readthedocs.io/en/latest/
 	"pytest-json",
 	"pytest-json-report",
 	"pytest-metadata",
@@ -70,8 +68,9 @@ documentation = [
 	"sphinx-design",
 	"sphinx-rtd-theme",
 	"sphinx-qt-documentation",
-	"ansi2html", # Utile pour transformer les rapports
-	"sphinx-intl"  # Outil de traduction pour Sphinx
+	"ansi2html", # .    Utile pour transformer les rapports
+	"sphinx-intl", # .  Outil de traduction pour Sphinx
+	"types-docutils>=0.22"
 ]
 
 [project.entry-points."napari.manifest"]
