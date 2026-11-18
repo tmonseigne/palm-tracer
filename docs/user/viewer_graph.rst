@@ -102,7 +102,7 @@ La visionneuse est initialement faite pour être lancée et utilisée à partir 
 Il est possible d'ajouter un fichier tif à partir de la visionneuse.
 Celle-ci sera automatiquement ajoutée au Batch de l'interface principale et les derniers éléments calculés pour ce nouveau fichier seront chargés.
 
-.. note:: La visionneuse peut également être lancée indépendamment de l'interface principale, l'ajout d'une pile et le chargement des résultats ne se feront que par ce bouton.
+.. note:: La visionneuse peut également être lancée indépendamment de l'interface principale, l'ajout d'une :term:`pile <Pile d'images>` et le chargement des résultats ne se feront que par ce bouton.
 
 
 Onglet informations
@@ -117,14 +117,14 @@ Onglet informations
 
    Onglet Informations
 
-Cet onglet contient le nom du fichier courant ainsi qu'un statut pour les différentes catégories de données (Localisation, Trajectoires, MSD, Diffusion instantanée, Fit).
+Cet onglet contient le nom du fichier courant ainsi qu'un statut pour les différentes catégories de données (:term:`Localisation <Localisation>`, :term:`Trajectoires <Trajectoire>`, :term:`MSD <MSD (Mean Squared Displacement)>`, :term:`Diffusion instantanée <Diffusion instantanée>`, Fit).
 
 Le statut est défini comme suit:
 
 - **No** : Une absence de données.
 - **Yes** : Un tableau standard.
-- **Yes (Filtered)** : Un tableau filtré.
-- **Yes (Reconnected)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement.
+- **Yes (Filtered)** : Un tableau :term:`filtré <Filtrage des résultats>`.
+- **Yes (Reconnected)** : Un tableau de trajectoire ayant subi des :term:`reconnexions <Reconnexion des trajectoires>` dues au :term:`scintillement <Scintillement>`.
 - **Yes (Reconnected and Filtered)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement et filtré.
 
 Onglet source

@@ -175,8 +175,8 @@ msgid "**XY Scale** et **Z Scale** vous permettent de définir une échelle diff
 msgstr "**XY Scale** and **Z Scale** allow you to define different scales for the XY plane and the Z axis. This is useful if you have different units, such as pixels for X and Y and nanometers for Z."
 
 #: ../../user/viewer_3d.rst:134
-msgid "**Remove Outliers** vous permet de cacher les points dont l'intensité intégrée est à 0. Ce marqueur peut être utilisé en cas d'erreur lors de l'ajustement gaussien. Par exemple, le point n'est pas supprimé, mais son intensité à 0 permet de le mettre à part facilement lors de la lecture du fichier pour des analyses ultérieures."
-msgstr "**Remove Outliers** allows you to hide points whose integrated intensity is 0. This marker can be used in case of an error during Gaussian fitting. For example, the point is not removed, but its intensity set to 0 makes it easy to separate during file reading for later analyses."
+msgid "**Remove Outliers** vous permet de cacher les points dont l'intensité intégrée est à 0. Ce marqueur peut être utilisé en cas d'erreur lors de l':term:`ajustement gaussien <Ajustement gaussien>`. Par exemple, le point n'est pas supprimé, mais son intensité à 0 permet de le mettre à part facilement lors de la lecture du fichier pour des analyses ultérieures."
+msgstr "**Remove Outliers** allows you to hide points whose integrated intensity is 0. This marker can be used in case of an error during :term:`Gaussian fitting <Ajustement gaussien>`. For example, the point is not removed, but its intensity set to 0 makes it easy to separate during file reading for later analyses."
 
 #: ../../user/viewer_3d.rst:138
 msgid "Suppression des outliers."

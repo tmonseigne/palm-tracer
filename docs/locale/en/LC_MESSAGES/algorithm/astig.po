@@ -19,5 +19,9 @@ msgid "Work In Progress"
 msgstr ""
 
 #: ../../algorithm/astig.rst:13
+msgid "L':term:`astigmatisme 3D <Astigmatisme 3D>` permet d'estimer la position axiale d'un émetteur à partir des largeurs de sa :term:`PSF <PSF (Point Spread Function)>`."
+msgstr ":term:`3D astigmatism <Astigmatisme 3D>` makes it possible to estimate an emitter's axial position from its :term:`PSF <PSF (Point Spread Function)>` widths."
+
+#: ../../algorithm/astig.rst:15
 msgid "Page en cours d'écriture."
 msgstr "Page currently being written."

@@ -176,8 +176,8 @@ msgid "Certaines images (TIFF) suivent une convention :math:`(plan, Y, X)` où :
 msgstr "Some images (TIFF) follow a convention :math:`(plane, Y, X)` where:"
 
 #: ../../algorithm/arrays_indices.rst:173
-msgid "**Plan** = différentes tranches de l'image (e.g., différentes tranches d'une image volumique)"
-msgstr "**Plane** = different slices of the image (e.g., different slices of a volumetric image)"
+msgid ":term:`Plan <Plan (frame)>` = différentes tranches de l'image (e.g., différentes tranches d'une image volumique)"
+msgstr ":term:`Plane <Plan (frame)>` = different slices of the image (e.g., different slices of a volumetric image)"
 
 #: ../../algorithm/arrays_indices.rst:174
 msgid "**Y** = hauteur (lignes)"

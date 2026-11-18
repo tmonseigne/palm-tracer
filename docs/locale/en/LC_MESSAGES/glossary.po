@@ -13,98 +13,239 @@ msgstr ""
 msgid "Glossaire"
 msgstr "Glossary"
 
-#: ../../glossary.rst:33
+msgid "Les termes sont regroupés par thème et triés par ordre alphabétique dans chaque rubrique."
+msgstr "Terms are grouped by topic and listed alphabetically within each section."
+
+msgid "Acquisition et étalonnage"
+msgstr "Acquisition and calibration"
+
+msgid "ADU (Analog-to-Digital Unit)"
+msgstr "ADU (Analog-to-Digital Unit)"
+
+msgid "Unité des valeurs numériques enregistrées par la caméra. La conversion des intensités en photons utilise un facteur d'étalonnage exprimé en photons par ADU. Selon la caméra et le prétraitement, il faut aussi tenir compte du niveau de référence électronique."
+msgstr "Unit of the digital values recorded by the camera. Converting intensities to photons uses a calibration factor expressed in photons per ADU. Depending on the camera and preprocessing, the electronic baseline may also need to be accounted for."
+
+msgid "Calibration spatiale et temporelle"
+msgstr "Spatial and temporal calibration"
+
+msgid "Conversion des distances et des durées en unités physiques. La taille du pixel dans le plan de l'échantillon donne l'échelle latérale. Pour le suivi, le temps écoulé entre images fixe l'échelle temporelle, tandis que le temps d'exposition décrit la durée d'intégration du signal. Ces deux durées peuvent différer."
+msgstr "Conversion of distances and durations to physical units. The pixel size in the sample plane sets the lateral scale. For tracking, the time elapsed between frames sets the temporal scale, while the exposure time describes how long signal is integrated. These durations may differ."
+
+msgid "Pile d'images"
+msgstr "Image stack"
+
+msgid "Séquence ordonnée d'images à traiter ensemble. Dans une acquisition de suivi, le premier axe représente le temps. Dans une pile de calibration axiale, il représente une suite de positions en profondeur. La convention d'axes est décrite dans :doc:`algorithm/arrays_indices`."
+msgstr "Ordered sequence of images processed together. In a tracking acquisition, the first axis represents time. In an axial calibration stack, it represents a series of depth positions. See :doc:`algorithm/arrays_indices` for axis conventions."
+
+msgid "Plan (frame)"
+msgstr "Frame"
+
+msgid "Image individuelle d'une :term:`pile d'images <Pile d'images>`. Dans un suivi, la colonne ``Plane`` repère le plan d'acquisition. Dans une pile axiale, la conversion du numéro de plan en position Z demande de connaître le pas et le sens de déplacement."
+msgstr "Individual image in an :term:`image stack <Pile d'images>`. In tracking results, the ``Plane`` column identifies the acquisition frame. In an axial stack, converting a plane number to a Z position requires the step size and direction of motion."
+
+msgid "PALM (Photoactivated Localization Microscopy)"
+msgstr "PALM (Photoactivated Localization Microscopy)"
+
+msgid "Technique de :term:`SMLM (Single-Molecule Localization Microscopy)` dans laquelle l'activation contrôlée de fluorophores photoactivables permet d'observer des sous-ensembles clairsemés de molécules à chaque image. Les positions estimées sur une série d'images alimentent la reconstruction."
+msgstr ":term:`SMLM (Single-Molecule Localization Microscopy)` technique in which controlled activation of photoactivatable fluorophores makes sparse subsets of molecules observable in each frame. Positions estimated over a series of frames are used for reconstruction."
+
+msgid "SMLM (Single-Molecule Localization Microscopy)"
+msgstr "SMLM (Single-Molecule Localization Microscopy)"
+
+msgid "Famille de techniques de microscopie dans lesquelles les émetteurs fluorescents sont détectés individuellement, généralement sur une série d'images où seule une fraction d'entre eux est observable à la fois. L'accumulation des positions estimées permet de reconstruire des structures plus fines que celles discernables sur une image brute."
+msgstr "Family of microscopy techniques in which fluorescent emitters are detected individually, typically over a sequence of frames in which only a fraction are visible at any one time. Combining the estimated positions can reveal finer structures than those discernible in a raw frame."
+
+msgid "Détection et localisation"
+msgstr "Detection and localization"
+
 msgid "Ajustement gaussien"
 msgstr "Gaussian fitting"
 
-#: ../../glossary.rst:35
-msgid "Ajustement d'une gaussienne (2D/3D) sur une PSF pour estimer les paramètres (position, amplitude, fond, largeur, etc.)."
-msgstr "Fitting a (2D/3D) Gaussian to a PSF to estimate parameters (position, amplitude, background, width, etc.)."
+msgid "Ajustement d'un modèle gaussien à l'image locale d'un émetteur. En 2D, le modèle peut fournir le centre, l'amplitude, le fond, ainsi que les largeurs et l'orientation de la tache. En 3D par astigmatisme, la position axiale est déduite des largeurs de la tache projetée à l'aide d'une calibration."
+msgstr "Fitting a Gaussian model to the local image of an emitter. In 2D, the model can provide the center, amplitude, background, widths, and orientation of the spot. In astigmatic 3D imaging, the axial position is inferred from the widths of the projected spot using a calibration."
 
-#: ../../glossary.rst:15
-msgid "Correction de dérive"
-msgstr "Drift correction"
+msgid "Astigmatisme 3D"
+msgstr "3D astigmatism"
 
-#: ../../glossary.rst:17
-msgid "Estimation puis compensation de la dérive afin d'aligner les localisations (ou les images) dans un repère stable."
-msgstr "Estimation and compensation of drift in order to align localizations (or images) within a stable reference frame."
+msgid "Méthode de localisation axiale qui exploite la variation des largeurs de la :term:`PSF (Point Spread Function)` selon deux directions du plan image. Une calibration sur des positions Z connues permet d'estimer Z à partir des largeurs mesurées. Le sens de l'axe et la plage effectivement calibrée déterminent l'interprétation du résultat. Voir :ref:`outil de calibration de l'astigmatisme <tool_astig_page>`."
+msgstr "Axial localization method that uses changes in :term:`PSF (Point Spread Function)` widths along two directions in the image plane. Calibration at known Z positions allows Z to be estimated from the measured widths. The axis direction and calibrated range determine how the result should be interpreted. See :ref:`astigmatism calibration tool <tool_astig_page>`."
 
-#: ../../glossary.rst:12
-msgid "Dérive"
-msgstr "Drift"
+msgid "Détection"
+msgstr "Detection"
 
-#: ../../glossary.rst:14
-msgid "Déplacement lent et global du champ d'observation au cours du temps (microscope, échantillon, stabilité mécanique/thermique), mesurable en :math:`(x, y)` et parfois en :math:`z`."
-msgstr "Slow, global displacement of the field of view over time (microscope, sample, mechanical/thermal stability), measurable in :math:`(x, y)` and sometimes in :math:`z`."
+msgid "Repérage des candidats émetteurs dans chaque image. Une détection fournit une position initiale autour de laquelle une fenêtre peut être extraite pour affiner la position. Le choix du seuil influe sur le compromis entre faux positifs et émetteurs manqués."
+msgstr "Identification of candidate emitters in each frame. A detection supplies an initial position around which a window can be extracted to refine the position. The threshold controls the trade-off between false positives and missed emitters."
 
-#: ../../glossary.rst:36
-msgid "Image haute résolution"
-msgstr "High-resolution image"
+msgid "Fond et bruit"
+msgstr "Background and noise"
 
-#: ../../glossary.rst:38
-msgid "Image reconstruite à partir d'un ensemble de localisations (nuage de points) en appliquant un rendu (binning, gaussien, histogramme, etc.)."
-msgstr "Image reconstructed from a set of localizations (point cloud) by applying a rendering method (binning, Gaussian rendering, histogram, etc.)."
+msgid "Le fond est la contribution moyenne au signal mesuré autour de l'émetteur, due par exemple à la fluorescence hors foyer. Le bruit désigne les fluctuations de la mesure, notamment celles du comptage des photons et de la lecture de la caméra. Ces deux contributions influencent la détection et la précision de localisation."
+msgstr "Background is the mean contribution to the measured signal around the emitter, for example from out-of-focus fluorescence. Noise refers to measurement fluctuations, notably those from photon counting and camera readout. Both contributions affect detection and localization precision."
 
-#: ../../glossary.rst:6
 msgid "Localisation"
 msgstr "Localization"
 
-#: ../../glossary.rst:8
-msgid "Estimation de la position :math:`(x, y)` (et éventuellement :math:`z`) d'une molécule unique à partir de son image (PSF), généralement par ajustement d'un modèle ou d'une PSF expérimentale."
-msgstr "Estimation of the position :math:`(x, y)` (and possibly :math:`z`) of a single molecule from its image (PSF), typically by fitting a model or an experimental PSF."
+msgid "Position estimée d'un émetteur dans le plan :math:`(x, y)` et, si la méthode le permet, en profondeur :math:`z`. Le terme désigne aussi le calcul de cette position. Un ajustement dans une :term:`ROI (Region Of Interest)` peut fournir des coordonnées à une fraction de pixel."
+msgstr "Estimated position of an emitter in the plane :math:`(x, y)` and, when the method supports it, in depth :math:`z`. The term also refers to the process of estimating this position. Fitting within a :term:`ROI (Region Of Interest)` can provide coordinates to a fraction of a pixel."
 
-#: ../../glossary.rst:39
-msgid "Pipeline"
-msgstr ""
+msgid "Précision de localisation"
+msgstr "Localization precision"
 
-#: ../../glossary.rst:41
-msgid "Enchaînement reproductible d'étapes de traitement (prétraitement, localisation, filtrage, suivi, rendu, export), avec des paramètres sauvegardés."
-msgstr "Reproducible sequence of processing steps (pre-processing, localization, filtering, tracking, rendering, export), with saved settings."
+msgid "Dispersion attendue des positions estimées pour un émetteur immobile sous des conditions comparables, généralement exprimée comme un écart-type par axe en nanomètres. Elle dépend notamment du nombre de photons, du fond et de l'échantillonnage. Le biais systématique et la résolution de l'image reconstruite sont des grandeurs distinctes."
+msgstr "Expected spread of estimated positions for an immobile emitter under comparable conditions, usually expressed as a per-axis standard deviation in nanometers. It depends on factors including photon count, background, and sampling. Systematic bias and reconstructed image resolution are separate quantities."
 
-#: ../../glossary.rst:21
 msgid "PSF (Point Spread Function)"
-msgstr ""
+msgstr "PSF (Point Spread Function)"
 
-#: ../../glossary.rst:23
-msgid "Réponse impulsionnelle optique du microscope. Elle décrit l'image formée par une source ponctuelle et conditionne la précision de localisation."
-msgstr "Optical impulse response of the microscope. It describes the image formed by a point source and determines localization precision."
+msgid "Fonction d'étalement du point. Elle décrit l'image produite par une source ponctuelle à travers le système optique. Sa forme, qui peut varier avec la mise au point, sert de base au modèle utilisé pour estimer la position de l'émetteur."
+msgstr "Point spread function. It describes the image produced by a point source through the optical system. Its shape, which can vary with focus, provides the basis for the model used to estimate the emitter position."
 
-#: ../../glossary.rst:18
 msgid "ROI (Region Of Interest)"
-msgstr ""
+msgstr "ROI (Region Of Interest)"
 
-#: ../../glossary.rst:20
-msgid "Sous-région d'une image extraite autour d'une zone d'intérêt (ex. autour d'un maximum local) pour effectuer un traitement local (seuillage, fit, etc.)."
-msgstr "Sub-region of an image extracted around an area of interest (e.g., around a local maximum) to perform local processing (thresholding, fitting, etc.)."
+msgid "Région d'intérêt sélectionnée dans l'image. Pour l'ajustement, PALM-Tracer extrait une fenêtre carrée autour de chaque détection, dont la taille est réglée par :guilabel:`ROI Size`. Dans l'aperçu, la forme du marqueur est un réglage d'affichage."
+msgstr "Region of interest selected in the image. For fitting, PALM-Tracer extracts a square window around each detection, with its size set by :guilabel:`ROI Size`. In the preview, the marker shape is a display setting."
 
-#: ../../glossary.rst:27
 msgid "Seuil (Threshold)"
 msgstr "Threshold"
 
-#: ../../glossary.rst:29
-msgid "Valeur limite utilisée pour discriminer un signal (pixels/objets) du fond. Peut être fixe, automatique, ou dépendre d'un modèle de bruit."
-msgstr "Limit value used to separate a signal (pixels/objects) from the background. It can be fixed, automatic, or depend on a noise model."
+msgid "Valeur utilisée par le détecteur pour retenir les candidats dont la réponse est suffisamment forte. Le seuil peut être réglé manuellement ou estimé à partir des pixels situés hors des régions détectées, selon le :ref:`seuillage automatique <auto_threshold_page>`."
+msgstr "Value used by the detector to retain candidates with a strong enough response. The threshold can be set manually or estimated from pixels outside detected regions using :ref:`automatic thresholding <auto_threshold_page>`."
 
-#: ../../glossary.rst:24
+msgid "Sigma (largeur gaussienne)"
+msgstr "Sigma (Gaussian width)"
+
+msgid "Écart-type :math:`\\sigma` d'un profil gaussien, dans l'unité de ses coordonnées. Pour un axe donné, la largeur à mi-hauteur vaut :math:`2\\sqrt{2\\ln 2}\\,\\sigma \\simeq 2{,}355\\,\\sigma`. Les colonnes ``Sigma X`` et ``Sigma Y`` décrivent les largeurs ajustées de la tache. Leur valeur décrit la forme du signal, tandis que la précision de localisation décrit l'incertitude sur le centre."
+msgstr "Standard deviation :math:`\\sigma` of a Gaussian profile, in the units of its coordinates. Along a given axis, the full width at half maximum is :math:`2\\sqrt{2\\ln 2}\\,\\sigma \\simeq 2.355\\,\\sigma`. The ``Sigma X`` and ``Sigma Y`` columns describe the fitted spot widths. These values describe the signal shape, whereas localization precision describes the uncertainty in its center."
+
 msgid "SNR (Signal-to-Noise Ratio)"
-msgstr ""
+msgstr "SNR (Signal-to-Noise Ratio)"
 
-#: ../../glossary.rst:26
-msgid "Rapport signal sur bruit, indicateur de la qualité d'un signal mesuré. Un SNR faible dégrade la précision de localisation et augmente le risque de faux positifs."
-msgstr "Signal-to-noise ratio, an indicator of the quality of a measured signal. A low SNR degrades localization precision and increases the risk of false positives."
+msgid "Rapport signal sur bruit. Il compare une mesure du signal à une mesure du bruit. La définition exacte des deux termes du rapport doit être connue pour comparer des valeurs. Un rapport faible rend l'identification des candidats et l'estimation de leur position plus difficiles."
+msgstr "Signal-to-noise ratio. It compares a measure of signal with a measure of noise. Comparing values requires knowing the exact definition of both terms. A low ratio makes it harder to identify candidates and estimate their positions."
 
-#: ../../glossary.rst:9
+msgid "Watershed"
+msgstr "Watershed"
+
+msgid "Segmentation par ligne de partage des eaux qui découpe une image en régions à partir de son relief d'intensité. Dans PALM-Tracer, cette option aide à séparer des détections proches dont les signaux se recouvrent partiellement."
+msgstr "Watershed segmentation divides an image into regions based on its intensity topography. In PALM-Tracer, this option helps separate nearby detections whose signals partially overlap."
+
+msgid "Suivi, mouvement et dérive"
+msgstr "Tracking, motion, and drift"
+
+msgid "Bille fiduciaire"
+msgstr "Fiducial bead"
+
+msgid "Particule fluorescente utilisée comme référence spatiale, supposée immobile par rapport à l'échantillon. Son déplacement apparent au fil de l'acquisition peut servir à estimer la :term:`dérive <Dérive>`. Suivre plusieurs billes réduit l'influence d'une mesure individuelle bruitée."
+msgstr "Fluorescent particle used as a spatial reference and assumed to be stationary relative to the sample. Its apparent displacement during acquisition can be used to estimate :term:`drift <Dérive>`. Tracking multiple beads reduces the influence of individual noisy measurements."
+
+msgid "Coefficient de diffusion"
+msgstr "Diffusion coefficient"
+
+msgid "Grandeur :math:`D` qui quantifie la vitesse d'étalement d'une population de particules par diffusion, généralement exprimée en :math:`\\mu\\mathrm{m}^2/\\mathrm{s}`. Pour une diffusion brownienne libre isotrope dans :math:`d` dimensions, le modèle idéal donne :math:`\\mathrm{MSD}(\\tau) = 2dD\\tau`. Le bruit de localisation et le flou pendant l'exposition peuvent modifier la courbe mesurée."
+msgstr "Quantity :math:`D` describing how quickly a population of particles spreads by diffusion, typically expressed in :math:`\\mu\\mathrm{m}^2/\\mathrm{s}`. For free isotropic Brownian diffusion in :math:`d` dimensions, the ideal model gives :math:`\\mathrm{MSD}(\\tau) = 2dD\\tau`. Localization noise and motion blur during exposure can alter the measured curve."
+
+msgid "Correction de dérive"
+msgstr "Drift correction"
+
+msgid "Estimation puis compensation du déplacement commun au champ d'observation. Pour le rendu haute résolution, PALM-Tracer estime la dérive latérale à partir de billes suivies et soustrait aux coordonnées XY le déplacement cumulé à chaque plan."
+msgstr "Estimation and compensation of displacement common to the field of view. For high-resolution rendering, PALM-Tracer estimates lateral drift from tracked beads and subtracts the cumulative displacement from the XY coordinates at each frame."
+
+msgid "Dérive"
+msgstr "Drift"
+
+msgid "Déplacement global apparent du champ d'observation au cours de l'acquisition, par exemple sous l'effet d'une instabilité mécanique ou thermique. Elle ajoute un déplacement commun aux particules et peut élargir des structures dans une reconstruction cumulée."
+msgstr "Apparent global displacement of the field of view during acquisition, for example due to mechanical or thermal instability. It adds a shared displacement to particles and can broaden structures in an accumulated reconstruction."
+
+msgid "Diffusion instantanée"
+msgstr "Instantaneous diffusion"
+
+msgid "Estimation locale de la mobilité fondée sur des déplacements observés dans une fenêtre de la trajectoire. Le paramètre :guilabel:`Fit Length` règle la longueur de cette fenêtre dans l'analyse. Des fenêtres courtes rendent l'estimation plus sensible aux fluctuations des déplacements individuels."
+msgstr "Local mobility estimate based on displacements observed within a window along a track. The :guilabel:`Fit Length` setting controls the window length in the analysis. Short windows make the estimate more sensitive to fluctuations in individual displacements."
+
+msgid "MSD (Mean Squared Displacement)"
+msgstr "MSD (Mean Squared Displacement)"
+
+msgid "Déplacement quadratique moyen pour un retard temporel :math:`\\tau`. Il s'obtient en moyennant :math:`\\lVert\\mathbf r(t+\\tau)-\\mathbf r(t)\\rVert^2` sur les paires de positions séparées par ce retard. Il s'exprime en unités de longueur au carré. Pour une trajectoire de durée finie, les grands retards disposent généralement de moins de paires."
+msgstr "Mean squared displacement at a time lag :math:`\\tau`. It is obtained by averaging :math:`\\lVert\\mathbf r(t+\\tau)-\\mathbf r(t)\\rVert^2` over pairs of positions separated by that lag. Its units are squared length. For a track of finite duration, fewer pairs are generally available at longer lags."
+
+msgid "Reconnexion des trajectoires"
+msgstr "Track reconnection"
+
+msgid "Association de deux segments séparés par des plans sans localisation, par exemple pendant un :term:`scintillement <Scintillement>`. Les réglages limitent la durée de la coupure et le déplacement admissible selon le modèle de mouvement choisi. Une reconnexion peut relier deux particules différentes lorsque plusieurs associations sont plausibles."
+msgstr "Linking two track segments separated by frames without localizations, for example during :term:`blinking <Scintillement>`. The settings constrain the gap duration and admissible displacement under the selected motion model. A reconnection can link two different particles when several assignments are plausible."
+
+msgid "Scintillement"
+msgstr "Blinking"
+
+msgid "Alternance de périodes fluorescentes et d'états sombres d'un fluorophore. En suivi, un épisode sombre peut interrompre une trajectoire puis laisser réapparaître la même particule. Dans une reconstruction SMLM, plusieurs détections peuvent ainsi provenir d'un même fluorophore."
+msgstr "Alternation between fluorescent periods and dark states of a fluorophore. During tracking, a dark period may interrupt a track before the same particle reappears. In an SMLM reconstruction, several detections may therefore originate from the same fluorophore."
+
+msgid "SPT (Single-Particle Tracking)"
+msgstr "SPT (Single-Particle Tracking)"
+
+msgid "Suivi de particules individuelles pour caractériser leur dynamique. Le SPT associe des positions issues d'une acquisition temporelle, puis analyse les trajectoires obtenues, par exemple à l'aide du :term:`MSD (Mean Squared Displacement)`. Voir :doc:`user/examples/01_SPT`."
+msgstr "Tracking individual particles to characterize their dynamics. SPT links positions from a time series and then analyzes the resulting tracks, for example using the :term:`MSD (Mean Squared Displacement)`. See :doc:`user/examples/01_SPT`."
+
 msgid "Suivi"
 msgstr "Tracking"
 
-#: ../../glossary.rst:11
-msgid "Association des localisations d'une même molécule au fil des frames afin de former une trajectoire (track)."
-msgstr "Association of localizations belonging to the same molecule across frames in order to form a track."
+msgid "Association de localisations successives en trajectoires. Le réglage :guilabel:`Max Distance` limite les associations entre plans consécutifs. Une distance trop faible fragmente le suivi des particules mobiles, et une distance trop grande augmente le risque d'associations erronées en champ dense."
+msgstr "Linking successive localizations into tracks. The :guilabel:`Max Distance` setting constrains links between consecutive frames. A distance that is too small fragments tracks of mobile particles, while a distance that is too large raises the risk of incorrect links in crowded fields."
 
-#: ../../glossary.rst:30
-msgid "Watershed"
-msgstr ""
+msgid "Trajectoire"
+msgstr "Track"
 
-#: ../../glossary.rst:32
-msgid "Méthode de segmentation basée sur la topographie d'une image (analogie "bassin versant"), souvent utilisée pour séparer des objets proches."
-msgstr "Segmentation method based on an image's topography (\"watershed\" analogy), often used to separate nearby objects."
+msgid "Suite ordonnée de positions associées à une même particule par le :term:`suivi <Suivi>`. Les numéros de plan permettent de retrouver les intervalles entre observations, notamment après reconnexion. Un segment affiché entre deux positions représente leur liaison et ne fournit aucune position mesurée dans les plans manquants."
+msgstr "Ordered sequence of positions assigned to the same particle by :term:`tracking <Suivi>`. Frame numbers provide the intervals between observations, including after reconnection. A displayed segment between two positions represents their link and provides no measured position in missing frames."
+
+msgid "Reconstruction, visualisation et résultats"
+msgstr "Reconstruction, visualization, and results"
+
+msgid "Alignement de canaux"
+msgstr "Channel registration"
+
+msgid "Transformation géométrique qui place les coordonnées de deux canaux dans un référentiel commun. Elle peut être estimée à partir de repères visibles dans les deux canaux et compenser leur décalage spatial, par exemple dû à l'optique. Voir :ref:`outil d'alignement <tool_alignment_page>`."
+msgstr "Geometric transformation that brings the coordinates of two channels into a common reference frame. It can be estimated from landmarks visible in both channels and compensate for spatial offsets such as those caused by the optics. See :ref:`registration tool <tool_alignment_page>`."
+
+msgid "Filtrage des résultats"
+msgstr "Result filtering"
+
+msgid "Sélection de localisations ou de trajectoires à partir de critères appliqués aux mesures calculées, par exemple le nombre de positions d'une trajectoire. Le filtrage change la population analysée et peut influer sur les distributions et les images produites en aval."
+msgstr "Selection of localizations or tracks using criteria applied to computed measurements, such as the number of positions in a track. Filtering changes the analyzed population and can affect downstream distributions and images."
+
+msgid "Galerie de détections"
+msgstr "Detection gallery"
+
+msgid "Mosaïque de régions d'intérêt extraites de la pile aux positions détectées. Elle permet d'inspecter côte à côte la forme des taches, le fond et les détections atypiques."
+msgstr "Mosaic of regions of interest extracted from the stack at detected positions. It allows spot shape, background, and unusual detections to be inspected side by side."
+
+msgid "Image haute résolution"
+msgstr "High-resolution image"
+
+msgid "Image reconstruite à partir des coordonnées des localisations ou des trajectoires sur une grille généralement plus fine que celle de l'acquisition. La résolution effective dépend de la précision, de la densité des localisations et du rendu. Voir :ref:`viewer_hr_page`."
+msgstr "Image reconstructed from localization or track coordinates on a grid typically finer than the acquisition grid. Effective resolution depends on localization precision, localization density, and rendering. See :ref:`viewer_hr_page`."
+
+msgid "Pipeline"
+msgstr "Pipeline"
+
+msgid "Enchaînement des traitements appliqués aux données, depuis le chargement de la pile jusqu'aux analyses, visualisations et exports. PALM-Tracer enregistre les paramètres et les métadonnées qui permettent de retracer le traitement. Voir :ref:`pipeline des traitements <pipeline_page>`."
+msgstr "Sequence of operations applied to the data, from loading the stack to analysis, visualization, and export. PALM-Tracer saves the settings and metadata needed to trace the processing. See :ref:`processing pipeline <pipeline_page>`."
+
+msgid "Rendu gaussien"
+msgstr "Gaussian rendering"
+
+msgid "Représentation des localisations par des noyaux gaussiens centrés sur leurs coordonnées estimées. La largeur de ces noyaux détermine le lissage du rendu. L'ajustement gaussien estime des paramètres à partir de l'image brute, tandis que le rendu gaussien utilise des paramètres pour dessiner le résultat."
+msgstr "Representation of localizations by Gaussian kernels centered on their estimated coordinates. Kernel width controls the smoothing of the rendering. Gaussian fitting estimates parameters from the raw image, whereas Gaussian rendering uses parameters to draw the result."
+
+msgid "Suréchantillonnage (Upscale Ratio)"
+msgstr "Upsampling (Upscale Ratio)"
+
+msgid "Augmentation du nombre de pixels de sortie par pixel d'acquisition dans le plan XY. Avec un facteur :math:`r` et une taille de pixel d'acquisition :math:`p`, le pas de la grille de rendu vaut :math:`p/r`. Une grille plus fine permet de représenter des positions sous-pixelliques et conserve la précision des positions estimées en entrée."
+msgstr "Increase in the number of output pixels per acquisition pixel in the XY plane. With factor :math:`r` and acquisition pixel size :math:`p`, the rendering grid spacing is :math:`p/r`. A finer grid can represent subpixel positions, whose precision is determined by the input estimates."
+
+msgid "Voxel"
+msgstr "Voxel"
+
+msgid "Élément d'une grille volumique. Dans un rendu 3D, le pas entre deux coupes Z peut différer de la taille latérale du pixel de rendu, ce qui produit des voxels anisotropes."
+msgstr "Element of a volumetric grid. In 3D rendering, the spacing between Z slices can differ from the lateral rendering pixel size, resulting in anisotropic voxels."

@@ -53,7 +53,7 @@ Calcul des coefficients (non implémenté actuellement)
 
 .. warning:: Cette fonctionnalité n'est pas encore implémentée dans la version actuelle.
 
-Le calcul des coefficients d'alignement repose sur un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte : vue de référence (gauche), vue déformée (droite).
+Le calcul des coefficients d':term:`alignement <Alignement de canaux>` repose sur un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte : vue de référence (gauche), vue déformée (droite).
 
 .. figure:: ../_static/img/tool_align/input.png
    :figclass: centered-caption
@@ -80,7 +80,7 @@ L'appui sur le bouton :guilabel:`Compute coefficients` permet de lancer le calcu
 Alignement d'une pile
 ----------------------------------------------------------------
 
-Cette étape permet d'appliquer des coefficients d'alignement à une pile d'images TIFF. Vous devez fournir : un fichier TIFF à aligner, un fichier de coefficients d'alignement.
+Cette étape permet d'appliquer des coefficients d'alignement à une :term:`pile d'images <Pile d'images>` TIFF. Vous devez fournir : un fichier TIFF à aligner, un fichier de coefficients d'alignement.
 
 .. note:: Le format actuellement pris en charge correspond à celui de Metamorph : un fichier texte contenant une ligne d'en-tête suivie de deux lignes de 10 valeurs.
 

@@ -67,8 +67,8 @@ msgid "Cette fonctionnalité n'est pas encore implémentée dans la version actu
 msgstr "This feature is not yet implemented in the current version."
 
 #: ../../user/tool_alignment.rst:56
-msgid "Le calcul des coefficients d'alignement repose sur un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte : vue de référence (gauche), vue déformée (droite)."
-msgstr "The computation of alignment coefficients is based on a TIFF file containing a single image composed of two side-by-side views: the reference view (left) and the distorted view (right)."
+msgid "Le calcul des coefficients d':term:`alignement <Alignement de canaux>` repose sur un fichier TIFF contenant une seule image, composée de deux vues placées côte à côte : vue de référence (gauche), vue déformée (droite)."
+msgstr "The computation of :term:`alignment <Alignement de canaux>` coefficients is based on a TIFF file containing a single image composed of two side-by-side views: the reference view (left) and the distorted view (right)."
 
 #: ../../user/tool_alignment.rst:58 ../../user/tool_alignment.rst:65
 msgid "Exemple de fichier utilisé pour le calcul des coefficients."
@@ -91,8 +91,8 @@ msgid "Alignement d'une pile"
 msgstr "Stack alignment"
 
 #: ../../user/tool_alignment.rst:83
-msgid "Cette étape permet d'appliquer des coefficients d'alignement à une pile d'images TIFF. Vous devez fournir : un fichier TIFF à aligner, un fichier de coefficients d'alignement."
-msgstr "This step applies alignment coefficients to a stack of TIFF images. You must provide: a TIFF file to be aligned and an alignment coefficient file."
+msgid "Cette étape permet d'appliquer des coefficients d'alignement à une :term:`pile d'images <Pile d'images>` TIFF. Vous devez fournir : un fichier TIFF à aligner, un fichier de coefficients d'alignement."
+msgstr "This step applies alignment coefficients to a :term:`stack of TIFF images <Pile d'images>`. You must provide: a TIFF file to be aligned and an alignment coefficient file."
 
 #: ../../user/tool_alignment.rst:85
 msgid "Le format actuellement pris en charge correspond à celui de Metamorph : un fichier texte contenant une ligne d'en-tête suivie de deux lignes de 10 valeurs."

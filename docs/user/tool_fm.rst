@@ -66,7 +66,7 @@ La migration crée un nouveau dossier de sortie, situé au même niveau que le d
 Règle de nommage : ``mon_experience.PT`` → ``mon_experience_PALM_Tracer``. Le dossier source n'est **jamais** modifié.
 
 Fichiers actuellement pris en charge :
-   - Fichier de localisations : ``locPALMTracer.txt``
-   - Fichier de trajectoires : ``trcPALMTracer.txt``
+   - Fichier de :term:`localisations <Localisation>` : ``locPALMTracer.txt``
+   - Fichier de :term:`trajectoires <Trajectoire>` : ``trcPALMTracer.txt``
    - Fichiers d'analyses des trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``
-   - Fichier de modèle d'astigmatisme 3D : ``3DFit.txt``
+   - Fichier de modèle d':term:`astigmatisme 3D <Astigmatisme 3D>` : ``3DFit.txt``

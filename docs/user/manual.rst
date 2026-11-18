@@ -9,7 +9,7 @@ Manuel d'utilisation
 .. role:: console(code)
    :language: console
 
-Ce guide décrit l'utilisation de PALMTracer, un plugin Napari, dédié à l'analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats.
+Ce guide décrit l'utilisation de PALMTracer, un plugin Napari, dédié à l'analyse de données :term:`PALM <PALM (Photoactivated Localization Microscopy)>`/STORM et au traitement des :term:`localisations <Localisation>`, incluant preview, :term:`détection <Détection>`, :term:`suivi <Suivi>`, visualisation 2D/3D et :term:`filtrage des résultats <Filtrage des résultats>`.
 
 PALMTracer fonctionne comme un widget intégré dans l'interface de Napari, offrant un ensemble d'outils organisés en onglets : Processing, Visualization et Filtering.
 
@@ -57,9 +57,9 @@ Le volet des calques est la zone où apparaissent tous les éléments visuels g�
 
 - Image brute (Raw)
 - Points détectés (Points Past / Present / Future)
-- ROI des localisations
-- Visualisation haute résolution
-- Trajectoires (Tracks)
+- :term:`ROI <ROI (Region Of Interest)>` des localisations
+- :term:`Visualisation haute résolution <Image haute résolution>`
+- :term:`Trajectoires <Trajectoire>` (Tracks)
 - Vues 3D ou graphiques externes
 
 Fonctionnalités principales :
@@ -85,7 +85,7 @@ La zone centrale de Napari affiche les données. Vous pouvez :
 
 - Zoomer (molette de la souris)
 - Vous déplacer (clic gauche maintenu)
-- Changer de plan Z via la barre de dimension
+- Changer de :term:`plan Z <Plan (frame)>` via la barre de dimension
 - Régler le contraste
 
 PALMTracer met automatiquement à jour cette zone à chaque changement de fichier ou lors de l'aperçu.
@@ -109,7 +109,7 @@ Le widget est structuré comme suit :
 - Partie haute :
    - Boutons :guilabel:`Load Setting` / :guilabel:`Reset Setting`
    - Batch (gestion des fichiers)
-   - Calibration
+   - :term:`Calibration <Calibration spatiale et temporelle>`
 - Onglets :
    - Processing
       - Paramètres de localisation
@@ -117,7 +117,7 @@ Le widget est structuré comme suit :
       - Paramètres d'analyse des trajectoires
       - Bouton Start Processing (traitement en thread séparé)
    - Visualization
-      - Galerie de ROI.
+      - :term:`Galerie de ROI <Galerie de détections>`.
       - Visualisation haute résolution
       - Viewer 3D
       - Viewer graphique
@@ -168,13 +168,13 @@ Dans la section :guilabel:`Calibration`, renseignez :
 
 - Taille de pixel en micromètres (µm).
 - Temps d'exposition en secondes par image.
-- Intensité lumineuse en photons par unités analogique-numériques (ADU).
+- Intensité lumineuse en photons par unités analogique-numériques (:term:`ADU <ADU (Analog-to-Digital Unit)>`).
 
 Ces paramètres sont utilisés pour :
 
 - Convertir les intensités brutes.
 - Calibrer les trajectoires en unités physiques.
-- Permettre des mesures physiques cohérentes, notamment pour le calcul des coefficients de diffusion.
+- Permettre des mesures physiques cohérentes, notamment pour le calcul des :term:`coefficients de diffusion <Coefficient de diffusion>`.
 
 .. figure:: ../_static/img/manual/Calibration.png
    :figclass: centered-caption
@@ -212,12 +212,12 @@ La section *Localisation* permet de configurer les paramètres qui influencent d
 
 Les paramètres les plus courants incluent :
    - **Preview** : si activé, lance la détection en temps réel sur l'image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`).
-   - **Threshold** : seuil d'intensité utilisé pour isoler les candidats moléculaires.
+   - **Threshold** : :term:`seuil d'intensité <Seuil (Threshold)>` utilisé pour isoler les candidats moléculaires.
      Un bouton :guilabel:`Auto` peut estimer automatiquement un seuil optimal à partir de l'image courante (plus d'informations :ref:`ici <auto_threshold_page>`).
    - **ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une zone carré en revanche.
    - **ROI Size** : taille de la fenêtre extraite autour de chaque détection.
-   - **Watershed** : active/désactive un prétraitement de séparation des détections proches.
-   - **Fit** : méthode d'ajustement utilisée pour localiser précisément les molécules (Aucune, Gaussienne, Spline) (plus d'informations :ref:`ici <fit_page>`).
+   - :term:`Watershed <Watershed>` : active/désactive un prétraitement de séparation des détections proches.
+   - **Fit** : méthode d'ajustement utilisée pour localiser précisément les molécules (Aucune, :term:`Gaussienne <Ajustement gaussien>`, Spline) (plus d'informations :ref:`ici <fit_page>`).
 
 
 Tracking
@@ -227,10 +227,11 @@ La section *Tracking* est utilisée pour relier les détections entre plans afin
 
 Les paramètres peuvent inclure :
    - **Max Distance** : Distance maximale en pixel entre deux plans.
-   - **Blinking Reconnection** :  Paramètres de reconnexion en cas de scintillement.
-      - **Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire).
-      - **Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire.
-      - **Max Speed** : Vitesse maximale du point en μm/plan.
+   - **Blinking Reconnection** : Paramètres de :term:`reconnexion <Reconnexion des trajectoires>` en cas de :term:`scintillement <Scintillement>`.
+
+     - **Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire).
+     - **Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire.
+     - **Max Speed** : Vitesse maximale du point en μm/plan.
 
 .. note::
 	**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans l'aperçu.
@@ -240,8 +241,8 @@ Analyses des trajectoires
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Cette section permet d'appliquer différentes analyses des trajectoires reconstruites :
-   - **MSD** : (Mean Squared Displacement) : Calcul du MSD par trajectoire et par plans successifs.
-   - **Instant Diffusion** : Calcul de la diffusion instantanée par trajectoire et par plans successifs.
+   - :term:`MSD <MSD (Mean Squared Displacement)>` : (Mean Squared Displacement) : Calcul du MSD par trajectoire et par plans successifs.
+   - **Instant Diffusion** : Calcul de la :term:`diffusion instantanée <Diffusion instantanée>` par trajectoire et par plans successifs.
    - **Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée.
    - **3D** : Utilisation ou non de la coordonnée Z dans les calculs.
    - **Fit** : Méthode d'ajustement du mouvement de la trajectoire.
@@ -319,7 +320,7 @@ Cela est probablement dû aux paramètres de mise à l'échelle automatique de W
 3. Dans quel ordre fait-il les calculs ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Lors de l'appui sur :guilabel:`Start Processing` un pipeline se lance, la description de ce pipeline est disponible :ref:`ici <pipeline_page>`).
+Lors de l'appui sur :guilabel:`Start Processing` un :term:`pipeline <Pipeline>` se lance, la description de ce pipeline est disponible :ref:`ici <pipeline_page>`).
 
 3. Où puis-je trouver plus d'aide ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

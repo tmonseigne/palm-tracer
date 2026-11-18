@@ -170,7 +170,7 @@ Cas des images et conventions
 
 2. **Images multi-canaux (TIFF, hyperspectral)**
 	- Certaines images (TIFF) suivent une convention :math:`(plan, Y, X)` où :
-		- **Plan** = différentes tranches de l'image (e.g., différentes tranches d'une image volumique)
+		- :term:`Plan <Plan (frame)>` = différentes tranches de l'image (e.g., différentes tranches d'une image volumique)
 		- **Y** = hauteur (lignes)
 		- **X** = largeur (colonnes)
 

@@ -132,7 +132,7 @@ Les options de visualisation sont assez simples :
 - **XY Scale** et **Z Scale** vous permettent de définir une échelle différente sur le plan XY ou l'axe Z.
   Utile si vous avez des unités différentes comme des pixels pour X et Y et des nanomètres pour Z.
 - **Remove Outliers** vous permet de cacher les points dont l'intensité intégrée est à 0.
-  Ce marqueur peut être utilisé en cas d'erreur lors de l'ajustement gaussien.
+  Ce marqueur peut être utilisé en cas d'erreur lors de l':term:`ajustement gaussien <Ajustement gaussien>`.
   Par exemple, le point n'est pas supprimé, mais son intensité à 0 permet de le mettre à part facilement lors de la lecture du fichier pour des analyses ultérieures.
 
 .. figure:: ../_static/img/viewer_3d/outliers.png

@@ -15,16 +15,16 @@ msgid "Pipeline des traitements"
 msgstr "Processing pipeline"
 
 #: ../../algorithm/pipeline.rst:12
-msgid "Récupération des données, localisation, suivi, analyses des trajectoires, visualisation haute résolution, visualisation de graphiques et génération de galeries sont les étapes principales du pipeline de traitement de PALM. Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface."
-msgstr "Data loading, localization, tracking, track analysis, high-resolution visualization, graph visualization, and gallery generation are the main steps of the PALM processing pipeline. These steps are executed in the :py:meth:`~PALMTracer.process` method according to the interface settings."
+msgid "Récupération des données, :term:`localisation <Localisation>`, :term:`suivi <Suivi>`, analyses des :term:`trajectoires <Trajectoire>`, :term:`visualisation haute résolution <Image haute résolution>`, visualisation de graphiques et génération de :term:`galeries <Galerie de détections>` sont les étapes principales du :term:`pipeline <Pipeline>` de traitement de :term:`PALM <PALM (Photoactivated Localization Microscopy)>`. Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface."
+msgstr "Data loading, :term:`localization <Localisation>`, :term:`tracking <Suivi>`, :term:`track <Trajectoire>` analysis, :term:`high-resolution visualization <Image haute résolution>`, graph visualization, and :term:`gallery <Galerie de détections>` generation are the main steps of the :term:`PALM <PALM (Photoactivated Localization Microscopy)>` processing :term:`pipeline <Pipeline>`. These steps are executed in the :py:meth:`~PALMTracer.process` method according to the interface settings."
 
 #: ../../algorithm/pipeline.rst:16
 msgid "Étape 1 : Récupération des piles"
 msgstr "Step 1: Stack loading"
 
 #: ../../algorithm/pipeline.rst:18
-msgid "Selon le batch défini dans les paramètres de l'interface. Les piles sont chargées en mémoire pour être traitées."
-msgstr "According to the batch defined in the interface settings, stacks are loaded into memory for processing."
+msgid "Selon le batch défini dans les paramètres de l'interface. Les :term:`piles <Pile d'images>` sont chargées en mémoire pour être traitées."
+msgstr "According to the batch defined in the interface settings, :term:`stacks <Pile d'images>` are loaded into memory for processing."
 
 #: ../../algorithm/pipeline.rst:20
 msgid "Il y a plusieurs possibilités :"
@@ -63,8 +63,8 @@ msgid "Un fichier de paramètres :file:`settings-<timestamp>.json` contenant les
 msgstr "A setting file :file:`settings-<timestamp>.json` containing the settings used for processing."
 
 #: ../../algorithm/pipeline.rst:34
-msgid "Un fichier de métadonnées :file:`meta-<timestamp>.csv` contenant les métadonnées de la pile (dimensions, calibration, etc.)."
-msgstr "A metadata file :file:`meta-<timestamp>.csv` containing the stack metadata (dimensions, calibration, etc.)."
+msgid "Un fichier de métadonnées :file:`meta-<timestamp>.csv` contenant les métadonnées de la pile (dimensions, :term:`calibration <Calibration spatiale et temporelle>`, etc.)."
+msgstr "A metadata file :file:`meta-<timestamp>.csv` containing the stack metadata (dimensions, :term:`calibration <Calibration spatiale et temporelle>`, etc.)."
 
 #: ../../algorithm/pipeline.rst:35
 msgid "Un fichier de log :file:`log-<timestamp>.log` contenant les logs du traitement."
@@ -79,8 +79,8 @@ msgid "La localisation est lancée selon les paramètres de l'interface. Si elle
 msgstr "Localization is executed according to the interface settings. If disabled, precomputed and unfiltered localizations can be loaded, provided they are present in the output folder."
 
 #: ../../algorithm/pipeline.rst:43
-msgid "Si des filtres sont sélectionnés, ils sont appliqués aux localisations pour ne garder que les localisations répondant aux critères définis. Si l'option :console:`save filtered` est sélectionné, la localisation filtrée est sauvegardée dans un fichier :file:`localizations_filtered-<timestamp>.csv`."
-msgstr "If filters are selected, they are applied to the localizations to retain only those matching the defined criteria. If the :console:`save filtered` option is selected, the filtered localizations are saved in a file :file:`localizations_filtered-<timestamp>.csv`."
+msgid "Si des :term:`filtres <Filtrage des résultats>` sont sélectionnés, ils sont appliqués aux localisations pour ne garder que les localisations répondant aux critères définis. Si l'option :console:`save filtered` est sélectionné, la localisation filtrée est sauvegardée dans un fichier :file:`localizations_filtered-<timestamp>.csv`."
+msgstr "If :term:`filters <Filtrage des résultats>` are selected, they are applied to the localizations to retain only those matching the defined criteria. If the :console:`save filtered` option is selected, the filtered localizations are saved in a file :file:`localizations_filtered-<timestamp>.csv`."
 
 #: ../../algorithm/pipeline.rst:46
 msgid "Si la localisation est désactivée et qu'aucune localisation précalculée n'est présente dans le dossier de sortie, la localisation est considérée comme vide et les étapes suivantes sont lancées avec des localisations vides."
@@ -107,8 +107,8 @@ msgid "Reconnexion des trajectoires"
 msgstr "Tracks reconnection"
 
 #: ../../algorithm/pipeline.rst:62
-msgid "Si l'option de reconnexion est activée, les trajectoires sont reconnectées pour tenter de reconstruire des trajectoires plus longues. Les trajectoires reconnectées sont sauvegardées dans un fichier :file:`tracking-reconnected-<timestamp>.csv`. Il utilise en entrée la version non filtrée du suivi."
-msgstr "If the reconnection option is enabled, tracks are reconnected to attempt reconstruction of longer tracks. Reconnected tracks are saved in a file :file:`tracking-reconnected-<timestamp>.csv`. It uses the unfiltered tracking version as input."
+msgid "Si l'option de :term:`reconnexion <Reconnexion des trajectoires>` est activée, les trajectoires sont reconnectées pour tenter de reconstruire des trajectoires plus longues. Les trajectoires reconnectées sont sauvegardées dans un fichier :file:`tracking-reconnected-<timestamp>.csv`. Il utilise en entrée la version non filtrée du suivi."
+msgstr "If the :term:`reconnection <Reconnexion des trajectoires>` option is enabled, tracks are reconnected to attempt reconstruction of longer tracks. Reconnected tracks are saved in a file :file:`tracking-reconnected-<timestamp>.csv`. It uses the unfiltered tracking version as input."
 
 #: ../../algorithm/pipeline.rst:65
 msgid "Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis. Si l'option :console:`save filtered` est sélectionné, le suivi reconnecté et filtré est sauvegardé dans un fichier :file:`tracking_filtered_reconnected-<timestamp>.csv`."
@@ -127,8 +127,8 @@ msgid "Étape 5 : Analyses des trajectoires"
 msgstr "Step 5: Track Analysis"
 
 #: ../../algorithm/pipeline.rst:75
-msgid "Des analyses peuvent être effectuées sur les trajectoires pour en extraire des informations (MSD, diffusion instantanée, ajustement vers un modèle). Ces analyses sont lancées selon les paramètres de l'interface."
-msgstr "Calculations can be performed on tracks to extract information (MSD, instantaneous diffusion, model fitting). These computations are executed according to the interface settings."
+msgid "Des analyses peuvent être effectuées sur les trajectoires pour en extraire des informations (:term:`MSD <MSD (Mean Squared Displacement)>`, :term:`diffusion instantanée <Diffusion instantanée>`, ajustement vers un modèle). Ces analyses sont lancées selon les paramètres de l'interface."
+msgstr "Calculations can be performed on tracks to extract information (:term:`MSD <MSD (Mean Squared Displacement)>`, :term:`instantaneous diffusion <Diffusion instantanée>`, model fitting). These computations are executed according to the interface settings."
 
 #: ../../algorithm/pipeline.rst:78
 msgid "Les calculs utilisent en entrée la version filtrée et reconnectée du suivi précédent (calculée ou chargée). S'il n'y a pas de version filtrée ou reconnectée ou si les filtres ont éliminé l'intégralité des trajectoires, la version non filtrée est utilisée."
@@ -151,5 +151,5 @@ msgid "Étape 6 : Visualisations"
 msgstr "Step 6: Visualizations"
 
 #: ../../algorithm/pipeline.rst:92
-msgid "La partie visualisation comprend la génération d'une galerie de ROI de localisations ainsi que les visualisations de haute résolution et de graphiques. Ce sont des générations automatiques avec de simples paramètres de base (exemple : nombre de ROI, taille des ROI, etc.) pour une première exploration rapide des données notamment lors de Batch important. L'utilisation des visionneuses dédiées est recommandée pour une exploration plus approfondie et personnalisée des données."
-msgstr "The visualization step includes the generation of a localization ROI gallery as well as high-resolution renderings and graph visualizations. These are automatically generated using simple default settings (e.g., number of ROIs, ROI size, etc.) for a first rapid data exploration, especially during large batch processing. The use of dedicated viewers is recommended for more in-depth and customized data exploration."
+msgid "La partie visualisation comprend la génération d'une galerie de :term:`ROI <ROI (Region Of Interest)>` de localisations ainsi que les visualisations de haute résolution et de graphiques. Ce sont des générations automatiques avec de simples paramètres de base (exemple : nombre de ROI, taille des ROI, etc.) pour une première exploration rapide des données notamment lors de Batch important. L'utilisation des visionneuses dédiées est recommandée pour une exploration plus approfondie et personnalisée des données."
+msgstr "The visualization step includes the generation of a localization :term:`ROI <ROI (Region Of Interest)>` gallery as well as high-resolution renderings and graph visualizations. These are automatically generated using simple default settings (e.g., number of ROIs, ROI size, etc.) for a first rapid data exploration, especially during large batch processing. The use of dedicated viewers is recommended for more in-depth and customized data exploration."

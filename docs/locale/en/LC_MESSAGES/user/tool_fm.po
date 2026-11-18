@@ -83,17 +83,17 @@ msgid "Fichiers actuellement pris en charge :"
 msgstr "Currently supported files:"
 
 #: ../../user/tool_fm.rst:69
-msgid "Fichier de localisations : ``locPALMTracer.txt``"
-msgstr "Localization file: ``locPALMTracer.txt``"
+msgid "Fichier de :term:`localisations <Localisation>` : ``locPALMTracer.txt``"
+msgstr ":term:`Localization <Localisation>` file: ``locPALMTracer.txt``"
 
 #: ../../user/tool_fm.rst:70
-msgid "Fichier de trajectoires : ``trcPALMTracer.txt``"
-msgstr "Tracks file: ``trcPALMTracer.txt``"
+msgid "Fichier de :term:`trajectoires <Trajectoire>` : ``trcPALMTracer.txt``"
+msgstr ":term:`Tracks <Trajectoire>` file: ``trcPALMTracer.txt``"
 
 #: ../../user/tool_fm.rst:71
 msgid "Fichiers d'analyses des trajectoires : ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
 msgstr "Tracks computation files: ``trcPALMTracer-Full-D.txt``, ``trcPALMTracer-Full-Dinst.txt``, ``trcPALMTracer-Full-MSD.txt``"
 
 #: ../../user/tool_fm.rst:72
-msgid "Fichier de modèle d'astigmatisme 3D : ``3DFit.txt``"
-msgstr "3D astigmatism model file: ``3DFit.txt``"
+msgid "Fichier de modèle d':term:`astigmatisme 3D <Astigmatisme 3D>` : ``3DFit.txt``"
+msgstr ":term:`3D astigmatism <Astigmatisme 3D>` model file: ``3DFit.txt``"

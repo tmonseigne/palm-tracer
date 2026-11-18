@@ -15,8 +15,8 @@ msgid "Seuillage automatique"
 msgstr "Automatic thresholding"
 
 #: ../../algorithm/auto_threshold.rst:8
-msgid "Calcule un seuil automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe."
-msgstr "Computes an automatic threshold based on image segmentation using an external DLL library."
+msgid "Calcule un :term:`seuil <Seuil (Threshold)>` automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe."
+msgstr "Computes an automatic :term:`threshold <Seuil (Threshold)>` based on image segmentation using an external DLL library."
 
 #: ../../algorithm/auto_threshold.rst:10
 msgid "Cette fonction applique une segmentation itérative à l'image en exploitant la méthode **PALM (Point Accumulation for Localized Mean)**. L'objectif est d'affiner progressivement un seuil basé sur l'écart-type des pixels non segmentés."
@@ -31,8 +31,8 @@ msgid "Image en niveaux de gris sous forme de tableau NumPy 2D."
 msgstr "Grayscale image provided as a 2D NumPy array."
 
 #: ../../algorithm/auto_threshold.rst:15
-msgid "Taille des régions d'intérêt (ROI) utilisées pour la segmentation. Défaut : 7."
-msgstr "Size of the regions of interest (ROI) used for segmentation. Default: 7."
+msgid "Taille des régions d'intérêt (:term:`ROI <ROI (Region Of Interest)>`) utilisées pour la segmentation. Défaut : 7."
+msgstr "Size of the regions of interest (:term:`ROI <ROI (Region Of Interest)>`) used for segmentation. Default: 7."
 
 #: ../../algorithm/auto_threshold.rst:17
 msgid "Nombre maximal d'itérations pour l'affinement du seuil. Défaut : 4."
@@ -79,24 +79,24 @@ msgid "**Segmentation itérative :**"
 msgstr "**Iterative segmentation:**"
 
 #: ../../algorithm/auto_threshold.rst:37
-msgid "Lancement de la fonction PALM de la DLL pour détecter des points caractéristiques avec les paramètres suivants :"
-msgstr "Call the DLL PALM function to detect characteristic points with the following parameters:"
+msgid "Lancement de la fonction PALM de la DLL pour :term:`détecter <Détection>` des points caractéristiques avec les paramètres suivants :"
+msgstr "Call the DLL PALM function to :term:`detect <Détection>` characteristic points with the following parameters:"
 
 #: ../../algorithm/auto_threshold.rst:38
 msgid "Le seuil est égal à l'écart-type calculé."
 msgstr "The threshold is equal to the computed standard deviation."
 
 #: ../../algorithm/auto_threshold.rst:39
-msgid "Le watershed est désactivé."
-msgstr "Watershed is disabled."
+msgid "Le :term:`watershed <Watershed>` est désactivé."
+msgstr ":term:`Watershed <Watershed>` is disabled."
 
 #: ../../algorithm/auto_threshold.rst:40
-msgid "Le fit Gaussien est désactivé."
-msgstr "Gaussian fitting is disabled."
+msgid "Le :term:`fit Gaussien <Ajustement gaussien>` est désactivé."
+msgstr ":term:`Gaussian fitting <Ajustement gaussien>` is disabled."
 
 #: ../../algorithm/auto_threshold.rst:41
-msgid "Sigma vaut 1."
-msgstr "Sigma is set to 1."
+msgid ":term:`Sigma <Sigma (largeur gaussienne)>` vaut 1."
+msgstr ":term:`Sigma <Sigma (largeur gaussienne)>` is set to 1."
 
 #: ../../algorithm/auto_threshold.rst:42
 msgid "Théta vaut :math:`\\pi / 4`."

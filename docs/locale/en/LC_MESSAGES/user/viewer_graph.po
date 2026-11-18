@@ -139,16 +139,16 @@ msgid "La visionneuse est initialement faite pour être lancée et utilisée à 
 msgstr "The viewer is initially designed to be launched and used from the main PALMTracer interface on Napari. It is possible to add a tif file from the viewer. It will be automatically added to the batch in the main interface and the latest computes for this new file will be loaded."
 
 #: ../../user/viewer_graph.rst:105
-msgid "La visionneuse peut également être lancée indépendamment de l'interface principale, l'ajout d'une pile et le chargement des résultats ne se feront que par ce bouton."
-msgstr "The viewer can also be launched independently of the main interface; adding a stack and load results can only be done using this button."
+msgid "La visionneuse peut également être lancée indépendamment de l'interface principale, l'ajout d'une :term:`pile <Pile d'images>` et le chargement des résultats ne se feront que par ce bouton."
+msgstr "The viewer can also be launched independently of the main interface; adding a :term:`stack <Pile d'images>` and load results can only be done using this button."
 
 #: ../../user/viewer_graph.rst:109
 msgid "Onglet informations"
 msgstr "Information tab"
 
 #: ../../user/viewer_graph.rst:120
-msgid "Cet onglet contient le nom du fichier courant ainsi qu'un statut pour les différentes catégories de données (Localisation, Trajectoires, MSD, Diffusion instantanée, Fit)."
-msgstr "This tab contains the name of the current file, as well as a status for the different data categories (Localizations, Tracks, MSD, Instantaneous diffusion, Fit)."
+msgid "Cet onglet contient le nom du fichier courant ainsi qu'un statut pour les différentes catégories de données (:term:`Localisation <Localisation>`, :term:`Trajectoires <Trajectoire>`, :term:`MSD <MSD (Mean Squared Displacement)>`, :term:`Diffusion instantanée <Diffusion instantanée>`, Fit)."
+msgstr "This tab contains the name of the current file, as well as a status for the different data categories (:term:`Localizations <Localisation>`, :term:`Tracks <Trajectoire>`, :term:`MSD <MSD (Mean Squared Displacement)>`, :term:`Instantaneous diffusion <Diffusion instantanée>`, Fit)."
 
 #: ../../user/viewer_graph.rst:122
 msgid "Le statut est défini comme suit:"
@@ -163,12 +163,12 @@ msgid "**Yes** : Un tableau standard."
 msgstr "**Yes**: A standard table."
 
 #: ../../user/viewer_graph.rst:126
-msgid "**Yes (Filtered)** : Un tableau filtré."
-msgstr "**Yes (Filtered)**: A filtered table."
+msgid "**Yes (Filtered)** : Un tableau :term:`filtré <Filtrage des résultats>`."
+msgstr "**Yes (Filtered)**: A :term:`filtered <Filtrage des résultats>` table."
 
 #: ../../user/viewer_graph.rst:127
-msgid "**Yes (Reconnected)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement."
-msgstr "**Yes (Reconnected)**: A track table that has undergone reconnections due to blinking."
+msgid "**Yes (Reconnected)** : Un tableau de trajectoire ayant subi des :term:`reconnexions <Reconnexion des trajectoires>` dues au :term:`scintillement <Scintillement>`."
+msgstr "**Yes (Reconnected)**: A track table that has undergone :term:`reconnections <Reconnexion des trajectoires>` due to :term:`blinking <Scintillement>`."
 
 #: ../../user/viewer_graph.rst:128
 msgid "**Yes (Reconnected and Filtered)** : Un tableau de trajectoire ayant subi des reconnexions dues au scintillement et filtré."

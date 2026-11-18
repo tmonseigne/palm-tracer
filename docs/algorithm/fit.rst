@@ -10,4 +10,6 @@ Ajustement de la localisation
    :width: 50%
    :target: ../_static/img/WIP.png
 
+L':term:`ajustement gaussien <Ajustement gaussien>` estime la :term:`localisation <Localisation>` d'un émetteur à partir de l'image de sa :term:`PSF <PSF (Point Spread Function)>`.
+
 Page en cours d'écriture.

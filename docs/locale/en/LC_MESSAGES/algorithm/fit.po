@@ -19,5 +19,9 @@ msgid "Work In Progress"
 msgstr ""
 
 #: ../../algorithm/fit.rst:13
+msgid "L':term:`ajustement gaussien <Ajustement gaussien>` estime la :term:`localisation <Localisation>` d'un émetteur à partir de l'image de sa :term:`PSF <PSF (Point Spread Function)>`."
+msgstr ":term:`Gaussian fitting <Ajustement gaussien>` estimates an emitter's :term:`location <Localisation>` from its :term:`PSF <PSF (Point Spread Function)>` image."
+
+#: ../../algorithm/fit.rst:15
 msgid "Page en cours d'écriture."
 msgstr "Page currently being written."

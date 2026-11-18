@@ -15,8 +15,8 @@ msgid "Outil d'astimagtisme 3D"
 msgstr "3D astigmatism tool"
 
 #: ../../user/tool_astig.rst:9
-msgid "Cette page décrit l'outil **Astigmatism 3D**, utilisé pour calibrer un modèle d'astigmatisme axial et estimer la position axiale (Z) à partir des largeurs de PSF (Sigma X / Sigma Y)."
-msgstr "This page describes the **Astigmatism 3D** tool, used to calibrate an axial astigmatism model and estimate the axial position (Z) from PSF widths (Sigma X / Sigma Y)."
+msgid "Cette page décrit l'outil **Astigmatism 3D**, utilisé pour calibrer un modèle d':term:`astigmatisme axial <Astigmatisme 3D>` et estimer la position axiale (Z) à partir des largeurs de :term:`PSF <PSF (Point Spread Function)>` (:term:`Sigma X / Sigma Y <Sigma (largeur gaussienne)>`)."
+msgstr "This page describes the **Astigmatism 3D** tool, used to calibrate an :term:`axial astigmatism <Astigmatisme 3D>` model and estimate the axial position (Z) from :term:`PSF <PSF (Point Spread Function)>` widths (:term:`Sigma X / Sigma Y <Sigma (largeur gaussienne)>`)."
 
 #: ../../user/tool_astig.rst:12
 msgid "Lancement"
@@ -79,8 +79,8 @@ msgid "Calcul du modèle"
 msgstr "Model computation"
 
 #: ../../user/tool_astig.rst:63
-msgid "Cet onglet permet de calculer un modèle d'astigmatisme à partir d'un jeu de localisations calibrées en Z."
-msgstr "This tab allows computing an astigmatism model from a set of Z-calibrated localizations."
+msgid "Cet onglet permet de calculer un modèle d'astigmatisme à partir d'un jeu de :term:`localisations <Localisation>` calibrées en Z."
+msgstr "This tab allows computing an astigmatism model from a set of Z-calibrated :term:`localizations <Localisation>`."
 
 #: ../../user/tool_astig.rst:65
 msgid "Après chargement d'un fichier CSV contenant au minimum les colonnes ``Sigma X``, ``Sigma Y`` et ``Z``, les paramètres suivants peuvent être ajustés :"
@@ -95,8 +95,8 @@ msgid "la valeur maximale de Z,"
 msgstr "the maximum Z value,"
 
 #: ../../user/tool_astig.rst:68
-msgid "la reconstruction éventuelle de Z à partir des plans,"
-msgstr "optional reconstruction of Z from planes,"
+msgid "la reconstruction éventuelle de Z à partir des :term:`plans <Plan (frame)>`,"
+msgstr "optional reconstruction of Z from :term:`planes <Plan (frame)>`,"
 
 #: ../../user/tool_astig.rst:69
 msgid "l'inversion du signe de Z."

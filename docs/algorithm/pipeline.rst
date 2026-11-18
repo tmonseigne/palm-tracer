@@ -9,13 +9,13 @@ Pipeline des traitements
 .. role:: console(code)
    :language: console
 
-Récupération des données, localisation, suivi, analyses des trajectoires, visualisation haute résolution, visualisation de graphiques et génération de galeries sont les étapes principales du pipeline de traitement de PALM.
+Récupération des données, :term:`localisation <Localisation>`, :term:`suivi <Suivi>`, analyses des :term:`trajectoires <Trajectoire>`, :term:`visualisation haute résolution <Image haute résolution>`, visualisation de graphiques et génération de :term:`galeries <Galerie de détections>` sont les étapes principales du :term:`pipeline <Pipeline>` de traitement de :term:`PALM <PALM (Photoactivated Localization Microscopy)>`.
 Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface.
 
 Étape 1 : Récupération des piles
 --------------------------------
 
-Selon le batch défini dans les paramètres de l'interface. Les piles sont chargées en mémoire pour être traitées.
+Selon le batch défini dans les paramètres de l'interface. Les :term:`piles <Pile d'images>` sont chargées en mémoire pour être traitées.
 
 Il y a plusieurs possibilités :
 
@@ -31,7 +31,7 @@ Il y a plusieurs possibilités :
 Dans le dossier de sortie - défini par le nom de la pile avec le suffixe :file:`_PALM_Tracer` (exemple: :file:`stack.tif` → :file:`stack_PALM_Tracer`) - sont sauvegardés :
 
 - Un fichier de paramètres :file:`settings-<timestamp>.json` contenant les paramètres utilisés pour le traitement.
-- Un fichier de métadonnées :file:`meta-<timestamp>.csv` contenant les métadonnées de la pile (dimensions, calibration, etc.).
+- Un fichier de métadonnées :file:`meta-<timestamp>.csv` contenant les métadonnées de la pile (dimensions, :term:`calibration <Calibration spatiale et temporelle>`, etc.).
 - Un fichier de log :file:`log-<timestamp>.log` contenant les logs du traitement.
 
 
@@ -40,7 +40,7 @@ Dans le dossier de sortie - défini par le nom de la pile avec le suffixe :file:
 
 La localisation est lancée selon les paramètres de l'interface. Si elle est désactivée, des localisations précalculées et non filtrées peuvent être chargées à condition qu'elle soit présente dans le dossier de sortie.
 
-Si des filtres sont sélectionnés, ils sont appliqués aux localisations pour ne garder que les localisations répondant aux critères définis.
+Si des :term:`filtres <Filtrage des résultats>` sont sélectionnés, ils sont appliqués aux localisations pour ne garder que les localisations répondant aux critères définis.
 Si l'option :console:`save filtered` est sélectionné, la localisation filtrée est sauvegardée dans un fichier :file:`localizations_filtered-<timestamp>.csv`.
 
 .. note:: Si la localisation est désactivée et qu'aucune localisation précalculée n'est présente dans le dossier de sortie, la localisation est considérée comme vide et les étapes suivantes sont lancées avec des localisations vides.
@@ -59,7 +59,7 @@ Si l'option :console:`save filtered` est sélectionné, le suivi filtré est sau
 Reconnexion des trajectoires
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Si l'option de reconnexion est activée, les trajectoires sont reconnectées pour tenter de reconstruire des trajectoires plus longues.
+Si l'option de :term:`reconnexion <Reconnexion des trajectoires>` est activée, les trajectoires sont reconnectées pour tenter de reconstruire des trajectoires plus longues.
 Les trajectoires reconnectées sont sauvegardées dans un fichier :file:`tracking-reconnected-<timestamp>.csv`. Il utilise en entrée la version non filtrée du suivi.
 
 Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis.
@@ -72,7 +72,7 @@ Si l'option :console:`save filtered` est sélectionné, le suivi reconnecté et 
 Étape 5 : Analyses des trajectoires
 --------------------------------------
 
-Des analyses peuvent être effectuées sur les trajectoires pour en extraire des informations (MSD, diffusion instantanée, ajustement vers un modèle).
+Des analyses peuvent être effectuées sur les trajectoires pour en extraire des informations (:term:`MSD <MSD (Mean Squared Displacement)>`, :term:`diffusion instantanée <Diffusion instantanée>`, ajustement vers un modèle).
 Ces analyses sont lancées selon les paramètres de l'interface.
 
 Les calculs utilisent en entrée la version filtrée et reconnectée du suivi précédent (calculée ou chargée).
@@ -89,6 +89,6 @@ Si l'option :console:`save filtered` est sélectionné, les calculs reconnectés
 Étape 6 : Visualisations
 -------------------------
 
-La partie visualisation comprend la génération d'une galerie de ROI de localisations ainsi que les visualisations de haute résolution et de graphiques.
+La partie visualisation comprend la génération d'une galerie de :term:`ROI <ROI (Region Of Interest)>` de localisations ainsi que les visualisations de haute résolution et de graphiques.
 Ce sont des générations automatiques avec de simples paramètres de base (exemple : nombre de ROI, taille des ROI, etc.) pour une première exploration rapide des données notamment lors de Batch important.
 L'utilisation des visionneuses dédiées est recommandée pour une exploration plus approfondie et personnalisée des données.

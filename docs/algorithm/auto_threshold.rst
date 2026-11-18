@@ -5,14 +5,14 @@ Seuillage automatique
 
 .. function:: auto_threshold(image: np.ndarray, roi_size: int = 7, max_iterations: int = 4) -> float
 
-	Calcule un seuil automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe.
+	Calcule un :term:`seuil <Seuil (Threshold)>` automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe.
 
 	Cette fonction applique une segmentation itérative à l'image en exploitant la méthode **PALM (Point Accumulation for Localized Mean)**.
 	L'objectif est d'affiner progressivement un seuil basé sur l'écart-type des pixels non segmentés.
 
 	:param image: Image en niveaux de gris sous forme de tableau NumPy 2D.
 	:type image: np.array
-	:param roi_size: Taille des régions d'intérêt (ROI) utilisées pour la segmentation. Défaut : 7.
+	:param roi_size: Taille des régions d'intérêt (:term:`ROI <ROI (Region Of Interest)>`) utilisées pour la segmentation. Défaut : 7.
 	:type roi_size: int
 	:param max_iterations: Nombre maximal d'itérations pour l'affinement du seuil. Défaut : 4.
 	:type max_iterations: int
@@ -34,11 +34,11 @@ L'algorithme fonctionne en plusieurs étapes :
 
 2. **Segmentation itérative :**
 
-	- Lancement de la fonction PALM de la DLL pour détecter des points caractéristiques avec les paramètres suivants :
+	- Lancement de la fonction PALM de la DLL pour :term:`détecter <Détection>` des points caractéristiques avec les paramètres suivants :
 		- Le seuil est égal à l'écart-type calculé.
-		- Le watershed est désactivé.
-		- Le fit Gaussien est désactivé.
-		- Sigma vaut 1.
+		- Le :term:`watershed <Watershed>` est désactivé.
+		- Le :term:`fit Gaussien <Ajustement gaussien>` est désactivé.
+		- :term:`Sigma <Sigma (largeur gaussienne)>` vaut 1.
 		- Théta vaut :math:`\pi / 4`.
 	- Mise à jour du masque en activant les pixels correspondant aux régions détectées (zone autour de chaque point détecté).
 	- Recalcule de l'écart-type sur les pixels *hors* segmentation.

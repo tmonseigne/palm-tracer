@@ -1,7 +1,7 @@
 Cas 1 : Single Particle Tracking (SPT)
 ===================================================
 
-Contexte : Le Suivi de particules individuelles (SPT) permet de suivre le mouvement de particules individuelles dans des échantillons biologiques.
+Contexte : Le :term:`Suivi de particules individuelles (SPT) <SPT (Single-Particle Tracking)>` permet de suivre le mouvement de particules individuelles dans des échantillons biologiques.
 Cette technique est largement utilisée pour étudier la dynamique des protéines, des organites et d'autres structures cellulaires.
 Dans ce cas d'utilisation, nous allons explorer comment utiliser Napari et PALMTracer pour analyser des données de SPT.
 
@@ -22,7 +22,7 @@ Ouvrir le(s) fichier(s) de données
 
 Dans notre exemple, nous avons des données de SPT sous forme de fichiers :file:`STK` de Metamorph
 (ce sont simplement des fichiers :file:`TIFF`, mais Metamorph insère sa propre extension).
-Nous avons 5 fichiers qui constituent une seule pile de 5*4000 frames ainsi qu'une image de base en GFP pour la visualisation.
+Nous avons 5 fichiers qui constituent une seule :term:`pile <Pile d'images>` de 5*4000 :term:`frames <Plan (frame)>` ainsi qu'une image de base en GFP pour la visualisation.
 
 
 .. figure:: ../../_static/img/examples/spt/Explorer.png
@@ -61,13 +61,13 @@ Localisation
 Prévisualisation
 ^^^^^^^^^^^^^^^^^^^
 
-La première étape consiste à trouver les paramètres de localisation optimaux pour vos données.
+La première étape consiste à trouver les paramètres de :term:`localisation <Localisation>` optimaux pour vos données.
 Il suffit de cliquer sur localisation pour activer cette étape de traitement, puis de cliquer sur le bouton :guilabel:`Preview`
 pour voir les points détectés en temps réel sur votre image.
 
-Le bouton :guilabel:`Auto Threshold` permet de trouver un seuil de détection automatique, mais il est souvent nécessaire de le modifier.
+Le bouton :guilabel:`Auto Threshold` permet de trouver un :term:`seuil <Seuil (Threshold)>` de :term:`détection <Détection>` automatique, mais il est souvent nécessaire de le modifier.
 
-On est en recherche d'un suivi, donc on va régler ce seuil pour être un peu plus permissif et éviter trop de coupures de trajectoires au prix de faux positifs.
+On est en recherche d'un :term:`suivi <Suivi>`, donc on va régler ce seuil pour être un peu plus permissif et éviter trop de coupures de :term:`trajectoires <Trajectoire>` au prix de faux positifs.
 
 .. list-table::
    :align: center
@@ -95,20 +95,20 @@ Vous pouvez voir un code couleur pour les points détectés :
 - Les points verts sont ceux qui ont été détectés dans le plan actuel.
 - Les points bleus sont ceux qui ont été détectés dans le plan précédent.
 - Les points oranges sont ceux qui ont été détectés dans le plan suivant.
-- Les points rouges sont ceux qui ont été détectés dans le plan actuel, mais qui ont été filtrés par les filtres de localisation.
+- Les points rouges sont ceux qui ont été détectés dans le plan actuel, mais qui ont été filtrés par les :term:`filtres de localisation <Filtrage des résultats>`.
 - Un cercle vert apparait autour des points détectés dans le plan actuel, il permet de montrer la zone d'ajustement.
-  Dans cet exemple, une zone de 7x7 signifie un cercle de 3 pixels de rayon autour du point détecté pour faire le fit gaussien ensuite.
+  Dans cet exemple, une zone de 7x7 signifie un cercle de 3 pixels de rayon autour du point détecté pour faire le :term:`fit gaussien <Ajustement gaussien>` ensuite.
 
-Dans les paramètres de localisation, vous avez le watershed qui est une méthode de séparation de points très proches.
+Dans les paramètres de localisation, vous avez le :term:`watershed <Watershed>` qui est une méthode de séparation de points très proches.
 Il est quasiment toujours activé pour éviter d'avoir des points fusionnés.
 
-La méthode d'ajustement permet d'affiner la détection initiale sur X et Y, mais également pour l'ajustement gaussien de définir la forme de la PSF
-avec Sigma X (largeur horizontale), Sigma Y (largeur verticale) et Theta (orientation).
+La méthode d'ajustement permet d'affiner la détection initiale sur X et Y, mais également pour l'ajustement gaussien de définir la forme de la :term:`PSF <PSF (Point Spread Function)>`
+avec :term:`Sigma X <Sigma (largeur gaussienne)>` (largeur horizontale), Sigma Y (largeur verticale) et Theta (orientation).
 Selon le mode d'ajustement gaussien, vous avez les paramètres qui seront ajustés (:guilabel:`X, Y` signifie que seule la position sera ajustée,
 alors que :guilabel:`X, Y, SigmaX, SigmaY, Theta` signifie que la position, la forme et l'orientation de la PSF seront ajustées, plus d'informations :ref:`ici <fit_page>`).
 
-La taille de la zone d'intérêt (ROI) est importante, car elle doit être assez grande pour englober la PSF,
-mais pas trop pour ne pas inclure d'autres localisations ou trop de fond. Ici, on choisit 7x7 pixels.
+La taille de la zone d'intérêt (:term:`ROI <ROI (Region Of Interest)>`) est importante, car elle doit être assez grande pour englober la PSF,
+mais pas trop pour ne pas inclure d'autres localisations ou trop de :term:`fond <Fond et bruit>`. Ici, on choisit 7x7 pixels.
 
 Filtres
 ^^^^^^^^^^^^^^

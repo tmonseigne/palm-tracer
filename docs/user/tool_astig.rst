@@ -6,7 +6,7 @@ Outil d'astimagtisme 3D
 .. role:: console(code)
    :language: console
 
-Cette page décrit l'outil **Astigmatism 3D**, utilisé pour calibrer un modèle d'astigmatisme axial et estimer la position axiale (Z) à partir des largeurs de PSF (Sigma X / Sigma Y).
+Cette page décrit l'outil **Astigmatism 3D**, utilisé pour calibrer un modèle d':term:`astigmatisme axial <Astigmatisme 3D>` et estimer la position axiale (Z) à partir des largeurs de :term:`PSF <PSF (Point Spread Function)>` (:term:`Sigma X / Sigma Y <Sigma (largeur gaussienne)>`).
 
 Lancement
 ---------
@@ -60,12 +60,12 @@ Vous pouvez appuyer sur l'icône caméra (📷) au-dessus du graphique pour enre
 Calcul du modèle
 ----------------
 
-Cet onglet permet de calculer un modèle d'astigmatisme à partir d'un jeu de localisations calibrées en Z.
+Cet onglet permet de calculer un modèle d'astigmatisme à partir d'un jeu de :term:`localisations <Localisation>` calibrées en Z.
 
 Après chargement d'un fichier CSV contenant au minimum les colonnes ``Sigma X``, ``Sigma Y`` et ``Z``, les paramètres suivants peuvent être ajustés :
    - la taille de pixel (µm/px),
    - la valeur maximale de Z,
-   - la reconstruction éventuelle de Z à partir des plans,
+   - la reconstruction éventuelle de Z à partir des :term:`plans <Plan (frame)>`,
    - l'inversion du signe de Z.
 
 Après chargement, le nom du fichier apparaît sous le bouton correspondant. Un survol du nom avec le curseur de la souris affiche le **chemin complet** du fichier.

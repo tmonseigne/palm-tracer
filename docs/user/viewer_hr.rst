@@ -70,8 +70,8 @@ Volet Calque
 
 Le volet des calques est la zone où apparaissent tous les éléments visuels générés par le widget pour Napari :
 
-- Image haute résolution générée
-- Points ou trajectoires détectées (en précision flottante et zoomable à l'infini)
+- :term:`Image haute résolution <Image haute résolution>` générée
+- Points ou :term:`trajectoires <Trajectoire>` détectées (en précision flottante et zoomable à l'infini)
 
 Fonctionnalités principales :
 
@@ -97,7 +97,7 @@ La zone centrale de Napari affiche les données. Vous pouvez :
 
 - Zoomer (molette de la souris).
 - Vous déplacer (clic gauche maintenu).
-- Changer de plan Z via la barre de dimension (pour le cas des trajectoires).
+- Changer de :term:`plan Z <Plan (frame)>` via la barre de dimension (pour le cas des trajectoires).
 - Régler le contraste.
 
 Cette zone se met automatiquement à jour cette zone à chaque appui sur le bouton :guilabel:`Generate`.
@@ -170,7 +170,7 @@ Options de visualisation
 Les options de visualisation sont assez simples :
 
 - **Point Size** vous permet de définir le diamètre des points pour la représentation vectorielle.
-  Cela ne change pas la taille du pixel pour la localisation qui sera toujours un carré de 1 pixel.
+  Cela ne change pas la taille du pixel pour la :term:`localisation <Localisation>` qui sera toujours un carré de 1 pixel.
 
 .. figure:: ../_static/img/viewer_hr/loc_vs.png
    :figclass: centered-caption
@@ -181,7 +181,7 @@ Les options de visualisation sont assez simples :
 
    Points vectoriels VS Visualisation
 
-- **Upscale Ratio** vous permet de définir le facteur d'agrandissement de la visualisation finale par rapport à la taille de l'acquisition.
+- :term:`Upscale Ratio <Suréchantillonnage (Upscale Ratio)>` vous permet de définir le facteur d'agrandissement de la visualisation finale par rapport à la taille de l'acquisition.
 - **Visualization Type** vous permet de définir si la visualisation représente des localisations ou des trajectoires.
 - **Color Source** vous permet de définir quel élément de la localisation/trajectoire servira à définir l'intensité lumineuse du point.
   Par exemple, l'intensité totale de la molécule détectée ou la valeur de l'incertitude quant à sa position précise (MSE).
@@ -260,7 +260,7 @@ Il peut également apparaitre lors d'un appui sur :guilabel:`Generate`.
 
    WARNING: Aucune Pile de chargée.
 
-Ce message indique que le dossier sélectionné contenant les résultats est bon, mais que la pile n'est pas à l'emplacement prévu par la nomenclature standard de PALMTracer.
+Ce message indique que le dossier sélectionné contenant les résultats est bon, mais que la :term:`pile <Pile d'images>` n'est pas à l'emplacement prévu par la nomenclature standard de PALMTracer.
 Cela arrive si vous avez uniquement récupéré le dossier de résultat ou déplacé celui-ci.
 Il a besoin de la pile initiale actuellement pour pouvoir retrouver les dimensions initiales du fichier.
 *Cet élément sera potentiellement modifié pour lire, le fichier méta contenant ces informations le cas échéant.*
