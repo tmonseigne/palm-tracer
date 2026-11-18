@@ -3,145 +3,80 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-11-18 11:14+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../algorithm/auto_threshold.rst:2
 msgid "Seuillage automatique"
 msgstr "Automatic thresholding"
 
-#: ../../algorithm/auto_threshold.rst:8
-msgid "Calcule un :term:`seuil <Seuil (Threshold)>` automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe."
-msgstr "Computes an automatic :term:`threshold <Seuil (Threshold)>` based on image segmentation using an external DLL library."
+#: ../../algorithm/auto_threshold.rst:6
+msgid "Dans :guilabel:`Localization`, :guilabel:`Auto Threshold` estime un :term:`seuil <Seuil (Threshold)>` sur le plan affiché et renseigne le champ :guilabel:`Threshold`. L'algorithme estime les fluctuations du fond à partir des intensités brutes en écartant les voisinages des émetteurs détectés. Le seuil ainsi obtenu s'applique aux coefficients d'ondelettes."
+msgstr "In :guilabel:`Localization`, :guilabel:`Auto Threshold` estimates a :term:`threshold <Seuil (Threshold)>` from the displayed frame and fills in :guilabel:`Threshold`. The algorithm estimates background fluctuations from raw intensities by excluding neighborhoods of detected emitters. The resulting threshold is applied to wavelet coefficients."
 
-#: ../../algorithm/auto_threshold.rst:10
-msgid "Cette fonction applique une segmentation itérative à l'image en exploitant la méthode **PALM (Point Accumulation for Localized Mean)**. L'objectif est d'affiner progressivement un seuil basé sur l'écart-type des pixels non segmentés."
-msgstr "This function applies an iterative segmentation to the image using the **PALM (Point Accumulation for Localized Mean)** method. The goal is to progressively refine a threshold based on the standard deviation of the non-segmented pixels."
-
-#: ../../algorithm/auto_threshold.rst
-msgid "Paramètres"
-msgstr "Parameters"
+#: ../../algorithm/auto_threshold.rst:11
+msgid "Initialisation"
+msgstr "Initialization"
 
 #: ../../algorithm/auto_threshold.rst:13
-msgid "Image en niveaux de gris sous forme de tableau NumPy 2D."
-msgstr "Grayscale image provided as a 2D NumPy array."
+msgid "Soit :math:`I(p)` l'intensité brute du pixel :math:`p`. Pour un ensemble non vide :math:`B` de pixels, la moyenne :math:`\\mu_B` et l'écart-type :math:`\\sigma_B` sont"
+msgstr "Let :math:`I(p)` be the raw intensity of pixel :math:`p`. For a nonempty set :math:`B` of pixels, the mean :math:`\\mu_B` and standard deviation :math:`\\sigma_B` are"
 
-#: ../../algorithm/auto_threshold.rst:15
-msgid "Taille des régions d'intérêt (:term:`ROI <ROI (Region Of Interest)>`) utilisées pour la segmentation. Défaut : 7."
-msgstr "Size of the regions of interest (:term:`ROI <ROI (Region Of Interest)>`) used for segmentation. Default: 7."
+#: ../../algorithm/auto_threshold.rst:16
+msgid "\\mu_B = \\frac{1}{|B|}\\sum_{p \\in B} I(p),\n"
+"\\qquad\n"
+"\\sigma_B = \\sqrt{\\frac{1}{|B|}\\sum_{p \\in B}\\bigl(I(p)-\\mu_B\\bigr)^2}."
+msgstr "\\mu_B = \\frac{1}{|B|}\\sum_{p \\in B} I(p),\n\\qquad\n\\sigma_B = \\sqrt{\\frac{1}{|B|}\\sum_{p \\in B}\\bigl(I(p)-\\mu_B\\bigr)^2}."
 
-#: ../../algorithm/auto_threshold.rst:17
-msgid "Nombre maximal d'itérations pour l'affinement du seuil. Défaut : 4."
-msgstr "Maximum number of iterations for threshold refinement. Default: 4."
-
-#: ../../algorithm/auto_threshold.rst
-msgid "Renvoie"
-msgstr "Returns"
-
-#: ../../algorithm/auto_threshold.rst:20
-msgid "Seuil calculé après convergence (écart-type des pixels non segmentés)."
-msgstr "Threshold computed after convergence (standard deviation of non-segmented pixels)."
-
-#: ../../algorithm/auto_threshold.rst
-msgid "Type renvoyé"
-msgstr "Return type"
+#: ../../algorithm/auto_threshold.rst:22
+msgid "Au départ, :math:`B` contient tous les pixels du plan. L'écart-type :math:`\\sigma_B` donne le premier seuil :math:`T_0`."
+msgstr "Initially, :math:`B` contains all pixels in the frame. The standard deviation :math:`\\sigma_B` gives the initial threshold :math:`T_0`."
 
 #: ../../algorithm/auto_threshold.rst:25
-msgid "Algorithme"
-msgstr "Algorithm"
+msgid "Détection et estimation du fond"
+msgstr "Detection and background estimation"
 
 #: ../../algorithm/auto_threshold.rst:27
-msgid "L'algorithme fonctionne en plusieurs étapes :"
-msgstr "The algorithm operates in multiple steps:"
-
-#: ../../algorithm/auto_threshold.rst:29
-msgid "**Initialisation :**"
-msgstr "**Initialization:**"
+msgid "**Détecter avec le seuil courant.** La décomposition en ondelettes à trous lisse le plan à plusieurs échelles sans rééchantillonnage. Le deuxième plan de détail est la différence entre les deux premières approximations lissées. Le détecteur segmente les pixels dont le coefficient dans ce plan est strictement supérieur à :math:`T_k`. Le cœur CPU autorise la fusion des bassins du watershed et utilise les positions issues de la segmentation, sans ajustement de :term:`PSF <PSF (Point Spread Function)>`."
+msgstr "**Detect with the current threshold.** The à trous wavelet transform smooths the frame at multiple scales without resampling. The second detail plane is the difference between the first two smoothed approximations. The detector segments pixels whose coefficient in this plane exceeds :math:`T_k`. The CPU implementation allows watershed basins to merge and uses the positions from segmentation without :term:`PSF <PSF (Point Spread Function)>` fitting."
 
 #: ../../algorithm/auto_threshold.rst:31
-msgid "Création d'un masque vide, de la même taille que l'image, rempli de zéros."
-msgstr "Create an empty mask, the same size as the image, filled with zeros."
+msgid "**Reconstruire le masque.** À chaque itération, le masque est remis à zéro. Pour chaque détection, on marque les pixels d'une fenêtre carrée centrée sur sa position et rognée aux bords de l'image. La demi-taille de la fenêtre vaut la moitié de :guilabel:`ROI Size`. Le masque est l'union de ces fenêtres."
+msgstr "**Rebuild the mask.** The mask is cleared at each iteration. For each detection, mark a square window centered on its position and clipped to the image boundaries. The window half-size is half of :guilabel:`ROI Size`. The mask is the union of these windows."
 
-#: ../../algorithm/auto_threshold.rst:32
-msgid "Calcul de l'écart-type initial de l'image (:math:`\\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}`)."
-msgstr "Compute the initial standard deviation of the image (:math:`\\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (x_i - \\bar{x})^2}`)."
-
-#: ../../algorithm/auto_threshold.rst:33
-msgid "Définition de la demi-taille de la région d'intérêt (`roi_size`)."
-msgstr "Define the half-size of the region of interest (`roi_size`)."
-
-#: ../../algorithm/auto_threshold.rst:35
-msgid "**Segmentation itérative :**"
-msgstr "**Iterative segmentation:**"
+#: ../../algorithm/auto_threshold.rst:34
+msgid "**Réestimer le seuil.** On prend pour :math:`B` les pixels hors masque. On recalcule :math:`\\sigma_B` à partir de leurs intensités brutes et on l'utilise comme seuil de l'itération suivante."
+msgstr "**Re-estimate the threshold.** Let :math:`B` contain the unmasked pixels. Recompute :math:`\\sigma_B` from their raw intensities and use it as the threshold for the next iteration."
 
 #: ../../algorithm/auto_threshold.rst:37
-msgid "Lancement de la fonction PALM de la DLL pour :term:`détecter <Détection>` des points caractéristiques avec les paramètres suivants :"
-msgstr "Call the DLL PALM function to :term:`detect <Détection>` characteristic points with the following parameters:"
-
-#: ../../algorithm/auto_threshold.rst:38
-msgid "Le seuil est égal à l'écart-type calculé."
-msgstr "The threshold is equal to the computed standard deviation."
-
-#: ../../algorithm/auto_threshold.rst:39
-msgid "Le :term:`watershed <Watershed>` est désactivé."
-msgstr ":term:`Watershed <Watershed>` is disabled."
-
-#: ../../algorithm/auto_threshold.rst:40
-msgid "Le :term:`fit Gaussien <Ajustement gaussien>` est désactivé."
-msgstr ":term:`Gaussian fitting <Ajustement gaussien>` is disabled."
+msgid "Par exemple, pour quatre intensités de 98, 100, 102 et 150 :term:`ADU <ADU (Analog-to-Digital Unit)>`, l'écart-type initial vaut environ 21,70 ADU. Si le masque exclut la valeur 150, le recalcul sur les trois autres valeurs donne environ 1,63 ADU."
+msgstr "For example, four intensity values of 98, 100, 102, and 150 :term:`ADU <ADU (Analog-to-Digital Unit)>` give an initial standard deviation of about 21.70 ADU. If the mask excludes 150, recomputing the standard deviation of the other three values gives about 1.63 ADU."
 
 #: ../../algorithm/auto_threshold.rst:41
-msgid ":term:`Sigma <Sigma (largeur gaussienne)>` vaut 1."
-msgstr ":term:`Sigma <Sigma (largeur gaussienne)>` is set to 1."
-
-#: ../../algorithm/auto_threshold.rst:42
-msgid "Théta vaut :math:`\\pi / 4`."
-msgstr "Theta is set to :math:`\\pi / 4`."
+msgid "Critères d'arrêt"
+msgstr "Stopping criteria"
 
 #: ../../algorithm/auto_threshold.rst:43
-msgid "Mise à jour du masque en activant les pixels correspondant aux régions détectées (zone autour de chaque point détecté)."
-msgstr "Update the mask by enabling the pixels corresponding to the detected regions (ROI around each detected point)."
-
-#: ../../algorithm/auto_threshold.rst:44
-msgid "Recalcule de l'écart-type sur les pixels *hors* segmentation."
-msgstr "Recompute the standard deviation using the pixels *outside* the segmentation."
-
-#: ../../algorithm/auto_threshold.rst:45
-msgid "Répétition jusqu'à `max_iterations` ou convergence."
-msgstr "Repeat until `max_iterations` is reached or until convergence."
+msgid "Le cœur CPU effectue au plus cinq itérations. Il s'arrête et conserve le seuil courant si le masque couvre tout le plan ou si le nouveau seuil est pratiquement égal au précédent. Si la limite d'itérations est atteinte, il renvoie le dernier seuil mis à jour."
+msgstr "The CPU implementation runs at most five iterations. It stops and keeps the current threshold if the mask covers the entire frame or if the new threshold is nearly equal to the previous one. If the iteration limit is reached, it returns the last updated threshold."
 
 #: ../../algorithm/auto_threshold.rst:47
-msgid "**Critère d'arrêt :**"
-msgstr "**Stopping criterion:**"
+msgid "Le résultat fournit un point de départ pour la détection. Vérifiez-le avec l'aperçu sur plusieurs plans représentatifs, en particulier si le fond ou la densité d'émetteurs varie au cours de l'acquisition."
+msgstr "The result is a starting point for detection. Check it with the preview on several representative frames, especially if the background or emitter density varies during the acquisition."
 
-#: ../../algorithm/auto_threshold.rst:49
-msgid "Si tous les pixels sont segmentés avant la fin des itérations, la boucle s'arrête prématurément. Cela n'est possible que si les points détectés et leur zone d'intérêt couvrent l'intégralité de l'image."
-msgstr "If all pixels are segmented before the end of the iterations, the loop stops early. This is only possible if the detected points and their regions of interest cover the entire image."
+#: ../../algorithm/auto_threshold.rst:51
+msgid "Exemple en Python"
+msgstr "Python example"
 
-#: ../../algorithm/auto_threshold.rst:54
-msgid "Exemple d'utilisation"
-msgstr "Usage example"
-
-#: ../../algorithm/auto_threshold.rst:56
-msgid "Voici un exemple d'utilisation de la fonction :"
-msgstr "Here is an example of how to use the function:"
-
-#: ../../algorithm/auto_threshold.rst:77
-msgid "Remarques"
-msgstr "Notes"
-
-#: ../../algorithm/auto_threshold.rst:79
-msgid "L'utilisation de la DLL est essentielle au bon fonctionnement de cette fonction."
-msgstr "Using the DLL is essential for this function to work correctly."
-
-#: ../../algorithm/auto_threshold.rst:80
-msgid "La performance dépend de la taille de l'image et du nombre d'itérations."
-msgstr "Performance depends on the image size and on the number of iterations."
-
-#: ../../algorithm/auto_threshold.rst:81
-msgid "L'approche PALM permet une segmentation robuste sur des images bruitées."
-msgstr "The PALM approach provides robust segmentation on noisy images."
+#: ../../algorithm/auto_threshold.rst:53
+msgid ":py:meth:`~palm_tracer.Processing.Palm.Palm.auto_threshold` reçoit une image 2D et un tableau de paramètres. Le premier élément du tableau donne la taille de la fenêtre en pixels."
+msgstr ":py:meth:`~palm_tracer.Processing.Palm.Palm.auto_threshold` takes a 2D image and a parameter array. The first element of the array gives the window size in pixels."

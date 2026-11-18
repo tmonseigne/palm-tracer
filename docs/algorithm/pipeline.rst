@@ -1,94 +1,62 @@
 Pipeline des traitements
-==============================
+========================
 
 .. _pipeline_page:
 
-.. role:: python(code)
-   :language: python
+:guilabel:`Start Processing` lance les étapes ci-dessous selon les réglages du widget principal.
+Pour tester la localisation sur quelques plans, utilisez d'abord l'aperçu.
 
-.. role:: console(code)
-   :language: console
+Piles et dossier de résultats
+-----------------------------
 
-Récupération des données, :term:`localisation <Localisation>`, :term:`suivi <Suivi>`, analyses des :term:`trajectoires <Trajectoire>`, :term:`visualisation haute résolution <Image haute résolution>`, visualisation de graphiques et génération de :term:`galeries <Galerie de détections>` sont les étapes principales du :term:`pipeline <Pipeline>` de traitement de :term:`PALM <PALM (Photoactivated Localization Microscopy)>`.
-Ces étapes sont lancées dans la méthode :py:meth:`~PALMTracer.process` selon les paramètres de l'interface.
+:guilabel:`Only one` traite la pile sélectionnée. :guilabel:`Each File separately` traite chaque pile indépendamment.
+:guilabel:`All in One` concatène les piles dans l'ordre de la liste. Leurs dimensions X et Y doivent correspondre.
 
-Étape 1 : Récupération des piles
+Le dossier de résultats porte le suffixe :file:`_PALM_Tracer` (par exemple :file:`stack_PALM_Tracer` pour :file:`stack.tif`).
+En mode :guilabel:`All in One`, le nom vient du premier fichier de la liste.
+Chaque traitement associe les sorties à un horodatage partagé par :file:`settings-<horodatage>.json`,
+:file:`meta-<horodatage>.csv` et :file:`log-<horodatage>.log`.
+
+Ordre des calculs et du filtrage
 --------------------------------
 
-Selon le batch défini dans les paramètres de l'interface. Les :term:`piles <Pile d'images>` sont chargées en mémoire pour être traitées.
+.. figure:: ../_static/img/Pipeline.svg
+   :figclass: centered-caption
+   :alt: Schéma du pipeline, du chargement des piles aux visualisations, avec les filtres et les fichiers produits.
+   :align: center
+   :width: 100%
+   :target: ../_static/img/Pipeline.svg
 
-Il y a plusieurs possibilités :
+   Les résultats réutilisables figurent au-dessus des calculs. Les fichiers produits figurent en dessous.
 
-- Une seule pile est chargée, dans ce cas-là, le mode importe peu.
-- Plusieurs piles sont chargées, dans ce cas-là, le mode influe :
-   - **Only one** : seule la pile sélectionnée est utilisée.
-   - **Each File separately** : les piles sont utilisées les unes après les autres.
-   - **All in One** : les piles sont concaténées en une seule.
+#. :guilabel:`Localization` détecte et ajuste les émetteurs sur chaque plan. Lorsque l'estimation axiale est activée,
+   elle renseigne également Z à partir du modèle d'astigmatisme. **Après la localisation**, le pipeline applique les filtres de localisation activés.
+#. :guilabel:`Beads Extraction` extrait les trajectoires des billes fiduciaires à partir des localisations filtrées si leur tableau est non vide,
+   et des localisations non filtrées dans les autres cas.
+   Le fichier :file:`beads-<horodatage>.csv` sert à la correction de dérive et à l'exclusion des billes dans la reconstruction haute résolution.
+#. :guilabel:`Tracking` relie les localisations entre plans en privilégiant lui aussi le tableau filtré s'il est non vide.
+   **Après le suivi**, le pipeline applique les critères activés sur les plans, les identifiants, la longueur et le pourcentage de points dans la ROI.
+#. :guilabel:`Blinking Reconnection` utilise le **suivi non filtré**. La reconnexion peut ainsi relier des segments courts qu'un filtre de longueur
+   aurait écartés. **Après la reconnexion**, le pipeline applique les mêmes critères de filtrage aux trajectoires reconnectées.
+#. :guilabel:`Track Analysis` calcule le :term:`MSD <MSD (Mean Squared Displacement)>`, la :term:`diffusion instantanée <Diffusion instantanée>`
+   ou un ajustement du mouvement. Elle cherche successivement un tableau non vide parmi les trajectoires reconnectées et filtrées,
+   les trajectoires reconnectées, le suivi filtré, puis le suivi non filtré.
+   **Après les analyses**, le pipeline applique les critères de filtrage des trajectoires et les filtres activés sur les mesures disponibles,
+   puis conserve les mêmes identifiants de trajectoire dans les tableaux filtrés de suivi et d'analyse.
+#. :guilabel:`Gallery`, :guilabel:`Graph` et :guilabel:`HR` génèrent les sorties activées dans :guilabel:`Visualization`.
 
-Étape 2 : Sauvegarde des fichiers de paramètres et de métadonnées
------------------------------------------------------------------
+Enregistrement des résultats filtrés
+------------------------------------
 
-Dans le dossier de sortie - défini par le nom de la pile avec le suffixe :file:`_PALM_Tracer` (exemple: :file:`stack.tif` → :file:`stack_PALM_Tracer`) - sont sauvegardés :
+Les tableaux filtrés sont disponibles en mémoire. Pour les enregistrer en CSV pendant le traitement, cochez :guilabel:`Save filtered`
+dans :guilabel:`Filtering`. Seuls les tableaux filtrés non vides sont enregistrés, par exemple
+:file:`localizations_filtered-<horodatage>.csv` ou :file:`tracking_reconnected_filtered-<horodatage>.csv`.
+Pour la localisation, le suivi et la reconnexion, le filtrage doit avoir réduit le nombre de lignes. Après les analyses,
+l'écriture des résultats filtrés se déclenche si le nombre de lignes du tableau MSD change.
 
-- Un fichier de paramètres :file:`settings-<timestamp>.json` contenant les paramètres utilisés pour le traitement.
-- Un fichier de métadonnées :file:`meta-<timestamp>.csv` contenant les métadonnées de la pile (dimensions, :term:`calibration <Calibration spatiale et temporelle>`, etc.).
-- Un fichier de log :file:`log-<timestamp>.log` contenant les logs du traitement.
+Réutilisation des résultats
+---------------------------
 
-
-Étape 3 : Localisation
-----------------------
-
-La localisation est lancée selon les paramètres de l'interface. Si elle est désactivée, des localisations précalculées et non filtrées peuvent être chargées à condition qu'elle soit présente dans le dossier de sortie.
-
-Si des :term:`filtres <Filtrage des résultats>` sont sélectionnés, ils sont appliqués aux localisations pour ne garder que les localisations répondant aux critères définis.
-Si l'option :console:`save filtered` est sélectionné, la localisation filtrée est sauvegardée dans un fichier :file:`localizations_filtered-<timestamp>.csv`.
-
-.. note:: Si la localisation est désactivée et qu'aucune localisation précalculée n'est présente dans le dossier de sortie, la localisation est considérée comme vide et les étapes suivantes sont lancées avec des localisations vides.
-.. note:: Le chargement d'une localisation précalculée s'effectue toujours sur la version non filtrée la plus récente.
-
-Étape 4 : Suivi des molécules (tracking)
------------------------------------------
-
-Le suivi est lancé selon les paramètres de l'interface. S'il est désactivé, un suivi précalculé et non filtré peut être chargé à condition qu'il soit présent dans le dossier de sortie.
-Le suivi utilise en entrée la version filtrée des localisations précédentes (calculées ou chargées).
-S'il n'y a pas de version filtrée ou si les filtres ont éliminé l'intégralité des localisations, la version non filtrée est utilisée.
-
-Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis.
-Si l'option :console:`save filtered` est sélectionné, le suivi filtré est sauvegardé dans un fichier :file:`tracking_filtered-<timestamp>.csv`.
-
-Reconnexion des trajectoires
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Si l'option de :term:`reconnexion <Reconnexion des trajectoires>` est activée, les trajectoires sont reconnectées pour tenter de reconstruire des trajectoires plus longues.
-Les trajectoires reconnectées sont sauvegardées dans un fichier :file:`tracking-reconnected-<timestamp>.csv`. Il utilise en entrée la version non filtrée du suivi.
-
-Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis.
-Si l'option :console:`save filtered` est sélectionné, le suivi reconnecté et filtré est sauvegardé dans un fichier :file:`tracking_filtered_reconnected-<timestamp>.csv`.
-
-.. note:: Si le suivi est désactivé et qu'aucun suivi précalculé n'est présent dans le dossier de sortie, le suivi est considéré comme vide et les étapes suivantes sont lancées avec un suivi vide.
-.. note:: Le chargement d'un suivi précalculé s'effectue toujours sur la version non filtrée la plus récente et reconnectée si elle existe.
-
-
-Étape 5 : Analyses des trajectoires
---------------------------------------
-
-Des analyses peuvent être effectuées sur les trajectoires pour en extraire des informations (:term:`MSD <MSD (Mean Squared Displacement)>`, :term:`diffusion instantanée <Diffusion instantanée>`, ajustement vers un modèle).
-Ces analyses sont lancées selon les paramètres de l'interface.
-
-Les calculs utilisent en entrée la version filtrée et reconnectée du suivi précédent (calculée ou chargée).
-S'il n'y a pas de version filtrée ou reconnectée ou si les filtres ont éliminé l'intégralité des trajectoires, la version non filtrée est utilisée.
-
-Si des filtres sont sélectionnés, ils sont appliqués au suivi pour ne garder que les trajectoires répondant aux critères définis.
-Si l'option :console:`save filtered` est sélectionné, les calculs reconnectés et filtrés sont sauvegardés dans trois fichiers :
-:file:`tracking_MSD_filtered-<timestamp>.csv`, :file:`tracking_InstantD_filtered-<timestamp>.csv`, :file:`tracking_Fit_filtered-<timestamp>.csv`.
-
-.. note:: Si les calculs sont désactivés, les étapes suivantes seront capables de calculer les éléments nécessaires rapidement.
-
-.. warning:: Les trajectoires éliminées sont également éliminées dans le tableau de suivi original et le fichier :file:`tracking_filtered-<timestamp>.csv` est réécrit.
-
-Étape 6 : Visualisations
--------------------------
-
-La partie visualisation comprend la génération d'une galerie de :term:`ROI <ROI (Region Of Interest)>` de localisations ainsi que les visualisations de haute résolution et de graphiques.
-Ce sont des générations automatiques avec de simples paramètres de base (exemple : nombre de ROI, taille des ROI, etc.) pour une première exploration rapide des données notamment lors de Batch important.
-L'utilisation des visionneuses dédiées est recommandée pour une exploration plus approfondie et personnalisée des données.
+Le pipeline peut reprendre les résultats du dernier traitement si les réglages et les étapes amont le permettent.
+Un calcul en amont invalide généralement la réutilisation en aval. L'extraction des billes peut réutiliser un résultat antérieur malgré cette invalidation.
+Le journal indique les étapes calculées, reprises ou ignorées. Les fichiers de résultats repris sont renommés avec le nouvel horodatage.

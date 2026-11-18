@@ -3,79 +3,64 @@ Seuillage automatique
 
 .. _auto_threshold_page:
 
-.. function:: auto_threshold(image: np.ndarray, roi_size: int = 7, max_iterations: int = 4) -> float
+Dans :guilabel:`Localization`, :guilabel:`Auto Threshold` estime un :term:`seuil <Seuil (Threshold)>` sur le plan affiché
+et renseigne le champ :guilabel:`Threshold`. L'algorithme estime les fluctuations du fond à partir des intensités brutes
+en écartant les voisinages des émetteurs détectés. Le seuil ainsi obtenu s'applique aux coefficients d'ondelettes.
 
-	Calcule un :term:`seuil <Seuil (Threshold)>` automatique basé sur la segmentation de l'image en utilisant une bibliothèque DLL externe.
+Initialisation
+--------------
 
-	Cette fonction applique une segmentation itérative à l'image en exploitant la méthode **PALM (Point Accumulation for Localized Mean)**.
-	L'objectif est d'affiner progressivement un seuil basé sur l'écart-type des pixels non segmentés.
+Soit :math:`I(p)` l'intensité brute du pixel :math:`p`. Pour un ensemble non vide :math:`B` de pixels,
+la moyenne :math:`\mu_B` et l'écart-type :math:`\sigma_B` sont
 
-	:param image: Image en niveaux de gris sous forme de tableau NumPy 2D.
-	:type image: np.array
-	:param roi_size: Taille des régions d'intérêt (:term:`ROI <ROI (Region Of Interest)>`) utilisées pour la segmentation. Défaut : 7.
-	:type roi_size: int
-	:param max_iterations: Nombre maximal d'itérations pour l'affinement du seuil. Défaut : 4.
-	:type max_iterations: int
+.. math::
 
-	:return: Seuil calculé après convergence (écart-type des pixels non segmentés).
-	:rtype: float
+   \mu_B = \frac{1}{|B|}\sum_{p \in B} I(p),
+   \qquad
+   \sigma_B = \sqrt{\frac{1}{|B|}\sum_{p \in B}\bigl(I(p)-\mu_B\bigr)^2}.
 
+Au départ, :math:`B` contient tous les pixels du plan. L'écart-type :math:`\sigma_B` donne le premier seuil :math:`T_0`.
 
-Algorithme
-----------
+Détection et estimation du fond
+-------------------------------
 
-L'algorithme fonctionne en plusieurs étapes :
+#. **Détecter avec le seuil courant.** La décomposition en ondelettes à trous lisse le plan à plusieurs échelles sans rééchantillonnage.
+   Le deuxième plan de détail est la différence entre les deux premières approximations lissées. Le détecteur segmente les pixels
+   dont le coefficient dans ce plan est strictement supérieur à :math:`T_k`. Le cœur CPU autorise la fusion des bassins du watershed
+   et utilise les positions issues de la segmentation, sans ajustement de :term:`PSF <PSF (Point Spread Function)>`.
+#. **Reconstruire le masque.** À chaque itération, le masque est remis à zéro. Pour chaque détection, on marque les pixels d'une
+   fenêtre carrée centrée sur sa position et rognée aux bords de l'image. La demi-taille de la fenêtre vaut la moitié de
+   :guilabel:`ROI Size`. Le masque est l'union de ces fenêtres.
+#. **Réestimer le seuil.** On prend pour :math:`B` les pixels hors masque. On recalcule :math:`\sigma_B`
+   à partir de leurs intensités brutes et on l'utilise comme seuil de l'itération suivante.
 
-1. **Initialisation :**
+Par exemple, pour quatre intensités de 98, 100, 102 et 150 :term:`ADU <ADU (Analog-to-Digital Unit)>`, l'écart-type initial
+vaut environ 21,70 ADU. Si le masque exclut la valeur 150, le recalcul sur les trois autres valeurs donne environ 1,63 ADU.
 
-	- Création d'un masque vide, de la même taille que l'image, rempli de zéros.
-	- Calcul de l'écart-type initial de l'image (:math:`\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \bar{x})^2}`).
-	- Définition de la demi-taille de la région d'intérêt (`roi_size`).
+Critères d'arrêt
+----------------
 
-2. **Segmentation itérative :**
+Le cœur CPU effectue au plus cinq itérations. Il s'arrête et conserve le seuil courant si le masque couvre tout le plan
+ou si le nouveau seuil est pratiquement égal au précédent.
+Si la limite d'itérations est atteinte, il renvoie le dernier seuil mis à jour.
 
-	- Lancement de la fonction PALM de la DLL pour :term:`détecter <Détection>` des points caractéristiques avec les paramètres suivants :
-		- Le seuil est égal à l'écart-type calculé.
-		- Le :term:`watershed <Watershed>` est désactivé.
-		- Le :term:`fit Gaussien <Ajustement gaussien>` est désactivé.
-		- :term:`Sigma <Sigma (largeur gaussienne)>` vaut 1.
-		- Théta vaut :math:`\pi / 4`.
-	- Mise à jour du masque en activant les pixels correspondant aux régions détectées (zone autour de chaque point détecté).
-	- Recalcule de l'écart-type sur les pixels *hors* segmentation.
-	- Répétition jusqu'à `max_iterations` ou convergence.
+Le résultat fournit un point de départ pour la détection. Vérifiez-le avec l'aperçu sur plusieurs plans représentatifs,
+en particulier si le fond ou la densité d'émetteurs varie au cours de l'acquisition.
 
-3. **Critère d'arrêt :**
+Exemple en Python
+-----------------
 
-	- Si tous les pixels sont segmentés avant la fin des itérations, la boucle s'arrête prématurément.
-	  Cela n'est possible que si les points détectés et leur zone d'intérêt couvrent l'intégralité de l'image.
-
-
-Exemple d'utilisation
----------------------
-
-Voici un exemple d'utilisation de la fonction :
+:py:meth:`~palm_tracer.Processing.Palm.Palm.auto_threshold` reçoit une image 2D et un tableau de paramètres.
+Le premier élément du tableau donne la taille de la fenêtre en pixels.
 
 .. code-block:: python
 
-	import ctypes
-	import numpy as np
-	from palm_tracer.Processing import Palm
+   import numpy as np
 
-	# Utilisation de PALM et Chargement de la DLL
-	palm = Palm()
+   from palm_tracer.Processing import Palm
+   from palm_tracer.Tools.FileIO import open_tif
 
-	# Image factice 100x100 avec des valeurs aléatoires
-	image = np.random.randint(0, 255, (100, 100), dtype=np.uint8)
-
-	# Calcul du seuil
-	seuil = palm.auto_threshold(image)
-
-	print(f"Computed threshold: {seuil}")
-
-
-Remarques
----------
-
-- L'utilisation de la DLL est essentielle au bon fonctionnement de cette fonction.
-- La performance dépend de la taille de l'image et du nombre d'itérations.
-- L'approche PALM permet une segmentation robuste sur des images bruitées.
+   stack = open_tif("stack.tif")
+   fit_params = np.array([7.0], dtype=np.float64)
+   threshold = Palm().auto_threshold(stack[0], fit_params)
+   print(threshold)
