@@ -18,9 +18,7 @@ from palm_tracer.UI.Napari import get_current_palmtracer
 # ==================================================
 # region Constantes
 # ==================================================
-TIPS = {
-		"Export":    "Opens a dialog box and exports the figure according to the selected extension.",
-		}
+TIPS = {"Export": "Opens a dialog box and exports the figure according to the selected extension.", }
 
 
 # ==================================================

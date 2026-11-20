@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import cast
 
 from qtpy.compat import isalive
-from qtpy.QtCore import QEvent, QObject, Qt, Signal, Slot
+from qtpy.QtCore import QEvent, QObject, Qt, QTimer, Signal, Slot
 from qtpy.QtGui import QContextMenuEvent, QCursor, QDropEvent, QHideEvent, QResizeEvent, QShowEvent
 from qtpy.QtWidgets import QApplication, QDockWidget, QMenu, QWidget
 from superqt.utils import FunctionWorker
@@ -61,6 +61,11 @@ class BaseWidget(QWidget):
 		self.setStyleSheet(Ui.STYLESHEET_COMMON)
 		self._drop_window: QWidget | None = None  # .		 	Fenêtre Qt dont les dépôts sont interceptés.
 		self._drop_accepts: bool = False  # .				 	État initial à restaurer lors du masquage.
+		self._drop_filter_widgets: set[QWidget] = set()  # .	Widgets surveillés par le filtre local.
+		self._drop_filter_timer = QTimer(self)  # .				Actualisation différée des widgets surveillés.
+		self._drop_filter_timer.setSingleShot(True)
+		self._drop_filter_timer.timeout.connect(self._refresh_drop_filters)
+
 		self._context_menu_exclusions: list[QWidget] = []  # .	Vues conservant exclusivement leur propre menu contextuel.
 		self._notification_requested.connect(self._show_notification)
 		self._processing: bool = False  # .						Traitement et éventuelle finalisation encore actifs.
@@ -359,6 +364,16 @@ class BaseWidget(QWidget):
 		return window
 
 	# --------------------------------------------------
+	def _refresh_drop_filters(self):
+		"""Synchronise le filtre local avec la fenêtre de dépôt et ses enfants QWidget vivants."""
+		window = self._drop_window
+		widgets = {window, *window.findChildren(QWidget)} if window is not None and isalive(window) else set()
+		for widget in self._drop_filter_widgets - widgets:
+			if isalive(widget): widget.removeEventFilter(self)
+		for widget in widgets - self._drop_filter_widgets: widget.installEventFilter(self)
+		self._drop_filter_widgets = widgets
+
+	# --------------------------------------------------
 	def showEvent(self, event: QShowEvent):
 		"""
 		Active l'interception après l'insertion du widget dans sa fenêtre Qt.
@@ -371,7 +386,7 @@ class BaseWidget(QWidget):
 		self._drop_window = window
 		self._drop_accepts = window.acceptDrops()
 		window.setAcceptDrops(True)
-		QApplication.instance().installEventFilter(self)
+		self._refresh_drop_filters()
 
 	# --------------------------------------------------
 	def hideEvent(self, event: QHideEvent):
@@ -380,10 +395,11 @@ class BaseWidget(QWidget):
 
 		:param event: Événement de masquage Qt.
 		"""
-		QApplication.instance().removeEventFilter(self)
+		self._drop_filter_timer.stop()
 		if self._notification is not None and isalive(self._notification): self._notification.dismiss()
 		window = self._drop_window
 		self._drop_window = None
+		self._refresh_drop_filters()
 		# Qt peut détruire la fenêtre avant de masquer ses widgets enfants.
 		if window is not None and isalive(window): window.setAcceptDrops(self._drop_accepts)
 		super().hideEvent(event)
@@ -400,7 +416,9 @@ class BaseWidget(QWidget):
 		:param event: Événement à filtrer.
 		:return: ``True`` si l'événement est consommé.
 		"""
-		if event.type() not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
+		event_type = event.type()
+		if event_type in (QEvent.Type.ChildAdded, QEvent.Type.ChildRemoved): self._drop_filter_timer.start(0)
+		if event_type not in (QEvent.Type.DragEnter, QEvent.Type.DragMove, QEvent.Type.Drop): return False
 		window = self._drop_window
 		if window is None or not isalive(window) or not isinstance(watched, QWidget): return False
 		if watched is not window and not window.isAncestorOf(watched): return False
@@ -416,7 +434,7 @@ class BaseWidget(QWidget):
 		# Copy décrit l'ajout des chemins ; aucun fichier source n'est déplacé.
 		drop.setDropAction(Qt.DropAction.CopyAction)
 		drop.accept()
-		if event.type() == QEvent.Type.Drop: self._drop_files(paths)
+		if event_type == QEvent.Type.Drop: self._drop_files(paths)
 		return True
 
 	# --------------------------------------------------

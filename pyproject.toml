@@ -51,8 +51,8 @@ all = [
 ]
 
 testing = [
-	"PySide6",
-	"PySide6-Addons",
+	"PySide6>=6.12.0",
+	"PySide6-Addons>=6.12.0",
 	"tox",
 	"pytest", # https://docs.pytest.org/en/latest/contents.html
 	"pytest-cov", # https://pytest-cov.readthedocs.io/en/latest/

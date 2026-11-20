@@ -544,6 +544,28 @@ def test_drop_preserves_unrelated_events(drop_widget, qtbot, tmp_path, scenario)
 
 
 # --------------------------------------------------
+def test_drop_preserves_reparented_receiver_before_filter_refresh(drop_widget, qtbot, tmp_path):
+	"""Laisse le widget déplacé traiter le dépôt avant le retrait différé de son filtre."""
+	widget, receiver, calls = drop_widget
+	other_window = QWidget()
+	qtbot.addWidget(other_window)
+	layout = QVBoxLayout(other_window)
+	other_window.show()
+	path = tmp_path / "stack.tif"
+	path.touch()
+
+	layout.addWidget(receiver)
+	receiver.show()
+	# Le filtre est encore installé tant que le timer n'a pas actualisé les widgets surveillés.
+	assert widget._drop_filter_timer.isActive()
+	assert receiver in widget._drop_filter_widgets
+	send_file_drop(receiver, [path])
+
+	assert receiver.received == ["enter", "drop"]
+	assert calls == []
+
+
+# --------------------------------------------------
 @pytest.mark.parametrize("scenario", ["hidden", "deleted", "non-widget"], ids=["hidden-window", "deleted-window", "non-widget-receiver"])
 def test_drop_ignores_inactive_target(qtbot, tmp_path, monkeypatch, scenario):
 	"""Vérifie les événements tardifs et les destinataires dépourvus d'interface QWidget."""
