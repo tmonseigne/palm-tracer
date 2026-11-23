@@ -1,5 +1,5 @@
-Diagramme de classe PALM Tracer
-===============================
+Diagrammes de classes de PALM Tracer
+====================================
 
 Ces diagrammes présentent les principales classes et leurs relations.
 Les attributs et les méthodes sont volontairement masqués afin de privilégier une vue synthétique de l'architecture.
@@ -9,19 +9,31 @@ Les attributs et les méthodes sont volontairement masqués afin de privilégier
 Cœur applicatif
 ---------------
 
-Le premier diagramme regroupe l'orchestration, les traitements, les résultats, les outils et les interfaces graphiques de PALM Tracer.
+Ce diagramme regroupe l'orchestration, les traitements, les résultats, la configuration et les outils de PALM Tracer.
 
 
 .. graphviz:: _static/graph/classes_palm_tracer.dot
-   :alt: Diagramme de classe PALM Tracer
+   :alt: Diagramme du cœur applicatif de PALM Tracer
    :align: center
-   :caption: Diagramme de classe PALM Tracer
+   :caption: Diagramme du cœur applicatif de PALM Tracer
+
+
+Interface graphique
+-------------------
+
+Ce diagramme présente les classes du paquet ``palm_tracer.UI``, dont les widgets Napari et les vues de résultats.
+
+
+.. graphviz:: _static/graph/classes_ui.dot
+   :alt: Diagramme de l'interface graphique de PALM Tracer
+   :align: center
+   :caption: Diagramme de l'interface graphique de PALM Tracer
 
 
 Groupes de paramètres
 ---------------------
 
-Le deuxième diagramme présente la hiérarchie des groupes qui structurent la configuration des différentes étapes du traitement.
+Ce diagramme présente la hiérarchie des groupes qui structurent la configuration des différentes étapes du traitement.
 
 
 .. graphviz:: _static/graph/classes_groups.dot
@@ -33,7 +45,7 @@ Le deuxième diagramme présente la hiérarchie des groupes qui structurent la c
 Types de paramètres
 --------------------
 
-Le dernier diagramme présente les types de paramètres réutilisables et leur hiérarchie.
+Ce diagramme présente les types de paramètres réutilisables et leur hiérarchie.
 
 
 .. graphviz:: _static/graph/classes_types.dot

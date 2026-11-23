@@ -3,35 +3,25 @@ graph [bgcolor="transparent", nodesep="0.35", pad="0.2", rankdir="BT", ranksep="
 node [color="#4a4a4a", fillcolor="#e6e6ac", fontcolor="black", fontname="Helvetica", fontsize="10", shape="box", style="filled,rounded"];
 edge [color="#666666", fontcolor="#006400", fontname="Helvetica", fontsize="9"];
 
-"palm_tracer.UI.AlignmentWidget.AlignmentWidget" [label="AlignmentWidget"];
-"palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget" [label="Astigmatism3DWidget"];
-"palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget" [label="BasePlotlyWidget"];
 "palm_tracer.Tools.FileMigrator.FileMigrator" [label="FileMigrator"];
-"palm_tracer.UI.FileMigratorWidget.FileMigratorWidget" [label="FileMigratorWidget"];
 "palm_tracer.Processing.Filtering.Filtering" [label="Filtering"];
 "palm_tracer.Processing.GaussianMixture.GaussianMixture" [label="GaussianMixture"];
 "palm_tracer.Processing.Grapher.Grapher" [label="Grapher"];
-"palm_tracer.UI.GraphViewerWidget.GraphViewerWidget" [label="GraphViewerWidget"];
 "palm_tracer.Tools.Logger.Logger" [label="Logger"];
 "palm_tracer.Processing.Palm.Palm" [label="Palm"];
 "palm_tracer.PALMTracer.PALMTracer" [label="PALMTracer"];
-"palm_tracer.UI.PALMTracerWidget.PALMTracerWidget" [label="PALMTracerWidget"];
 "palm_tracer.Processing.Renderer.Renderer" [label="Renderer"];
 "palm_tracer.Results.Results" [label="Results"];
-"palm_tracer.UI.ResultsUI.ResultsUI" [label="ResultsUI"];
 "palm_tracer.Settings.ROI.ROI" [label="ROI"];
 "palm_tracer.Settings.ROIManager.ROIManager" [label="ROIManager"];
 "palm_tracer.Settings.Settings.Settings" [label="Settings"];
 "palm_tracer.Processing.Step.Step" [label="Step"];
 "palm_tracer.Processing.Step.StepAction" [label="StepAction"];
-"palm_tracer.UI.Viewer3DWidget.Viewer3DWidget" [label="Viewer3DWidget"];
-"palm_tracer.UI.ViewerHRWidget.ViewerHRWidget" [label="ViewerHRWidget"];
 
 "palm_tracer.PALMTracer.PALMTracer" -> "palm_tracer.Processing.Filtering.Filtering" [arrowhead="vee", arrowtail="none", fontcolor="#006400", label="filtering", minlen="1"];
 "palm_tracer.PALMTracer.PALMTracer" -> "palm_tracer.Processing.Palm.Palm" [arrowhead="vee", arrowtail="none", fontcolor="#006400", label="palm", minlen="1"];
 "palm_tracer.PALMTracer.PALMTracer" -> "palm_tracer.Results.Results" [arrowhead="vee", arrowtail="none", fontcolor="#006400", label="results", minlen="1"];
 "palm_tracer.PALMTracer.PALMTracer" -> "palm_tracer.Settings.Settings.Settings" [arrowhead="vee", arrowtail="none", fontcolor="#006400", label="settings", minlen="1"];
-"palm_tracer.PALMTracer.PALMTracer" -> "palm_tracer.UI.PALMTracerWidget.PALMTracerWidget" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="pt", minlen="1"];
 "palm_tracer.Processing.Grapher.Grapher" -> "palm_tracer.PALMTracer.PALMTracer" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_grapher", minlen="1"];
 "palm_tracer.Processing.Grapher.Grapher" -> "palm_tracer.Processing.GaussianMixture.GaussianMixture" [arrowhead="vee", arrowtail="none", fontcolor="#006400", label="fit", style="dashed", minlen="1"];
 "palm_tracer.Processing.Renderer.Renderer" -> "palm_tracer.PALMTracer.PALMTracer" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_renderer", minlen="1"];
@@ -40,12 +30,5 @@ edge [color="#666666", fontcolor="#006400", fontname="Helvetica", fontsize="9"];
 "palm_tracer.Settings.ROI.ROI" -> "palm_tracer.Settings.ROIManager.ROIManager" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_rois", minlen="1"];
 "palm_tracer.Settings.ROIManager.ROIManager" -> "palm_tracer.Processing.Filtering.Filtering" [arrowhead="odiamond", arrowtail="none", fontcolor="#006400", label="rois", minlen="1"];
 "palm_tracer.Settings.ROIManager.ROIManager" -> "palm_tracer.Settings.Settings.Settings" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="rois", minlen="1"];
-"palm_tracer.Tools.FileMigrator.FileMigrator" -> "palm_tracer.UI.FileMigratorWidget.FileMigratorWidget" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_fm", minlen="1"];
 "palm_tracer.Tools.Logger.Logger" -> "palm_tracer.PALMTracer.PALMTracer" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_logger", minlen="1"];
-"palm_tracer.UI.Astigmatism3DWidget.Astigmatism3DWidget" -> "palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget" [arrowhead="empty", arrowtail="none", minlen="1"];
-"palm_tracer.UI.GraphViewerWidget.GraphViewerWidget" -> "palm_tracer.UI.BasePlotlyWidget.BasePlotlyWidget" [arrowhead="empty", arrowtail="none", minlen="1"];
-"palm_tracer.UI.GraphViewerWidget.GraphViewerWidget" -> "palm_tracer.UI.PALMTracerWidget.PALMTracerWidget" [arrowhead="odiamond", arrowtail="none", fontcolor="#006400", label="viewer_graph", minlen="1"];
-"palm_tracer.UI.PALMTracerWidget.PALMTracerWidget" -> "palm_tracer.UI.Viewer3DWidget.Viewer3DWidget" [arrowhead="vee", arrowtail="none", fontcolor="#006400", label="viewer_3d_widget", minlen="1"];
-"palm_tracer.UI.PALMTracerWidget.PALMTracerWidget" -> "palm_tracer.UI.ViewerHRWidget.ViewerHRWidget" [arrowhead="vee", arrowtail="none", fontcolor="#006400", label="viewer_hr_widget", minlen="1"];
-"palm_tracer.UI.ResultsUI.ResultsUI" -> "palm_tracer.Results.Results" [arrowhead="diamond", arrowtail="none", fontcolor="#006400", label="_uis", minlen="1"];
 }
