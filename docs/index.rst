@@ -39,7 +39,6 @@ PALM Tracer est un logiciel tout-en-un pour l'analyse des données de microscopi
    :maxdepth: 1
 
    license
-   cdc
    user/user
    glossary
    diagram
