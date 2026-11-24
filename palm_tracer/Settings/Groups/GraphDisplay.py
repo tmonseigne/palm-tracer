@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import cast
+
+from qtpy.QtWidgets import QGridLayout, QLabel, QSpinBox
 
 from palm_tracer.Settings.Groups.BaseSettingGroup import BaseSettingGroup
+from palm_tracer.Settings.Groups.BaseUIGroup import BaseUIGroup
 from palm_tracer.Settings.Types import BaseSettingType, CheckBox, SpinInt
+from palm_tracer.Tools import Ui
 
 
 # --------------------------------------------------
@@ -45,6 +50,29 @@ class GraphDisplay(BaseSettingGroup):
 	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 	_mode: int = field(init=False, default=1)
 	"""Mode d'affichage du groupe dans l'interface."""
+
+	# --------------------------------------------------
+	def _populate_ui(self, ui: BaseUIGroup, name: str):
+		"""
+		Dispose les paramètres sur deux colonnes, avec le contrôle avant son libellé.
+
+		:param ui: Interface du groupe à remplir.
+		:param name: Nom de la vue des paramètres.
+		"""
+		grid = QGridLayout()
+		Ui.init_layout(grid, margin=0)
+		for index, setting in enumerate(self._settings.values()):
+			option = cast(BaseSettingType, setting).get_ui(name)
+			if isinstance(setting, SpinInt):
+				box = cast(QSpinBox, option.boxes[0])
+				Ui.set_spin_buttons(box, False)
+				Ui.set_spin_width(box, n_char=4)
+			option.layout.setSpacing(Ui.COMMON_SPACE)
+			option.layout.insertWidget(1, cast(QLabel, option.label))
+			grid.addLayout(option.layout, index // 2, index % 2)
+		grid.setColumnStretch(0, 1)
+		grid.setColumnStretch(1, 1)
+		ui.body_layout.addRow(grid)
 
 
 # --------------------------------------------------
