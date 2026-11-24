@@ -128,7 +128,7 @@ Calibration de l'acquisition
 
 Dans la section :guilabel:`Calibration`, renseignez :
 
-- Taille de pixel en micromètres (µm).
+- Taille de pixel en nanomètres entiers (nm).
 - Temps d'exposition en secondes par image.
 - Intensité lumineuse en photons par unités analogique-numériques (:term:`ADU <ADU (Analog-to-Digital Unit)>`).
 

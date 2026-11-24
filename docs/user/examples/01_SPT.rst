@@ -29,7 +29,7 @@ puis laissez :guilabel:`Only one` sélectionné. Une seule pile suffit pour rég
 
    Batch avec les fichiers...
 
-Dans :guilabel:`Calibration`, les captures indiquent une taille de pixel de 0,160 µm. Vérifiez cette valeur avec la calibration du microscope.
+Dans :guilabel:`Calibration`, renseignez une taille de pixel de 160 nm. Vérifiez cette valeur avec la calibration du microscope.
 Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Exposure Time (s/frame)`.
 Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence.
 
@@ -129,8 +129,8 @@ intéressent restent dans la zone, car un point qui en sort est écarté avant l
 Activer le suivi et la reconnexion
 ---------------------------------------------------
 
-Activez :guilabel:`Tracking` et réglez :guilabel:`Max Distance` sur 3 pixels entre deux plans successifs, soit 0,48 µm
-avec des pixels de 0,160 µm. Une distance trop petite coupe les trajectoires des particules rapides. Une distance trop grande
+Activez :guilabel:`Tracking` et réglez :guilabel:`Max Distance` sur 3 pixels entre deux plans successifs, soit 480 nm
+avec des pixels de 160 nm. Une distance trop petite coupe les trajectoires des particules rapides. Une distance trop grande
 augmente le risque de relier deux particules voisines.
 
 Pour examiner les candidats, affichez le contour circulaire de :guilabel:`ROI Present` et les points des deux plans voisins.

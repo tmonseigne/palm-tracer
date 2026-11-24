@@ -191,7 +191,7 @@ class FileMigrator:
 			self.update_meta("Width", int(metas[0]))
 			self.update_meta("Height", int(metas[1]))
 			self.update_meta("Plane Number", int(metas[2]))
-			self.update_meta("Pixel Size (μm)", float(metas[4]))
+			self.update_meta("Pixel Size (nm)", float(metas[4]) * 1000)
 			self.update_meta("Exposure Time (s/frame)", float(metas[5]))
 
 			data = self.dataframe_migrator(data, FILES_COLUMNS["Localization"]["columns"])
@@ -219,7 +219,7 @@ class FileMigrator:
 			self.update_meta("Width", int(metas[0]))
 			self.update_meta("Height", int(metas[1]))
 			self.update_meta("Plane Number", int(metas[2]))
-			self.update_meta("Pixel Size (μm)", float(metas[4]))
+			self.update_meta("Pixel Size (nm)", float(metas[4]) * 1000)
 			self.update_meta("Exposure Time (s/frame)", float(metas[5]))
 
 			data = self.dataframe_migrator(data, FILES_COLUMNS["Tracking"]["columns"])
@@ -487,6 +487,10 @@ class FileMigrator:
 		for col in data.columns:
 			key = self.column_migrator(col)
 			if key in target_cols: rename_map[col] = key
+			if key == "Z" and key in target_cols and re.search(r"\(\s*[uµμ]m\s*\)\s*$", col.lower()):
+				# Le format MetaMorph utilise -1 pour signaler une coordonnée Z absente.
+				z = data[col]
+				data = data.assign(**{col: z.where(z == -1, z * 1000)})
 
 		data = data.rename(columns=rename_map)  # Renommage des paires trouvées
 

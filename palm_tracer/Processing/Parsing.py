@@ -8,7 +8,7 @@ import pandas as pd
 # Titre des colonnes selon les fichiers et indications des colonnes entières
 FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 		"Meta":                 {
-				"columns": ["Height", "Width", "Plane Number", "Pixel Size (μm)", "Exposure Time (s/frame)", "Intensity (photon/ADU)"],
+				"columns": ["Height", "Width", "Plane Number", "Pixel Size (nm)", "Exposure Time (s/frame)", "Intensity (photon/ADU)"],
 				"types":   ["Height", "Width", "Plane Number"]
 				},
 		"Localization":         {

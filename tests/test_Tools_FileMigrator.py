@@ -73,6 +73,10 @@ def test_migrate(capsys, copy_input):
 	for ref_file in sorted((REF_DIR / "stack_PALM_Tracer").glob("*.csv")):
 		res_file = sorted(output_folder.glob(f"{ref_file.stem}-*.csv"))[0]
 		ref, res = pd.read_csv(ref_file), pd.read_csv(res_file)
+		if ref_file.stem == "meta":
+			# La référence historique contient la taille du pixel en micromètres.
+			ref["Pixel Size (μm)"] *= 1000
+			ref = ref.rename(columns={"Pixel Size (μm)": "Pixel Size (nm)"})
 		ref, res = ref.apply(pd.to_numeric, errors="coerce"), res.apply(pd.to_numeric, errors="coerce")
 		pd.testing.assert_frame_equal(ref, res, check_dtype=False)
 
@@ -171,6 +175,20 @@ def test_column_migrator():
 	for i in range(len(data)):
 		res = m.column_migrator(data[i])
 		assert ref[i] == res, f"Résultat incorrect.\nAttendu : {ref[i]}\nObtenu : {res}"
+
+# --------------------------------------------------
+@pytest.mark.parametrize("column, expected", [
+		pytest.param("CentroidZ(um)", [250.0, -125.0, -1.0], id="legacy-micrometers"),
+		pytest.param("Centroid Z (nm)", [0.25, -0.125, -1.0], id="nanometers")])
+def test_migrate_axial_coordinates(column, expected):
+	"""Convertit les coordonnées axiales historiques en conservant la sentinelle."""
+	data = pd.DataFrame({column: [0.25, -0.125, -1.0]})
+
+	result = FileMigrator().dataframe_migrator(data, ["Z"])
+
+	assert result["Z"].tolist() == expected
+	assert data[column].tolist() == [0.25, -0.125, -1.0]
+
 
 # ==================================================
 # endregion Outils de conversion

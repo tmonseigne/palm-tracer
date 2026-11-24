@@ -83,7 +83,7 @@ def get_fake_pt(input_stack: Path):
 	pt.results["MSD"] = pd.read_csv(INPUT_DIR / "tracking_MSD.csv")
 	pt.results["InD"] = pd.read_csv(INPUT_DIR / "tracking_InstantD.csv")
 	pt.results["Fit"] = pd.read_csv(INPUT_DIR / "tracking_Fit.csv")
-	pt.settings.calibration["Pixel Size"].value = 0.001  # 1nm/pixel simplifie la vérification des calculs sur ces fausses données.
+	pt.settings.calibration["Pixel Size"].value = 1  # 1nm/pixel simplifie la vérification des calculs sur ces fausses données.
 	return pt
 
 

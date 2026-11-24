@@ -77,7 +77,7 @@ def group_base_test(group: sg.BaseSettingGroup, names: list[str],
 # region Contrats communs
 # ==================================================
 @pytest.mark.parametrize("group_type, keys, setting_type, change, default", [
-		pytest.param(sg.Calibration, ["Pixel Size", "Exposure", "Intensity"], st.SpinFloat, 0.32, 0.16, id="calibration"),
+		pytest.param(sg.Calibration, ["Pixel Size", "Exposure", "Intensity"], st.SpinInt, 320, 160, id="calibration"),
 		pytest.param(sg.GaussianFit, ["Mode", "Sigma", "Theta", "Z", "Z max", "Model", "Default Model"], st.Combo, 2, 0, id="gaussian-fit"),
 		pytest.param(sg.SplineFit, ["Sensor", "Variance Map", "File"], st.Combo, 1, 0, id="spline-fit"),
 		pytest.param(sg.BeadsExtraction, ["Max Distance"], st.SpinFloat, 2, 1, id="beads"),

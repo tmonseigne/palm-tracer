@@ -55,8 +55,8 @@ def test_sync_spin(qtbot, capsys, monkeypatch, fake_qfiledialog):
 	assert w._spin_z_estimate.value() == init + 1, "Mise à jour du spin sur Z invalide"
 
 	init = w._spin_px_compute.value()
-	w._spin_px_compute.setValue(init + 0.1)
-	assert w._spin_px_estimate.value() == init + 0.1, "Mise à jour du spin sur Pixel Size invalide"
+	w._spin_px_compute.setValue(init + 100)
+	assert w._spin_px_estimate.value() == init + 100, "Mise à jour du spin sur Pixel Size invalide"
 
 	w.close()
 
@@ -143,7 +143,7 @@ def test_update_plot_modes(qtbot, monkeypatch, mode, expected):
 	args, kwargs = plot.call_args
 	np.testing.assert_array_equal(args[0], w._model.to_numpy())
 	assert args[1] is None
-	assert kwargs == {"title": w.GRAPH_TITLE, "pixel_size": w._spin_px_compute.value() * 1000, "z_max": w._spin_z_estimate.value(), "mode": expected}
+	assert kwargs == {"title": w.GRAPH_TITLE, "pixel_size": w._spin_px_compute.value(), "z_max": w._spin_z_estimate.value(), "mode": expected}
 	assert w._fig is figure
 	update_web.assert_called_once_with()
 
@@ -355,7 +355,7 @@ def test_estimation_load_does_not_calibrate(qtbot, capsys, fake_qfiledialog, tmp
 	model = w._model.copy()
 	capsys.readouterr()
 
-	w._spin_px_estimate.setValue(0.2)
+	w._spin_px_estimate.setValue(200)
 	w._spin_z_estimate.setValue(450)
 
 	pd.testing.assert_frame_equal(w._model, model)
@@ -410,7 +410,7 @@ def test_compute_without_calibration_data(qtbot, capsys):
 	"""Vérifie que les paramètres restent modifiables sans déclencher de calibration avant le chargement."""
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(200)
 	w._spin_z_compute.setValue(450)
 	w._check_z_flip.setChecked(True)
 	assert w._model.empty
@@ -440,7 +440,7 @@ def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path,
 	# Configuration des options de calibration avant de charger les localisations.
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(200)
 	w._check_z_from_plane.setChecked(scenario == "plane-z")
 	w._check_z_flip.setChecked(scenario == "plane-z")
 	w._check_z_center.setChecked(scenario != "uncentered")
@@ -469,14 +469,14 @@ def test_compute_on_localization_load(qtbot, capsys, fake_qfiledialog, tmp_path,
 
 # --------------------------------------------------
 @pytest.mark.parametrize("attribute, value", [
-		pytest.param("_spin_px_compute", 0.21, id="pixel-size"),
+		pytest.param("_spin_px_compute", 210, id="pixel-size"),
 		pytest.param("_spin_z_compute", 450, id="z-limit"),
 		pytest.param("_spin_z_interval", 25, id="plane-interval"),
 		pytest.param("_check_z_from_plane", False, id="z-from-plane"),
 		pytest.param("_check_z_center", False, id="center-z"),
 		pytest.param("_check_z_flip", True, id="flip-z"),
 		pytest.param("_check_only_one", True, id="one-bead"),
-		pytest.param("_spin_px_estimate", 0.21, id="synced-pixel-size"),
+		pytest.param("_spin_px_estimate", 210, id="synced-pixel-size"),
 		pytest.param("_spin_z_estimate", 450, id="synced-z-limit")])
 def test_compute_on_parameter_change(qtbot, capsys, fake_qfiledialog, tmp_path, attribute, value):
 	"""Vérifie un unique recalcul complet pour chaque paramètre, y compris les paramètres synchronisés."""
@@ -485,7 +485,7 @@ def test_compute_on_parameter_change(qtbot, capsys, fake_qfiledialog, tmp_path, 
 	original_file = localization_file.read_bytes()
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(200)
 	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
 	capsys.readouterr()
@@ -513,7 +513,7 @@ def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path, user_model
 	original_z = pd.read_csv(localization_file)["Z"].to_numpy()
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(200)
 	w._check_z_from_plane.setChecked(False)
 	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
 	qtbot.mouseClick(w._btn_load_compute, Qt.MouseButton.LeftButton)
@@ -522,8 +522,8 @@ def test_compute_reuses_original_z(qtbot, fake_qfiledialog, tmp_path, user_model
 	w._check_z_flip.setChecked(True)
 	assert not np.allclose(w._model, original_model)
 	pd.testing.assert_frame_equal(pd.read_csv(user_model_path, index_col=0), w._model)
-	w._spin_px_compute.setValue(0.21)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(210)
+	w._spin_px_compute.setValue(200)
 	w._check_z_flip.setChecked(False)
 
 	np.testing.assert_array_equal(w._calibration_z, original_z)
@@ -570,7 +570,7 @@ def test_compute_remove_multi(qtbot, capsys, fake_qfiledialog, tmp_path):
 	data.to_csv(localization_file, index=False)
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(200)
 	w._check_z_from_plane.setChecked(False)
 	w._check_only_one.setChecked(True)
 	capsys.readouterr()
@@ -592,7 +592,7 @@ def test_compute_missing_plane(qtbot, capsys, fake_qfiledialog, tmp_path):
 	pd.read_csv(LOC_FILE).drop(columns=["Plane"]).to_csv(localization_file, index=False)
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(200)
 	capsys.readouterr()
 
 	fake_qfiledialog(Astigmatism3DWidget, str(localization_file))
@@ -641,7 +641,7 @@ def test_compute_bad_model(qtbot, capsys, fake_qfiledialog, tmp_path, user_model
 	data.to_csv(localization_file, index=False)
 	w = Astigmatism3DWidget()
 	qtbot.addWidget(w)
-	w._spin_px_compute.setValue(0.2)
+	w._spin_px_compute.setValue(200)
 	w._check_z_from_plane.setChecked(False)
 	w._check_z_center.setChecked(False)
 	# Des sigmas aléatoires ne garantissent pas l'échec du solveur : imposer ici son résultat
@@ -741,7 +741,7 @@ def test_estimate_default_model(qtbot, tmp_path, content):
 	assert not w._lbl_model_estimate.isEnabled()
 	if content == "valid":
 		points = w._loc.loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
-		expected = w._palm.astigmatism_3d_estimation(points, w._spin_px_estimate.value() * 1000, default.to_numpy(), w._spin_z_estimate.value())
+		expected = w._palm.astigmatism_3d_estimation(points, w._spin_px_estimate.value(), default.to_numpy(), w._spin_z_estimate.value())
 	else: assert w._get_estimation_model().empty
 	w._on_estimate()
 	if content == "valid":

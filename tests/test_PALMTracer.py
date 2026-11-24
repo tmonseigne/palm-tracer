@@ -655,7 +655,7 @@ def test_process_localization_z(capsys, pt, use_default, input_stack, output_fol
 	model_path = FileIO.DEFAULT_ASTIGMATISM_MODEL if use_default else REF_DIR / "astigmatism_3d_model.csv"
 	model = pd.read_csv(model_path, index_col=0)
 	points = pt.results["loc"][["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
-	expected = pt.palm.astigmatism_3d_estimation(points, pt.settings.calibration["Pixel Size"].value * 1000, model.to_numpy(), s["Z max"].value)
+	expected = pt.palm.astigmatism_3d_estimation(points, pt.settings.calibration["Pixel Size"].value, model.to_numpy(), s["Z max"].value)
 	np.testing.assert_allclose(pt.results["loc"][["Z", "MSE Z"]].to_numpy(), expected)
 	check_output(output_folder, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
@@ -890,6 +890,28 @@ def test_process_track_analysis(capsys, pt, sequential_timestamps, input_stack, 
 	check_capsys(capsys, 18, [5, 6, 7, 9, 10, 13, 14, 15])
 
 
+# --------------------------------------------------
+@pytest.mark.parametrize("is_3d, expected_msd, expected_speed", [
+		pytest.param(False, 0.0256, 3.2, id="lateral"),
+		pytest.param(True, 0.04, 4.0, id="with-axial-motion")])
+def test_track_analysis_physical_units(pt, monkeypatch, is_3d, expected_msd, expected_speed):
+	"""Vérifie les unités de MSD et de vitesse à partir de coordonnées XY en pixels et Z en nm."""
+	planes = np.arange(1, 7)
+	tracks = pd.DataFrame({"Track": 1, "Plane": planes, "Id": planes, "X": planes.astype(float), "Y": 0.0,
+						   "Z": 120.0 * planes, "Integrated Intensity": 1.0, "Surface": 1})
+	pt.results["trc"] = tracks
+	pt.settings.track_analysis["MSD"].value = True
+	pt.settings.track_analysis["Fit"].value = 2
+	pt.settings.track_analysis["3D"].value = is_3d
+	monkeypatch.setattr(pt.results, "save", Mock())
+
+	pt._track_analysis()
+
+	assert pt.results["MSD"].iloc[0, 1] == pytest.approx(expected_msd)
+	assert pt.results["Fit"]["Average Speed (Last-First)(μm/s)"].iloc[0] == pytest.approx(expected_speed)
+	np.testing.assert_array_equal(pt.results["trc"]["Z"], 120.0 * planes)
+
+
 # ==================================================
 # endregion Billes et trajectoires
 # ==================================================
@@ -1057,7 +1079,7 @@ def test_update_filtered_saves_only_filters(pt, tmp_path):
 
 	pt.settings.filters["Plane"].active = True
 	pt.settings.hr["Ratio"].value = 8
-	pt.settings.calibration["Pixel Size"].value = 0.32
+	pt.settings.calibration["Pixel Size"].value = 320
 	pt.update_filtered()
 
 	actual = FileIO.open_json(settings_file)

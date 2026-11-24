@@ -27,8 +27,8 @@ msgid "Paramètres regroupés :"
 msgstr "Parameters"
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:5
-msgid "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : taille d'un pixel ; valeur par défaut : ``0.160`` µm."
-msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): pixel size; default value: ``0.160`` µm."
+msgid "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille d'un pixel ; valeur par défaut : ``160`` nm."
+msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): pixel size; default value: ``160`` nm."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:6
 msgid "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : temps d'exposition par image ; valeur par défaut : ``0.050`` s."

@@ -756,7 +756,7 @@ def test_generate_render_and_roi_transitions(qtbot, input_stack):
 	s.hr_3d["Z Step"].value = 1
 	s.track_stack["Head"].value = 1
 	s.track_stack["Width"].value = 1
-	pt.settings.calibration["Pixel Size"].value = 0.001
+	pt.settings.calibration["Pixel Size"].value = 1
 
 	# Deux vrais calques de ROI pour vérifier les transformations dans les deux sens.
 	main_viewer = ViewerModel()

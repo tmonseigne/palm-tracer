@@ -436,7 +436,7 @@ class PALMTracer:
 								 "(by default, file must be in output folder or in same folder as the stack).")
 			else:
 				z_max = s["Gaussian Fit Z max"]
-				pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en nanomètres
+				pixel_size = self.settings.calibration["Pixel Size"].value
 				points = self.results["loc"].loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
 				estimated_z = self.palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
 				self.results["loc"][["Z", "MSE Z"]] = estimated_z
@@ -557,8 +557,11 @@ class PALMTracer:
 
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
-		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"], sc["Pixel Size"],
+		# La DLL met X et Y à l'échelle, mais lit Z directement dans l'unité physique des calculs.
+		if s["3D"] and "Z" in df:
+			df = df.copy(deep=False)
+			df["Z"] = df["Z"] / 1000
+		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"], sc["Pixel Size"] / 1000,
 									   sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
@@ -1225,7 +1228,7 @@ class PALMTracer:
 
 		:return: Pas sur Z identique au pas sur X et Y.
 		"""
-		pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en Nanomètres
+		pixel_size = self.settings.calibration["Pixel Size"].value
 		upscale = self.settings.hr["Ratio"].value
 		return pixel_size / upscale
 

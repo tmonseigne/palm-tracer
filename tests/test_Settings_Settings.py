@@ -17,13 +17,13 @@ from tests.Utils import *
 def test_settings(qtbot, capsys):
 	"""Vérifie la classe (constructeur, getter, setter)."""
 	settings = Settings()
-	settings.calibration["Pixel Size"].value = 0.32
+	settings.calibration["Pixel Size"].value = 320
 
 	dictionary = copy.deepcopy(settings.to_compact_dict())
 	settings.reset()
-	assert settings.calibration["Pixel Size"].value == 0.16, "Le paramètre n'a pas été remis à sa valeur par défaut."
+	assert settings.calibration["Pixel Size"].value == 160, "Le paramètre n'a pas été remis à sa valeur par défaut."
 	settings.update_from_compact_dict(dictionary)
-	assert settings.calibration["Pixel Size"].value == 0.32, "Le paramètre n'a pas été correctement enregistré dans le dictionnaire."
+	assert settings.calibration["Pixel Size"].value == 320, "Le paramètre n'a pas été correctement enregistré dans le dictionnaire."
 
 	_ = settings.get_ui()
 	_ = settings.get_ui()  # Second appel

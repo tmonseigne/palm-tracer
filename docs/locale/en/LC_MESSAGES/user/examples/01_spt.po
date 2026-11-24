@@ -49,8 +49,8 @@ msgid "Batch avec les fichiers..."
 msgstr "Open the files"
 
 #: ../../user/examples/01_SPT.rst:32
-msgid "Dans :guilabel:`Calibration`, les captures indiquent une taille de pixel de 0,160 µm. Vérifiez cette valeur avec la calibration du microscope. Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Exposure Time (s/frame)`. Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence."
-msgstr "In :guilabel:`Calibration`, the screenshots show a pixel size of 0.160 µm. Check this value against the microscope calibration. To convert durations and calculate diffusion, enter the interval between frames in :guilabel:`Exposure Time (s/frame)`. The filenames indicate a 20 ms exposure. Enter 0.020 s per frame if the metadata confirms that frame interval."
+msgid "Dans :guilabel:`Calibration`, renseignez une taille de pixel de 160 nm. Vérifiez cette valeur avec la calibration du microscope. Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Exposure Time (s/frame)`. Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence."
+msgstr "In :guilabel:`Calibration`, enter a pixel size of 160 nm. Check this value against the microscope calibration. To convert durations and calculate diffusion, enter the interval between frames in :guilabel:`Exposure Time (s/frame)`. The filenames indicate a 20 ms exposure. Enter 0.020 s per frame if the metadata confirms that frame interval."
 
 #: ../../user/examples/01_SPT.rst:36 ../../user/examples/01_SPT.rst:42
 msgid "Calibration Paramétré."
@@ -147,8 +147,8 @@ msgid "Activer le suivi et la reconnexion"
 msgstr "Enable tracking and reconnection"
 
 #: ../../user/examples/01_SPT.rst:132
-msgid "Activez :guilabel:`Tracking` et réglez :guilabel:`Max Distance` sur 3 pixels entre deux plans successifs, soit 0,48 µm avec des pixels de 0,160 µm. Une distance trop petite coupe les trajectoires des particules rapides. Une distance trop grande augmente le risque de relier deux particules voisines."
-msgstr "Enable :guilabel:`Tracking` and set :guilabel:`Max Distance` to 3 pixels between consecutive frames, or 0.48 µm at a pixel size of 0.160 µm. A distance that is too small breaks the tracks of fast particles. A distance that is too large makes it easier to link two nearby particles by mistake."
+msgid "Activez :guilabel:`Tracking` et réglez :guilabel:`Max Distance` sur 3 pixels entre deux plans successifs, soit 480 nm avec des pixels de 160 nm. Une distance trop petite coupe les trajectoires des particules rapides. Une distance trop grande augmente le risque de relier deux particules voisines."
+msgstr "Enable :guilabel:`Tracking` and set :guilabel:`Max Distance` to 3 pixels between consecutive frames, or 480 nm at a pixel size of 160 nm. A distance that is too small breaks the tracks of fast particles. A distance that is too large makes it easier to link two nearby particles by mistake."
 
 #: ../../user/examples/01_SPT.rst:136
 msgid "Pour examiner les candidats, affichez le contour circulaire de :guilabel:`ROI Present` et les points des deux plans voisins. Avec :guilabel:`ROI Size` réglé à 7 pixels, le cercle donne un repère visuel pour une distance de l'ordre de 3 pixels. Sur la capture, parmi les quatre détections du groupe au centre, celle du haut à gauche a un candidat orange mais aucun candidat cyan. Les trois autres ont des candidats dans les deux plans. Le suivi décide des associations à partir des distances entre détections."
