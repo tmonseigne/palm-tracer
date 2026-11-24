@@ -55,7 +55,6 @@ testing = [
 	"pytest", # .       https://docs.pytest.org/en/latest/contents.html
 	"pytest-cov", # .   https://pytest-cov.readthedocs.io/en/latest/
 	"pytest-qt", # .    https://pytest-qt.readthedocs.io/en/latest/
-	"pytest-json",
 	"pytest-json-report",
 	"pytest-metadata",
 	#"torch" # Installer pytorch à part : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
