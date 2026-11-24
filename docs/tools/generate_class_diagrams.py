@@ -51,7 +51,10 @@ class Diagram:
 
 
 DIAGRAMS = (Diagram(name="classes_palm_tracer", filename="classes_palm_tracer.dot", fill_color="#e6e6ac",
-					edge_rank_cycle=1, contains=lambda identifier: ".Settings.Groups." not in identifier and ".Settings.Types." not in identifier),
+					edge_rank_cycle=1, contains=lambda identifier: not identifier.startswith("palm_tracer.UI.")
+					and ".Settings.Groups." not in identifier and ".Settings.Types." not in identifier),
+			Diagram(name="classes_ui", filename="classes_ui.dot", fill_color="#ace6ac",
+					edge_rank_cycle=1, contains=lambda identifier: identifier.startswith("palm_tracer.UI.")),
 			Diagram(name="classes_groups", filename="classes_groups.dot", fill_color="#e6ace6",
 					edge_rank_cycle=4, contains=lambda identifier: ".Settings.Groups." in identifier),
 			Diagram(name="classes_types", filename="classes_types.dot", fill_color="#acace6",
@@ -244,7 +247,7 @@ def _render_diagram(diagram: Diagram, nodes: set[str], edges: list[tuple[str, st
 
 # --------------------------------------------------
 def generate_class_diagrams():
-	"""Génère les trois diagrammes de classes utilisés par Sphinx."""
+	"""Génère les quatre diagrammes de classes utilisés par Sphinx."""
 	GRAPH_PATH.mkdir(parents=True, exist_ok=True)
 	with tempfile.TemporaryDirectory(prefix="palm-tracer-pyreverse-") as temporary_directory:
 		raw_graph_path = _run_pyreverse(Path(temporary_directory))

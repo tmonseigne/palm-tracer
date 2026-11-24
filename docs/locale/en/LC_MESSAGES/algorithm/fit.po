@@ -3,21 +3,132 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-11-18 16:41+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: English\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
 
 #: ../../algorithm/fit.rst:2
 msgid "Ajustement de la localisation"
 msgstr "Localization fitting"
 
 #: ../../algorithm/fit.rst:6
-msgid "Work In Progress"
-msgstr ""
+msgid "L':term:`ajustement gaussien <Ajustement gaussien>` affine la position latérale d'un émetteur en ajustant un modèle de :term:`PSF <PSF (Point Spread Function)>` aux intensités brutes des pixels autour de la détection. La segmentation fournit la position initiale. Le centre du modèle ajusté donne les coordonnées subpixel."
+msgstr ":term:`Gaussian fitting <Ajustement gaussien>` refines an emitter's lateral position by fitting a :term:`PSF <PSF (Point Spread Function)>` model to the raw pixel intensities around the detection. Segmentation provides the initial position. The fitted center gives the subpixel coordinates."
 
-#: ../../algorithm/fit.rst:13
-msgid "Page en cours d'écriture."
-msgstr "Page currently being written."
+#: ../../algorithm/fit.rst:10
+msgid "Modèle de la tache"
+msgstr "Spot model"
+
+#: ../../algorithm/fit.rst:12
+msgid "Le modèle comporte un fond constant :math:`b`, une amplitude :math:`A` et un centre :math:`(x_0,y_0)`. En posant :math:`\\Delta x=x-x_0` et :math:`\\Delta y=y-y_0`, les coordonnées :math:`u,v` le long des axes du modèle sont"
+msgstr "The model has a constant background :math:`b`, an amplitude :math:`A`, and a center :math:`(x_0,y_0)`. With :math:`\\Delta x=x-x_0` and :math:`\\Delta y=y-y_0`, the coordinates :math:`u,v` along the model axes are"
+
+#: ../../algorithm/fit.rst:15
+msgid "u=\\Delta x\\cos\\theta-\\Delta y\\sin\\theta,\\qquad\n"
+"v=\\Delta x\\sin\\theta+\\Delta y\\cos\\theta."
+msgstr "u=\\Delta x\\cos\\theta-\\Delta y\\sin\\theta,\\qquad\nv=\\Delta x\\sin\\theta+\\Delta y\\cos\\theta."
+
+#: ../../algorithm/fit.rst:20
+msgid "L'intensité prédite au pixel :math:`(x,y)` vaut"
+msgstr "The predicted intensity at pixel :math:`(x,y)` is"
+
+#: ../../algorithm/fit.rst:22
+msgid "\\widehat I(x,y)=b+A\\exp\\left[-\\frac12\n"
+"   \\left(\\frac{u^2}{\\sigma_x^2}+\\frac{v^2}{\\sigma_y^2}\\right)\\right]."
+msgstr "\\widehat I(x,y)=b+A\\exp\\left[-\\frac12\n   \\left(\\frac{u^2}{\\sigma_x^2}+\\frac{v^2}{\\sigma_y^2}\\right)\\right]."
+
+#: ../../algorithm/fit.rst:27
+msgid "Les largeurs :math:`\\sigma_x` et :math:`\\sigma_y` sont des écarts-types en pixels selon les deux axes du modèle. Lorsque les largeurs sont égales, la tache est circulaire et l'angle est indéterminé."
+msgstr "The widths :math:`\\sigma_x` and :math:`\\sigma_y` are standard deviations in pixels along the two model axes. When the widths are equal, the spot is circular and its angle is undetermined."
+
+#: ../../algorithm/fit.rst:31
+msgid "Paramètres ajustés"
+msgstr "Fitted parameters"
+
+#: ../../algorithm/fit.rst:33
+msgid "Les quatre modes ajustent le fond, l'amplitude et le centre. Ils diffèrent par les paramètres de forme laissés libres."
+msgstr "All four modes fit the background, amplitude, and center. They differ in which shape parameters are free."
+
+#: ../../algorithm/fit.rst:39
+msgid "Mode"
+msgstr "Mode"
+
+#: ../../algorithm/fit.rst:40
+msgid "Forme de la PSF"
+msgstr "PSF shape"
+
+#: ../../algorithm/fit.rst:41
+msgid ":guilabel:`X, Y`"
+msgstr ":guilabel:`X, Y`"
+
+#: ../../algorithm/fit.rst:42
+msgid "Une largeur commune fixée par :guilabel:`σ`."
+msgstr "A shared width set by :guilabel:`σ`."
+
+#: ../../algorithm/fit.rst:43
+msgid ":guilabel:`X, Y, Sigma`"
+msgstr ":guilabel:`X, Y, Sigma`"
+
+#: ../../algorithm/fit.rst:44
+msgid "Une largeur commune ajustée."
+msgstr "A shared width fitted to the data."
+
+#: ../../algorithm/fit.rst:45
+msgid ":guilabel:`X, Y, SigmaX, SigmaY`"
+msgstr ":guilabel:`X, Y, SigmaX, SigmaY`"
+
+#: ../../algorithm/fit.rst:46
+msgid "Deux largeurs ajustées avec l'angle fixé par :guilabel:`θ`."
+msgstr "Two fitted widths with the angle fixed by :guilabel:`θ`."
+
+#: ../../algorithm/fit.rst:47
+msgid ":guilabel:`X, Y, SigmaX, SigmaY, Theta`"
+msgstr ":guilabel:`X, Y, SigmaX, SigmaY, Theta`"
+
+#: ../../algorithm/fit.rst:48
+msgid "Deux largeurs et un angle ajustés."
+msgstr "Two fitted widths and a fitted angle."
+
+#: ../../algorithm/fit.rst:50
+msgid "Le calcul de Z par :ref:`astigmatisme <astig_page>` utilise les deux modes à largeurs indépendantes."
+msgstr "Estimating Z by :ref:`astigmatism <astig_page>` uses the two modes with independent widths."
+
+#: ../../algorithm/fit.rst:53
+msgid "Optimisation sur la fenêtre"
+msgstr "Optimization over the window"
+
+#: ../../algorithm/fit.rst:55
+msgid "Le cœur CPU extrait une fenêtre carrée autour de la détection selon :guilabel:`ROI Size`. Une taille paire est ramenée à l'entier impair inférieur. Le minimum de la fenêtre initialise le fond, et l'écart entre son maximum et son minimum initialise l'amplitude."
+msgstr "The CPU implementation extracts a square window around the detection according to :guilabel:`ROI Size`. An even size is rounded down to the nearest odd integer. The window minimum initializes the background, and the difference between the maximum and minimum initializes the amplitude."
+
+#: ../../algorithm/fit.rst:57
+msgid "Le solveur minimise la somme des carrés des résidus sur les pixels de la fenêtre. Pour les paramètres :math:`\\boldsymbol p` du modèle, le coût vaut"
+msgstr "The solver minimizes the sum of squared residuals over the pixels in the window. For model parameters :math:`\\boldsymbol p`, the cost is"
+
+#: ../../algorithm/fit.rst:59
+msgid "E(\\boldsymbol p)=\\sum_{i\\in\\mathrm{ROI}} \\bigl[I_i-\\widehat I_i(\\boldsymbol p)\\bigr]^2."
+msgstr "E(\\boldsymbol p)=\\sum_{i\\in\\mathrm{ROI}} \\bigl[I_i-\\widehat I_i(\\boldsymbol p)\\bigr]^2."
+
+#: ../../algorithm/fit.rst:63
+msgid "À chaque itération, Levenberg–Marquardt propose un pas à partir des dérivées du modèle. Le candidat est ramené dans les bornes des paramètres, notamment à un pixel du centre initial sur chaque axe. Le solveur accepte ou rejette le pas selon la réduction du coût et adapte l'amortissement. Il s'arrête lorsque le pas, le gradient ou le résidu devient suffisamment faible, ou lorsque le budget d'itérations est atteint."
+msgstr "At each iteration, Levenberg–Marquardt proposes a step based on the model derivatives. Candidate values are clipped to the parameter bounds, including a one-pixel limit from the initial center on each axis. The solver accepts or rejects the step based on the reduction in cost and adjusts the damping. It stops when the step, gradient, or residual becomes small enough, or when it reaches the iteration limit."
+
+#: ../../algorithm/fit.rst:68
+msgid "Résultats et qualité"
+msgstr "Results and quality"
+
+#: ../../algorithm/fit.rst:70
+msgid "Les colonnes ``X`` et ``Y`` donnent le centre en pixels. ``Sigma X`` et ``Sigma Y`` donnent les largeurs ajustées ou imposées, et ``Theta`` donne l'angle en radians. La colonne ``Integrated Intensity`` contient l'intégrale du profil gaussien sans le fond, calculée par :math:`2\\pi A\\sigma_x\\sigma_y`."
+msgstr "The ``X`` and ``Y`` columns give the center in pixels. ``Sigma X`` and ``Sigma Y`` give the fitted or fixed widths, and ``Theta`` gives the angle in radians. ``Integrated Intensity`` contains the integral of the Gaussian profile with the background excluded, calculated as :math:`2\\pi A\\sigma_x\\sigma_y`."
+
+#: ../../algorithm/fit.rst:73
+msgid "La colonne historique ``MSE XY`` contient le carré de la corrélation de Pearson entre les intensités observées et prédites sur la fenêtre. Une valeur proche de 1 indique une forte concordance de forme. Un ajustement invalide, par exemple lorsque la fenêtre déborde de l'image, est repérable par une valeur ``Integrated Intensity`` de −1."
+msgstr "The historical ``MSE XY`` column contains the squared Pearson correlation between the observed and predicted intensities in the window. A value close to 1 indicates strong agreement in shape. An invalid fit, for example when the window extends beyond the image, is marked by an ``Integrated Intensity`` of −1."

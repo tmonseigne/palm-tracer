@@ -6,30 +6,13 @@ Manuel d'utilisation
 .. role:: python(code)
    :language: python
 
-.. role:: console(code)
-   :language: console
-
-Ce guide décrit l'utilisation de PALMTracer, un plugin Napari, dédié à l'analyse de données PALM/STORM et au traitement des localisations, incluant preview, détection, suivi, visualisation 2D/3D et filtrage des résultats.
-
-PALMTracer fonctionne comme un widget intégré dans l'interface de Napari, offrant un ensemble d'outils organisés en onglets : Processing, Visualization et Filtering.
-
+PALM Tracer est un plugin Napari pour localiser des émetteurs, suivre des particules et explorer les résultats d'une acquisition.
 
 Lancement
 ---------
 
-1. Ouvrez un terminal ou une invite de commande (:console:`PowerShell` sur Windows) dans le dossier où vous avez extrait les fichiers du projet.
-   Exemple pour :file:`C:\\palm-tracer`. Ouvrez le terminal et tapez la commande suivante  :console:`cd C:\\palm_tracer` et appuyez sur **Entrée**
-2. Assurez-vous que l'environnement virtuel est activé si vous l'utilisez.
-3. Lancez Napari avec la commande : :console:`napari`
-
-.. note::
-   Si vous n'avez pas créé d'environnement virtuel, Napari peut être lancé depuis n'importe où.
-
-4. Activez le plugin dans Napari : :menuselection:`Plugins --> PALM Tracer --> PALM Tracer`
-
-.. note::
-   Il est possible de lancer Napari directement avec le plugin avec la commande : :console:`napari -w palm-tracer`
-
+Pour lancer Napari et ouvrir le widget principal, suivez les instructions de
+:ref:`lancement de PALM Tracer <launch_palmtracer>`.
 
 Organisation de l'interface
 ----------------------------------
@@ -45,28 +28,26 @@ L'interface Napari avec PALMTracer est organisée en trois volets principaux :
    :alt: Vue d'ensemble de Napari avec le widget PALMTracer
    :align: center
    :width: 80%
-   :target: ../_static/img/manual/Napari_Main.png
 
    Vue d'ensemble de Napari avec le widget PALMTracer
 
 
-Volet Calque
+Volet des calques
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Le volet des calques est la zone où apparaissent tous les éléments visuels générés par PALMTracer :
+Le volet des calques permet de retrouver les éléments affichés par le widget.
 
-- Image brute (Raw)
-- Points détectés (Points Past / Present / Future)
-- ROI des localisations
-- Visualisation haute résolution
-- Trajectoires (Tracks)
-- Vues 3D ou graphiques externes
+- :guilabel:`Raw` contient l'image brute.
+- :guilabel:`Points Past`, :guilabel:`Points Present` et :guilabel:`Points Future` montrent les détections retenues dans l'aperçu sur les trois plans.
+- :guilabel:`Points Filtered` montre les détections écartées sur le plan courant.
+- :guilabel:`ROI Present` trace les contours des fenêtres autour des détections retenues sur le plan courant.
+- :guilabel:`ROI Filter` contient les :term:`zones d'intérêt <ROI (Region Of Interest)>` dessinées pour le filtrage.
 
 Fonctionnalités principales :
 
 - Afficher / masquer un calque
 - Modifier la transparence
-- Changer la colormap
+- Changer la palette de couleurs
 - Réorganiser l'ordre des calques
 
 .. figure:: ../_static/img/manual/Napari_Layers.png
@@ -74,7 +55,6 @@ Fonctionnalités principales :
    :alt: Volet calque de Napari.
    :align: center
    :width: 25%
-   :target: ../_static/img/manual/Napari_Layers.png
 
    Volet calque de Napari
 
@@ -85,7 +65,7 @@ La zone centrale de Napari affiche les données. Vous pouvez :
 
 - Zoomer (molette de la souris)
 - Vous déplacer (clic gauche maintenu)
-- Changer de plan Z via la barre de dimension
+- Changer de :term:`plan <Plan (frame)>` via la barre de dimension
 - Régler le contraste
 
 PALMTracer met automatiquement à jour cette zone à chaque changement de fichier ou lors de l'aperçu.
@@ -95,7 +75,6 @@ PALMTracer met automatiquement à jour cette zone à chaque changement de fichie
    :alt: Volet de visualisation de Napari.
    :align: center
    :width: 60%
-   :target: ../_static/img/manual/Napari_Vizu.png
 
    Volet de visualisation de Napari
 
@@ -104,60 +83,43 @@ Volet PALMTracer
 
 Le volet de droite contient le widget principal de PALMTracer.
 
-Le widget est structuré comme suit :
+En haut, :guilabel:`Load Setting` ouvre un fichier de paramètres JSON et :guilabel:`Reset Setting` rétablit les valeurs par défaut.
+Les sections :guilabel:`Batch` et :guilabel:`Calibration` s'appliquent à l'ensemble du traitement.
 
-- Partie haute :
-   - Boutons :guilabel:`Load Setting` / :guilabel:`Reset Setting`
-   - Batch (gestion des fichiers)
-   - Calibration
-- Onglets :
-   - Processing
-      - Paramètres de localisation
-      - Paramètres de tracking
-      - Paramètres d'analyse des trajectoires
-      - Bouton Start Processing (traitement en thread séparé)
-   - Visualization
-      - Galerie de ROI.
-      - Visualisation haute résolution
-      - Viewer 3D
-      - Viewer graphique
-   - Filtering
-      - paramètres de filtrage des localisations et pistes
-- Boutons :guilabel:`Start Processing` / :guilabel:`Load Last Result`
+- :guilabel:`Processing` règle la localisation, l'extraction des billes, le suivi, la reconnexion et l'analyse des trajectoires.
+- :guilabel:`Visualization` configure les rendus automatiques et ouvre les visionneuses.
+- :guilabel:`Filtering` règle les critères de sélection des localisations et des trajectoires.
+- :guilabel:`Info` affiche le fichier courant et les résultats chargés en mémoire.
+
+En bas, :guilabel:`Start Processing` lance le traitement. :guilabel:`Load Last Result` recharge les derniers résultats et les paramètres associés.
 
 .. figure:: ../_static/img/manual/Napari_Widget.png
    :figclass: centered-caption
    :alt: Volet Widget de Napari.
    :align: center
    :width: 25%
-   :target: ../_static/img/manual/Napari_Widget.png
 
    Volet Widget de Napari
 
 Ouverture de fichiers
 ----------------------------------
 
-- Dans le volet PALMTracer, cliquez sur le bouton :guilabel:`+` dans la section :guilabel:`Batch`.
-- Sélectionnez un fichier :file:`.tif` ou :file:`.tiff`.
-- Vous pouvez ouvrir plusieurs fichiers successivement : ils apparaissent dans une liste déroulante.
-- Le paramètre Mode permet de définir le comportement lors des traitements :
+Dans :guilabel:`Batch`, cliquez sur :guilabel:`Add` ou déposez des fichiers :file:`.tif`, :file:`.tiff` ou :file:`.stk` dans Napari.
+Le fichier sélectionné dans la liste s'affiche dans le calque :guilabel:`Raw`, au plan central. PALM Tracer cherche également les résultats déjà enregistrés.
 
-   - "Only one" : un seul fichier est analysé.
-   - "Each File separately" : chaque fichier est analysé indépendamment.
-   - "All in One" : Tous les fichiers sont combinés et analysés comme un seul ensemble.
+Choisissez le :guilabel:`Mode` selon l'acquisition.
 
-Lorsqu'un fichier est sélectionné, PALMTracer :
+- :guilabel:`Only one` traite la pile sélectionnée.
+- :guilabel:`Each File separately` traite chaque pile indépendamment.
+- :guilabel:`All in One` concatène les piles dans l'ordre de la liste. Elles doivent avoir les mêmes dimensions X et Y.
 
-- Efface les anciens calques.
-- Charge automatiquement le fichier dans un calque Raw.
-- Mets à jour l'aperçu s'il est activé.
+:guilabel:`Remove` retire le fichier sélectionné de la liste. :guilabel:`Clear` vide la liste et rétablit le mode :guilabel:`Only one`.
 
 .. figure:: ../_static/img/manual/Batch.png
    :figclass: centered-caption
    :alt: Paramètres de Batch.
    :align: center
    :width: 25%
-   :target: ../_static/img/manual/Batch.png
 
    Paramètres de Batch
 
@@ -168,40 +130,34 @@ Dans la section :guilabel:`Calibration`, renseignez :
 
 - Taille de pixel en micromètres (µm).
 - Temps d'exposition en secondes par image.
-- Intensité lumineuse en photons par unités analogique-numériques (ADU).
+- Intensité lumineuse en photons par unités analogique-numériques (:term:`ADU <ADU (Analog-to-Digital Unit)>`).
 
 Ces paramètres sont utilisés pour :
 
 - Convertir les intensités brutes.
 - Calibrer les trajectoires en unités physiques.
-- Permettre des mesures physiques cohérentes, notamment pour le calcul des coefficients de diffusion.
+- Permettre des mesures physiques cohérentes, notamment pour le calcul des :term:`coefficients de diffusion <Coefficient de diffusion>`.
 
 .. figure:: ../_static/img/manual/Calibration.png
    :figclass: centered-caption
    :alt: Paramètres de Calibration.
    :align: center
    :width: 25%
-   :target: ../_static/img/manual/Calibration.png
 
    Paramètres de Calibration
 
 Onglet Processing
 ----------------------------------
 
-L'onglet :guilabel:`Processing` regroupe l'ensemble des paramètres liés au traitement principal :
-la localisation et l'éventuel suivi des molécules (tracking), puis les analyses des trajectoires.
-
-Il est constitué de trois modules :
-   - **Localisation**
-   - **Tracking**
-   - **Analyses des trajectoires**
+Activez les étapes nécessaires à votre acquisition dans :guilabel:`Processing`.
+:guilabel:`Beads Extraction` extrait les trajectoires des billes fiduciaires à partir des localisations.
+Elles peuvent servir à corriger la dérive ou être exclues de la reconstruction haute résolution.
 
 .. figure:: ../_static/img/manual/Processing_Tab.png
    :figclass: centered-caption
    :alt: Onglet Processing du Widget.
    :align: center
    :width: 25%
-   :target: ../_static/img/manual/Processing_Tab.png
 
    Onglet Processing du Widget
 
@@ -210,118 +166,99 @@ Localisation
 
 La section *Localisation* permet de configurer les paramètres qui influencent directement la détection des molécules sur chaque image.
 
-Les paramètres les plus courants incluent :
-   - **Preview** : si activé, lance la détection en temps réel sur l'image précédente, actuelle et suivante (plus d'informations :ref:`ici <preview_page>`).
-   - **Threshold** : seuil d'intensité utilisé pour isoler les candidats moléculaires.
-     Un bouton :guilabel:`Auto` peut estimer automatiquement un seuil optimal à partir de l'image courante (plus d'informations :ref:`ici <auto_threshold_page>`).
-   - **ROI Shape** : forme de la zone d'intérêt lors de l'aperçu (cercle ou carré), les calculs se font toujours sur une zone carré en revanche.
-   - **ROI Size** : taille de la fenêtre extraite autour de chaque détection.
-   - **Watershed** : active/désactive un prétraitement de séparation des détections proches.
-   - **Fit** : méthode d'ajustement utilisée pour localiser précisément les molécules (Aucune, Gaussienne, Spline) (plus d'informations :ref:`ici <fit_page>`).
-
+- :guilabel:`Preview` lance l'aperçu sur le plan courant et ses voisins.
+- :guilabel:`Threshold` règle le :term:`seuil de détection <Seuil (Threshold)>`. :guilabel:`Auto Threshold` l':ref:`estime sur le plan courant <auto_threshold_page>`.
+- :guilabel:`ROI Size` règle la taille de la fenêtre d'ajustement. :guilabel:`ROI Shape` règle la forme de son contour dans l'aperçu.
+- :guilabel:`Watershed` aide à séparer les détections proches.
+- :guilabel:`Fit` choisit la méthode d':ref:`ajustement <fit_page>`. Avec l'ajustement gaussien, l'option :guilabel:`3D` estime Z à partir d'un modèle d'astigmatisme.
 
 Tracking
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 La section *Tracking* est utilisée pour relier les détections entre plans afin de reconstruire des trajectoires (si votre acquisition est adaptée à cette analyse).
 
-Les paramètres peuvent inclure :
-   - **Max Distance** : Distance maximale en pixel entre deux plans.
-   - **Blinking Reconnection** :  Paramètres de reconnexion en cas de scintillement.
-      - **Mode** : Méthode de déplacement du point (Immobile, diffus, linéaire).
-      - **Max Duration** : Nombre maximal de plans manquants entre deux segments de trajectoire.
-      - **Max Speed** : Vitesse maximale du point en μm/plan.
+Dans :guilabel:`Tracking`, :guilabel:`Max Distance` fixe le déplacement maximal en pixels entre deux plans consécutifs.
 
-.. note::
-	**Remarque**: Le tracking est réalisé durant le traitement complet, pas dans l'aperçu.
+Activez :guilabel:`Blinking Reconnection` pour :term:`reconnecter les segments <Reconnexion des trajectoires>`
+interrompus par un :term:`scintillement <Scintillement>`. Choisissez le type de mouvement dans :guilabel:`Mode`
+(:guilabel:`Immobile`, :guilabel:`Diffuse` ou :guilabel:`Linear`), puis réglez le nombre maximal de plans manquants
+avec :guilabel:`Max Duration (plane)` et la distance maximale par plan en pixels avec :guilabel:`Max Distance`.
+
+Le suivi est calculé lors du traitement complet.
 
 
 Analyses des trajectoires
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Cette section permet d'appliquer différentes analyses des trajectoires reconstruites :
-   - **MSD** : (Mean Squared Displacement) : Calcul du MSD par trajectoire et par plans successifs.
-   - **Instant Diffusion** : Calcul de la diffusion instantanée par trajectoire et par plans successifs.
-   - **Fit Length** : Longueur de la fenêtre de calcul initiale des métriques génériques et de la diffusion instantanée.
-   - **3D** : Utilisation ou non de la coordonnée Z dans les calculs.
-   - **Fit** : Méthode d'ajustement du mouvement de la trajectoire.
+Dans :guilabel:`Track Analysis`, choisissez le :term:`déplacement quadratique moyen <MSD (Mean Squared Displacement)>`
+(:guilabel:`MSD`), la :term:`diffusion instantanée <Diffusion instantanée>` (:guilabel:`Instant Diffusion`)
+ou un modèle de mouvement (:guilabel:`Fit`). :guilabel:`Fit Length` règle le nombre de retards temporels initiaux
+du MSD utilisés pour l'ajustement. :guilabel:`3D` inclut la coordonnée Z dans les calculs.
 
+
+.. _manual_visualization:
 
 Onglet Visualization
 ----------------------------------
 
 
-Cet onglet regroupe les outils nécessaires pour visualiser graphiquement les résultats générés par **Processing**.
+Activez :guilabel:`Gallery`, :guilabel:`Graph` ou :guilabel:`High Resolution` pour produire automatiquement une galerie de détections,
+un graphique ou une reconstruction haute résolution pendant le traitement.
 
-Il comprend :
-  - **Gallery** : Outils permettant de créer une image :file:`.tif` avec toutes les détections à la suite en définissant la taille de la zone d'intérêt et le nombre de détections par lignes/colonnes.
-    Si le nombre de détections dépasse, le nombre définit de lignes x colonnes, un nouveau plan est ajouté au résultat.
-    Exemple : pour une acquisition de 1000 détections, en définissant 10 lignes/colonnes et une taille de zone d'intérêt à 9, le résultat sera une image de 90x90 pixels par plan, avec 10 plans.
-  - **Graph** : Permet la génération d'un graphique automatiquement.
-  - **HR** : Permet de généré une image en haute résolution automatiquement.
-  - **Graph Viewer** : Ouvre une fenêtre dédiée aux représentations statistiques. (plus d'informations :ref:`ici <viewer_graph_page>`)
-  - **HR Viewer** : Ouvre une fenêtre dédiée aux représentations hautes résolutions. (plus d'informations :ref:`ici <viewer_hr_page>`)
-  - **3D Viewer** : Ouvre une fenêtre dédiée aux représentations 3D. (plus d'informations :ref:`ici <viewer_3d_page>`)
+Pour explorer les résultats, ouvrez :guilabel:`Graph Viewer` (:ref:`graphiques <viewer_graph_page>`),
+:guilabel:`HR Viewer` (:ref:`haute résolution <viewer_hr_page>`) ou :guilabel:`3D Viewer` (:ref:`localisations 3D <viewer_3d_page>`).
 
 .. figure:: ../_static/img/manual/Vizu_Tab.png
    :figclass: centered-caption
    :alt: Onglet Visualization du Widget.
    :align: center
    :width: 25%
-   :target: ../_static/img/manual/Vizu_Tab.png
 
    Onglet Visualization du Widget
 
 Onglet Filtering
 ----------------------------------
 
-L'onglet **Filtering** permet de sélectionner ou d'exclure des points ou des trajectoires selon divers critères statistiques ou géométriques.
+Activez le groupe :guilabel:`Filters`, puis cochez les critères à appliquer aux localisations ou aux trajectoires.
+Pour ne retenir que les localisations d'une zone de l'image, dessinez un rectangle, une ellipse ou un polygone
+sur le calque :guilabel:`ROI Filter`. Cochez :guilabel:`ROI` et choisissez le numéro de la forme. La zone sélectionnée apparaît en jaune.
+Pour filtrer les trajectoires selon la proportion de leurs points dans cette zone, cochez :guilabel:`Time Inside ROI (%)` et réglez ses bornes.
+Ce critère conserve aussi les points situés hors de la zone sur les trajectoires retenues.
 
-Les filtres permettent de définir des seuils minimum et maximum pour divers paramètres comme une limitation des plans sur lesquels travailler,
-ou des critères basés sur les propriétés des points ou des trajectoires.
-
-Une fois appliqués, les filtres affectent :
-   - la visualisation High Resolution
-   - les pistes affichées
-   - les graphiques du Graph Viewer
-   - les exports de données éventuels (si l'option :guilabel:`Save filtered` est activée).
+L'aperçu de localisation tient compte des critères au fur et à mesure. Pour appliquer les filtres aux résultats déjà chargés, cliquez sur :guilabel:`Update`.
+Chaque mise à jour repart des résultats filtrés s'ils sont disponibles. Pour élargir une sélection, utilisez :guilabel:`Reset`, puis réactivez les critères voulus.
+:guilabel:`Reset` désactive les filtres et vide les résultats filtrés en mémoire. :guilabel:`Save` enregistre les tableaux filtrés disponibles.
+Activez :guilabel:`Save filtered` pour les enregistrer lors du traitement ou de l'application des filtres.
 
 .. figure:: ../_static/img/manual/Filter_Tab.png
    :figclass: centered-caption
    :alt: Onglet Filtering du Widget.
    :align: center
    :width: 25%
-   :target: ../_static/img/manual/Filter_Tab.png
 
    Onglet Filtering du Widget
 
-.. note::
-   **Remarques** : Les filtres ne modifient pas les données brutes ou les résultats de traitement internes.
-   Ils sont appliqués dynamiquement lors de la visualisation ou de l'exportation.
+Onglet Info
+-----------
 
-.. note::
-   Le filtre sur X ou Y affiche un rectangle rouge dans la visualisation Napari pour identifier dynamiquement la zone filtrée.
+:guilabel:`File` indique la pile courante. Les autres lignes comptent les localisations, les billes, les trajectoires
+avant et après reconnexion et les trajectoires pour lesquelles chaque analyse est disponible.
+Un compteur comme ``32/420`` indique que 32 résultats sur 420 sont conservés après filtrage.
+Survolez ce compteur pour voir les pourcentages de résultats conservés et écartés.
 
-FAQ
----
+La croix rouge retire de la mémoire les résultats de sa ligne, y compris leur version filtrée.
+Les fichiers déjà enregistrés restent disponibles dans l'explorateur via :guilabel:`Open results folder`.
 
-1. Pourquoi Napari se ferme-t-il lors du lancement du Plugin ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. figure:: ../_static/img/manual/Infos_Tab.png
+   :figclass: centered-caption
+   :alt: Onglet Info affichant la pile courante et les compteurs de résultats.
+   :align: center
+   :width: 50%
 
-Il arrive que Napari se ferme immédiatement après le lancement du plugin PALMTracer. Cela est généralement dû à une surcharge de Napari qui a du mal à gérer la mémoire nécessaire pour ouvrir le plugin.
-Vous devez réessayer d'ouvrir le plugin PALMTracer. Si le problème persiste, essayez de supprimer le fichier de configuration de PALMTracer situé dans le répertoire utilisateur (généralement :file:`C:\\Users\\YOUR_USER_NAME\\.palm_tracer`).
+   Onglet Info
 
-2. L'interface est énorme.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Ordre des traitements
+---------------------
 
-Cela est probablement dû aux paramètres de mise à l'échelle automatique de Windows pour les applications QT. Reportez-vous à l'Étape 6 de la section d'installation pour désactiver cette fonctionnalité.
-
-3. Dans quel ordre fait-il les calculs ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Lors de l'appui sur :guilabel:`Start Processing` un pipeline se lance, la description de ce pipeline est disponible :ref:`ici <pipeline_page>`).
-
-3. Où puis-je trouver plus d'aide ?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Consultez la documentation officielle de Napari ou contactez le support du projet.
+Le :ref:`pipeline de traitement <pipeline_page>` décrit les étapes exécutées par :guilabel:`Start Processing`,
+la réutilisation des résultats et les fichiers produits.

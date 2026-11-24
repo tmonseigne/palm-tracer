@@ -57,6 +57,15 @@ table.image-grid th {
   box-shadow: none !important;
 }
 
+/* Laisse un espace discret entre les colonnes. */
+table.image-grid tr > :not(:last-child) {
+  padding-inline-end: 3px !important;
+}
+
+table.image-grid tr > :not(:first-child) {
+  padding-inline-start: 3px !important;
+}
+
 /* Évite les espacements internes imposés par certains thèmes */
 table.image-grid td > * {
   margin: 0 !important;

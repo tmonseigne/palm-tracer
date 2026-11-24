@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="732" height="76" viewBox="0 0 732 76">
+  <defs>
+    <g id="file">
+      <rect x=".5" y=".5" width="239" height="33" rx="5" fill="#f5f7fa" stroke="#d6dde6"/>
+      <path d="M11 8h9l4 4v14H11z M20 8v4h4" fill="none" stroke="#516579" stroke-width="1.2" stroke-linejoin="round"/>
+    </g>
+  </defs>
+  <g fill="#1f2937" font-family="Arial, sans-serif" font-size="17">
+    <use href="#file"/>
+    <text x="32" y="23">EOS2-20ms-4000f002.stk</text>
+    <use href="#file" x="246"/>
+    <text x="278" y="23">EOS2-20ms-4000f004.stk</text>
+    <use href="#file" x="492"/>
+    <text x="524" y="23">EOS2-20ms-4000f006.stk</text>
+    <use href="#file" y="42"/>
+    <text x="32" y="65">EOS2-20ms-4000f008.stk</text>
+    <use href="#file" x="246" y="42"/>
+    <text x="278" y="65">EOS2-20ms-4000f010.stk</text>
+    <use href="#file" x="492" y="42"/>
+    <text x="524" y="65">Full-GFP.stk</text>
+  </g>
+</svg>

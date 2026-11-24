@@ -6,6 +6,10 @@ from __future__ import annotations
 import shutil
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
+
+from docutils import nodes
+from sphinx.writers.html5 import HTML5Translator
 
 # Ajout du chemin vers le dossier palm_tracer
 root = Path(__file__).resolve().parent.parent
@@ -112,8 +116,31 @@ languages = [("Français", "fr"), ("English", "en")]
 
 
 # --------------------------------------------------
+class ImageLinkHTMLTranslator(HTML5Translator):
+	"""Ouvre les liens directs vers les images dans un nouvel onglet."""
+
+	def visit_reference(self, node: nodes.Element) -> None:
+		"""Définit la cible HTML des liens vers les fichiers image."""
+		suffix = Path(urlsplit(node.get("refuri", "")).path).suffix.lower()
+		if suffix in {".avif", ".bmp", ".gif", ".ico", ".jpeg", ".jpg", ".png", ".svg", ".webp"} and "target" not in node:
+			node["target"] = "_blank"
+			node.setdefault("rel", "noopener")
+		super().visit_reference(node)
+
+	def depart_reference(self, node: nodes.reference) -> None:
+		"""Ajoute une invitation à ouvrir l'animation sous son aperçu."""
+		if isinstance(node.parent, nodes.figure) and len(node) == 1 and isinstance(node[0], nodes.image):
+			if Path(urlsplit(node.get("refuri", "")).path).suffix.lower() == ".gif":
+				label = "Cliquez pour voir l’animation" if self.builder.config.language == "fr" else "Click to view the animation"
+				self.body.append(f'<br><span class="animation-link-label">{self.encode(label)}</span>')
+		super().depart_reference(node)
+
+
+# --------------------------------------------------
 def setup(app):
-	"""Ajoute des variables de contexte HTML (Jinja) en fonction de la langue réellement utilisée."""
+	"""Configure les liens d'images et ajoute le contexte de langue au rendu HTML."""
+
+	app.set_translator("html", ImageLinkHTMLTranslator)
 
 	# --------------------------------------------------
 	def _inject_context(app_, pagename, template, context, doctree):

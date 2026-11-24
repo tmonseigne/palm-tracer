@@ -15,9 +15,85 @@ msgid "Astigmatisme 3D"
 msgstr "3D astigmatism"
 
 #: ../../algorithm/astig.rst:6
-msgid "Work In Progress"
-msgstr ""
+msgid "L':term:`astigmatisme 3D <Astigmatisme 3D>` permet d'estimer la position axiale :math:`z` à partir de la forme de la :term:`PSF <PSF (Point Spread Function)>`. Un astigmatisme optique, introduit par exemple par une lentille cylindrique, sépare les plans de focalisation selon les deux axes. La tache s'élargit davantage selon l'un ou l'autre axe de part et d'autre de la zone où les largeurs se croisent. `Huang et al. (2008) <https://pmc.ncbi.nlm.nih.gov/articles/PMC2633023/>`_"
+msgstr ":term:`3D astigmatism <Astigmatisme 3D>` estimates axial position :math:`z` from the shape of the :term:`PSF <PSF (Point Spread Function)>`. Optical astigmatism, introduced for example by a cylindrical lens, separates the focal planes along the two axes. The spot broadens more along one axis or the other on opposite sides of where the widths cross. `Huang et al. (2008) <https://pmc.ncbi.nlm.nih.gov/articles/PMC2633023/>`_"
 
-#: ../../algorithm/astig.rst:13
-msgid "Page en cours d'écriture."
-msgstr "Page currently being written."
+#: ../../algorithm/astig.rst:11
+msgid "Un :ref:`ajustement gaussien elliptique <fit_page>` fournit les deux largeurs en pixels. La calibration établit leurs variations avec Z, puis l'estimation inverse retrouve la position axiale à partir du couple observé."
+msgstr "An :ref:`elliptical Gaussian fit <fit_page>` gives both widths in pixels. Calibration establishes how they vary with Z, then inverse estimation recovers the axial position from the observed pair."
+
+#: ../../algorithm/astig.rst:15
+msgid "Modèle et calibration"
+msgstr "Model and calibration"
+
+#: ../../algorithm/astig.rst:17
+msgid "Pour chaque axe :math:`a\\in\\{x,y\\}`, le modèle d'astigmatisme prédit la largeur :math:`\\widehat\\sigma_a(z)` en pixels. Si :math:`p` est la taille du pixel d'acquisition en nm/px, on utilise"
+msgstr "For each axis :math:`a\\in\\{x,y\\}`, the astigmatism model predicts the width :math:`\\widehat\\sigma_a(z)` in pixels. With :math:`p` denoting the acquisition pixel size in nm/px, the model is"
+
+#: ../../algorithm/astig.rst:20
+msgid "u_a=\\frac{z-Z_{0,a}}{W_a},\n"
+"\\qquad\n"
+"\\widehat\\sigma_a(z)=\\frac{A_a}{p}\\sqrt{\\max\\!\\left(0,\\ 1+u_a^2+C_{3,a}u_a^3+C_{4,a}u_a^4\\right)}."
+msgstr "u_a=\\frac{z-Z_{0,a}}{W_a},\n\\qquad\n\\widehat\\sigma_a(z)=\\frac{A_a}{p}\\sqrt{\\max\\!\\left(0,\\ 1+u_a^2+C_{3,a}u_a^3+C_{4,a}u_a^4\\right)}."
+
+#: ../../algorithm/astig.rst:26
+msgid ":math:`Z_{0,a}` situe la courbe sur l'axe Z, :math:`W_a` règle son échelle axiale et :math:`A_a` est la largeur au point :math:`z=Z_{0,a}`. Ces trois paramètres sont en nanomètres. Le coefficient cubique :math:`C_{3,a}` modifie l'asymétrie de la courbe et le coefficient quartique :math:`C_{4,a}` modifie sa forme loin du foyer. Le CSV du modèle contient une ligne par axe."
+msgstr ":math:`Z_{0,a}` positions the curve along Z, :math:`W_a` sets its axial scale, and :math:`A_a` is the width at :math:`z=Z_{0,a}`. These three parameters are in nanometers. The cubic coefficient :math:`C_{3,a}` changes the curve's asymmetry, and the quartic coefficient :math:`C_{4,a}` changes its shape away from focus. The model CSV contains one row per axis."
+
+#: ../../algorithm/astig.rst:30
+msgid "On mesure les deux largeurs d'une ou de plusieurs billes à des positions axiales connues. Dans l':ref:`outil de calibration <tool_astig_page>`, Z peut aussi être déduit du numéro de plan et du pas axial."
+msgstr "Measure both widths for one or more beads at known axial positions. In the :ref:`calibration tool <tool_astig_page>`, Z can also be derived from the frame number and axial step."
+
+#: ../../algorithm/astig.rst:32
+msgid "Le cœur CPU ajuste séparément les courbes X et Y par Levenberg–Marquardt. Il minimise la somme des carrés des écarts entre les largeurs mesurées et prédites aux Z de référence. Le modèle impose des largeurs positives sur l'intervalle de calibration."
+msgstr "The CPU implementation fits the X and Y curves separately with Levenberg–Marquardt. It minimizes the sum of squared differences between measured and predicted widths at the reference Z positions. The model enforces positive widths over the calibration interval."
+
+#: ../../algorithm/astig.rst:34
+msgid "Lorsque le recentrage est activé, l'origine est placée au croisement des courbes ou près du point où les largeurs sont les plus proches. Si les billes sont identifiées séparément dans le CSV, l'outil calibre un modèle par bille, moyenne leurs paramètres, puis recentre la moyenne si demandé."
+msgstr "When centering is enabled, the origin is placed at the intersection of the curves or near the point where the widths are closest. If the CSV identifies individual beads, the tool calibrates one model per bead, averages their parameters, and centers the averaged model if requested."
+
+#: ../../algorithm/astig.rst:38
+msgid "Estimation de Z"
+msgstr "Estimating Z"
+
+#: ../../algorithm/astig.rst:40
+msgid "Pour une localisation dont l'ajustement donne les largeurs :math:`s_x,s_y`, la DLL cherche le point de la courbe :math:`z\\mapsto(\\widehat\\sigma_x(z),\\widehat\\sigma_y(z))` le plus proche du couple mesuré dans le plan des largeurs. La fonction à minimiser sur :math:`[-Z_{\\max},Z_{\\max}]` est"
+msgstr "For a localization with fitted widths :math:`s_x,s_y`, the DLL finds the point on :math:`z\\mapsto(\\widehat\\sigma_x(z),\\widehat\\sigma_y(z))` closest to the measured pair in the space of widths. The function minimized over :math:`[-Z_{\\max},Z_{\\max}]` is"
+
+#: ../../algorithm/astig.rst:44
+msgid "E(z)=\\bigl[s_x-\\widehat\\sigma_x(z)\\bigr]^2+\\bigl[s_y-\\widehat\\sigma_y(z)\\bigr]^2."
+msgstr "E(z)=\\bigl[s_x-\\widehat\\sigma_x(z)\\bigr]^2+\\bigl[s_y-\\widehat\\sigma_y(z)\\bigr]^2."
+
+#: ../../algorithm/astig.rst:48
+msgid "Deux courbes de largeur en fonction de Z et projection du couple mesuré sur la courbe des largeurs."
+msgstr "Two width curves as functions of Z and projection of the measured pair onto the curve in the space of widths."
+
+#: ../../algorithm/astig.rst:55
+msgid "Exemple synthétique. À droite, le segment relie le couple mesuré au point le plus proche de la courbe. À gauche, l'abscisse de ce point donne :math:`\\widehat z`."
+msgstr "Synthetic example. On the right, the segment connects the measured pair to the nearest point on the curve. On the left, the horizontal coordinate of that point gives :math:`\\widehat z`."
+
+#: ../../algorithm/astig.rst:57
+msgid "L'estimateur évalue d'abord le coût sur une grille uniforme qui inclut les deux bornes. Il affine ensuite le meilleur candidat par la méthode de Brent dans un voisinage de ce point. Le résultat retenu est celui des deux candidats qui donne le coût le plus faible, et la colonne ``Z`` l'exprime en nanomètres. Le même calcul est utilisé dans l'outil de calibration et dans le :ref:`pipeline <pipeline_page>` lorsque l'option :guilabel:`3D` est activée."
+msgstr "The estimator first evaluates the cost on a uniform grid that includes both bounds. It then refines the best candidate locally with Brent's method. It retains the candidate with the lower cost and reports it in nanometers in the ``Z`` column. The same calculation is used in the calibration tool and in the :ref:`pipeline <pipeline_page>` when :guilabel:`3D` is enabled."
+
+#: ../../algorithm/astig.rst:62
+msgid "Score de compatibilité"
+msgstr "Compatibility score"
+
+#: ../../algorithm/astig.rst:64
+msgid "Le cœur calcule un score de compatibilité entre les largeurs mesurées et prédites à la position retenue :math:`\\widehat z`. Il convertit l'écart relatif quadratique moyen sur les deux axes en un score compris entre 0 et 1."
+msgstr "The implementation computes a compatibility score between the measured and predicted widths at the selected position :math:`\\widehat z`. It maps the root-mean-square relative error across both axes to a score between 0 and 1."
+
+#: ../../algorithm/astig.rst:67
+msgid "r^2=\\frac12\\sum_{a\\in\\{x,y\\}}\n"
+"     \\left(\\frac{s_a-\\widehat\\sigma_a(\\widehat z)}{\\widehat\\sigma_a(\\widehat z)}\\right)^2,\n"
+"\\qquad Q_Z=\\frac{1}{1+r^2/0.20^2}."
+msgstr "r^2=\\frac12\\sum_{a\\in\\{x,y\\}}\n     \\left(\\frac{s_a-\\widehat\\sigma_a(\\widehat z)}{\\widehat\\sigma_a(\\widehat z)}\\right)^2,\n\\qquad Q_Z=\\frac{1}{1+r^2/0.20^2}."
+
+#: ../../algorithm/astig.rst:73
+msgid "Un accord exact donne 1, un écart relatif RMS de 20 % donne 0,5 et une largeur invalide donne 0. La colonne historique ``MSE Z`` contient ce score. Les anciens résultats peuvent y contenir la somme des carrés en pixels carrés, pour laquelle les faibles valeurs étaient les meilleures."
+msgstr "Exact agreement gives 1, an RMS relative error of 20% gives 0.5, and an invalid width gives 0. The historical ``MSE Z`` column contains this score. Older results may contain the sum of squared errors in square pixels, for which lower values were better."
+
+#: ../../algorithm/astig.rst:77
+msgid "Le score renseigne sur l'accord avec le modèle. La précision axiale dépend aussi de la variation des largeurs avec Z. Si la courbe varie peu ou si deux portions de la courbe sont proches, un bon score peut correspondre à une position axiale mal déterminée. Utilisez un domaine de recherche cohérent avec la calibration et conservez les mêmes conventions de largeur et d'angle pour la calibration et les mesures."
+msgstr "The score measures agreement with the model. Axial precision also depends on how the widths change with Z. If the curve changes little or two sections are close together, a high score can still correspond to a poorly determined axial position. Use a search range consistent with the calibration and keep the same width and angle conventions for calibration and measurements."

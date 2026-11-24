@@ -19,5 +19,9 @@ msgid "Work In Progress"
 msgstr ""
 
 #: ../../algorithm/alignment.rst:13
+msgid "L':term:`alignement de canaux <Alignement de canaux>` exprime les :term:`localisations <Localisation>` de plusieurs canaux dans le même repère."
+msgstr ":term:`Channel registration <Alignement de canaux>` expresses :term:`localizations <Localisation>` from multiple channels in the same coordinate system."
+
+#: ../../algorithm/alignment.rst:15
 msgid "Page en cours d'écriture."
 msgstr "Page currently being written."
