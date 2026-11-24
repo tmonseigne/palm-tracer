@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
+from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
@@ -237,7 +237,16 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._tabs.addTab(tab_compute, "Compute Model")
 		self._tabs.addTab(tab_estimate, "Compute Z")
 
-		main_layout.addWidget(self._tabs)
+		actions_row = QHBoxLayout()
+		self._btn_export = QPushButton("Export figure")
+		self._btn_export.setToolTip("Opens a dialog box and exports the figure according to the selected extension.")
+		actions_row.addStretch(1)
+		actions_row.addWidget(self._btn_export)
+
+		left_layout = QVBoxLayout()
+		left_layout.addWidget(self._tabs, stretch=1)
+		left_layout.addLayout(actions_row)
+		main_layout.addLayout(left_layout)
 		main_layout.addWidget(self._web, stretch=1)
 
 	# --------------------------------------------------
@@ -275,6 +284,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btn_load_loc_estimate.clicked.connect(self._on_load_loc)
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
 		self._btn_estimate.clicked.connect(self._on_estimate)
+		self._btn_export.clicked.connect(self._on_export)
 
 		# --- Lien entre les spins et les groupes de boutons ---
 		self._spin_px_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_estimate, v))
