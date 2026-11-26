@@ -16,7 +16,7 @@ FILES_PATH: list[Path] = [DATA_PATH / "spt.stk"]  # Nom du/des fichiers à charg
 RESET_RESULT: bool = True  # .						Supprime les précédents résultats
 
 THRESHOLD: float = 60  # .							Seuil pour la détection
-ROI_SIZE: int = 7  # .								Taille de la zone d'intérêt
+ROI_RADIUS: int = 3  # .							Rayon de la zone d'intérêt
 WATERSHED: bool = True  # .							Activation du Watershed
 FIT: int = 1  # .									Activation du Fit Gaussien
 GAUSSIAN: int = 2  # .								Activation Mode d'ajustement
@@ -44,7 +44,7 @@ file_list.items = [str(p) for p in FILES_PATH]  # .	Ajout des fichiers
 loc_s: Localization = pt.settings.localization  # .	Paramètres de la localisation
 loc_s.active = True  # .							Activation de la localisation
 loc_s["Threshold"].value = THRESHOLD
-loc_s["ROI Size"].value = ROI_SIZE
+loc_s["ROI Radius"].value = ROI_RADIUS
 loc_s["Watershed"].value = WATERSHED
 loc_s["Fit"].value = FIT
 loc_s.gaussian["Mode"].value = GAUSSIAN

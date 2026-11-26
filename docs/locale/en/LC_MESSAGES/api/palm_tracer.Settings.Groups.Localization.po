@@ -40,12 +40,12 @@ msgid "``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`) :
 msgstr "``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`): automatically computes the threshold."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:8
-msgid "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : forme circulaire ou carrée de la zone d'ajustement."
-msgstr "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): circular or square shape of the fitting region."
+msgid "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : forme du contour dans l'aperçu, circulaire par défaut ou carrée."
+msgstr "``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`): shape of the outline in the preview, circular by default or square."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:9
-msgid "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille de la zone d'ajustement ; valeur par défaut : ``7`` pixels."
-msgstr "``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): size of the fitting region; default value: ``7`` pixels."
+msgid "``ROI Radius`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de pixels de chaque côté du centre ; valeur par défaut : ``3``."
+msgstr "``ROI Radius`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): number of pixels on each side of the center (default: ``3``)."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization:10
 msgid "``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : sépare les points voisins ; valeur par défaut : ``True``."

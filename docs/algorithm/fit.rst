@@ -52,7 +52,7 @@ Le calcul de Z par :ref:`astigmatisme <astig_page>` utilise les deux modes à la
 Optimisation sur la fenêtre
 ---------------------------
 
-#. Le cœur CPU extrait une fenêtre carrée autour de la détection selon :guilabel:`ROI Size`. Une taille paire est ramenée à l'entier impair inférieur.
+#. Le cœur CPU extrait une fenêtre carrée autour de la détection. Pour un :guilabel:`ROI Radius` de :math:`r` pixels, son côté mesure :math:`2r + 1` pixels.
    Le minimum de la fenêtre initialise le fond, et l'écart entre son maximum et son minimum initialise l'amplitude.
 #. Le solveur minimise la somme des carrés des résidus sur les pixels de la fenêtre. Pour les paramètres :math:`\boldsymbol p` du modèle, le coût vaut
 

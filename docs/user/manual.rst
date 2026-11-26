@@ -168,7 +168,7 @@ La section *Localisation* permet de configurer les paramètres qui influencent d
 
 - :guilabel:`Preview` lance l'aperçu sur le plan courant et ses voisins.
 - :guilabel:`Threshold` règle le :term:`seuil de détection <Seuil (Threshold)>`. :guilabel:`Auto Threshold` l':ref:`estime sur le plan courant <auto_threshold_page>`.
-- :guilabel:`ROI Size` règle la taille de la fenêtre d'ajustement. :guilabel:`ROI Shape` règle la forme de son contour dans l'aperçu.
+- :guilabel:`ROI Radius` fixe le nombre de pixels de chaque côté du pixel central. Un rayon de 3 donne une fenêtre d'ajustement de 7 × 7 pixels. Dans l'aperçu, :guilabel:`ROI Shape` affiche un cercle par défaut.
 - :guilabel:`Watershed` aide à séparer les détections proches.
 - :guilabel:`Fit` choisit la méthode d':ref:`ajustement <fit_page>`. Avec l'ajustement gaussien, l'option :guilabel:`3D` estime Z à partir d'un modèle d'astigmatisme.
 

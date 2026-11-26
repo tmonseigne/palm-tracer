@@ -1,12 +1,12 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer \n"
-"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"POT-Creation-Date: 2026-10-13 11:42+0200\n"
-"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>"
-"Language: en\n"
+"Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>POT-Creation-Date: 2026-10-13 11:42+0200\n"
+"POT-Creation-Date: 2026-11-24 18:15+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>Language: en\n"
 "Language-Team: English\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -83,8 +83,7 @@ msgstr "Optional label for the X-axis. If the string is empty, no change is made
 msgid "Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien."
 msgstr "Optional label for the Y-axis. If the string is empty, no change is made."
 
-#: of palm_tracer.Processing.Grapher.Grapher.cloud:7
-#: palm_tracer.Processing.Grapher.Grapher.histogram:7
+#: of palm_tracer.Processing.Grapher.Grapher.histogram:7
 #: palm_tracer.Processing.Grapher.Grapher.scatter:7
 msgid "Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers)."
 msgstr "If ``True``, applies the 3-sigma rule to trim outliers."
@@ -164,6 +163,10 @@ msgstr "Plots a Seaborn-style curve of the data using Plotly."
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:3
 msgid "Données sous forme de tableau NumPy 1D ou 2D."
 msgstr "Data in the form of a 1D or 2D NumPy array."
+
+#: of palm_tracer.Processing.Grapher.Grapher.cloud:7
+msgid "Si ``True``, limite les axes à ±3σ et ajuste les distributions sur les couples retenus sur les deux axes."
+msgstr “If ‘True’, limits the axes to ±3σ and adjusts the distributions based on the selected pairs on both axes.”
 
 #: of palm_tracer.Processing.Grapher.Grapher.cloud:9
 msgid "Si ``True``, superpose la KDE gaussienne 2D."

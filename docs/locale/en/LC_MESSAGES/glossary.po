@@ -103,8 +103,8 @@ msgstr "Point spread function. It describes the image produced by a point source
 msgid "ROI (Region Of Interest)"
 msgstr "ROI (Region Of Interest)"
 
-msgid "Région d'intérêt sélectionnée dans l'image. Pour l'ajustement, PALM-Tracer extrait une fenêtre carrée autour de chaque détection, dont la taille est réglée par :guilabel:`ROI Size`. Dans l'aperçu, la forme du marqueur est un réglage d'affichage."
-msgstr "Region of interest selected in the image. For fitting, PALM-Tracer extracts a square window around each detection, with its size set by :guilabel:`ROI Size`. In the preview, the marker shape is a display setting."
+msgid "Région d'intérêt sélectionnée dans l'image. Pour l'ajustement, PALM-Tracer extrait une fenêtre carrée autour de chaque détection, avec autant de pixels que le :guilabel:`ROI Radius` de chaque côté du pixel central. Dans l'aperçu, la forme du marqueur est un réglage d'affichage."
+msgstr "Region of interest selected in the image. For fitting, PALM-Tracer extracts a square window around each detection, with :guilabel:`ROI Radius` pixels on each side of the center pixel. In the preview, the marker shape is a display setting."
 
 msgid "Seuil (Threshold)"
 msgstr "Threshold"

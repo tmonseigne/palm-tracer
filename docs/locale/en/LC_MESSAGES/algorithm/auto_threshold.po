@@ -50,8 +50,8 @@ msgid "**Détecter avec le seuil courant.** La décomposition en ondelettes à t
 msgstr "**Detect with the current threshold.** The à trous wavelet transform smooths the frame at multiple scales without resampling. The second detail plane is the difference between the first two smoothed approximations. The detector segments pixels whose coefficient in this plane exceeds :math:`T_k`. The CPU implementation allows watershed basins to merge and uses the positions from segmentation without :term:`PSF <PSF (Point Spread Function)>` fitting."
 
 #: ../../algorithm/auto_threshold.rst:31
-msgid "**Reconstruire le masque.** À chaque itération, le masque est remis à zéro. Pour chaque détection, on marque les pixels d'une fenêtre carrée centrée sur sa position et rognée aux bords de l'image. La demi-taille de la fenêtre vaut la moitié de :guilabel:`ROI Size`. Le masque est l'union de ces fenêtres."
-msgstr "**Rebuild the mask.** The mask is cleared at each iteration. For each detection, mark a square window centered on its position and clipped to the image boundaries. The window half-size is half of :guilabel:`ROI Size`. The mask is the union of these windows."
+msgid "**Reconstruire le masque.** À chaque itération, le masque est remis à zéro. Pour chaque détection, on marque les pixels d'une fenêtre carrée centrée sur sa position et rognée aux bords de l'image. Le réglage :guilabel:`ROI Radius` donne le nombre de pixels de chaque côté du pixel central. Le masque est l'union de ces fenêtres."
+msgstr "**Rebuild the mask.** The mask is cleared at each iteration. For each detection, mark a square window centered on its position and clipped to the image boundaries. :guilabel:`ROI Radius` sets the number of pixels on each side of the center pixel. The mask is the union of these windows."
 
 #: ../../algorithm/auto_threshold.rst:34
 msgid "**Réestimer le seuil.** On prend pour :math:`B` les pixels hors masque. On recalcule :math:`\\sigma_B` à partir de leurs intensités brutes et on l'utilise comme seuil de l'itération suivante."

@@ -27,8 +27,8 @@ class Localization(BaseSettingGroup):
 	- ``Preview`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : active la prévisualisation ; valeur par défaut : ``False``.
 	- ``Threshold`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : seuil d'intensité de la détection ; valeur par défaut : ``90.0``.
 	- ``Auto Threshold`` (:class:`~palm_tracer.Settings.Types.Button.Button`) : calcule automatiquement le seuil.
-	- ``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : forme circulaire ou carrée de la zone d'ajustement.
-	- ``ROI Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : taille de la zone d'ajustement ; valeur par défaut : ``7`` pixels.
+	- ``ROI Shape`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : forme du contour dans l'aperçu, circulaire par défaut ou carrée.
+	- ``ROI Radius`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de pixels de chaque côté du centre ; valeur par défaut : ``3``.
 	- ``Watershed`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : sépare les points voisins ; valeur par défaut : ``True``.
 	- ``Fit`` (:class:`~palm_tracer.Settings.Types.Combo.Combo`) : sélectionne l'absence d'ajustement, l'ajustement gaussien ou l'ajustement par spline.
 	- ``Gaussian Fit`` (:class:`~palm_tracer.Settings.Groups.GaussianFit.GaussianFit`) : paramètres de l'ajustement gaussien.
@@ -42,8 +42,9 @@ class Localization(BaseSettingGroup):
 			"Threshold":      SpinFloat("Threshold", "Detection threshold on wavelet coefficients, in image intensity units (ADU).",
 										90.0, [1.0, 10000.0], 5.0, 2),
 			"Auto Threshold": Button("Auto Threshold", "Estimate the detection threshold automatically from the current plane."),
-			"ROI Shape":      Combo("ROI Shape", "Shape of the area used to fit each localization.", 0, ["Circle", "Square"]),
-			"ROI Size":       SpinInt("ROI Size", "Size of the fitting area, in acquisition pixels.", 7, [3, 50], 1),
+			"ROI Shape":      Combo("ROI Shape", "Shape of the ROI outline in the preview.", 0, ["Circle", "Square"]),
+			"ROI Radius":     SpinInt("ROI Radius", "Number of pixels on each side of the center pixel. A radius of 3 gives a 7 × 7 pixel fitting window.",
+									 3, [1, 24], 1),
 			"Watershed":      CheckBox("Watershed", "Use Watershed algorithm to separate nearby points.", True),
 			"Fit":            Combo("Fit", "Fitting method used to refine detected localizations; 'Nothing' disables fitting.",
 									0, ["Nothing", "Gaussian Fit"]),
@@ -63,6 +64,12 @@ class Localization(BaseSettingGroup):
 	def spline(self) -> SplineFit:
 		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
 		return cast(SplineFit, self._settings["Spline Fit"])
+
+	# --------------------------------------------------
+	@property
+	def roi_width(self) -> int:
+		"""Largeur en pixels de la fenêtre carrée, pixel central compris."""
+		return 1 + 2 * self._settings["ROI Radius"].value
 
 	# --------------------------------------------------
 	def initialize(self):
@@ -104,20 +111,20 @@ class Localization(BaseSettingGroup):
 	def get_fit_params(self) -> np.ndarray:
 		"""Récupère les paramètres pour l'ajustement."""
 		s = self.settings
+		width = self.roi_width
 		# No fit
-		if s["Fit"] == 0: return np.array([s["ROI Size"]], dtype=float)
+		if s["Fit"] == 0: return np.array([width], dtype=float)
 		# Ajustement gaussien
 		if s["Fit"] == 1:
-			return np.array([s["ROI Size"], s["Gaussian Fit Sigma"], 2 * s["Gaussian Fit Sigma"],
+			return np.array([width, s["Gaussian Fit Sigma"], 2 * s["Gaussian Fit Sigma"],
 							 degrees_to_radians(s["Gaussian Fit Theta"])], dtype=float)
 		# Ajustement par spline
 		# Chargement du fichier MAT
 		try:
 			calib = open_calibration_mat(s["Spline Fit File"])
 			sx, sy, sz = calib["coeff"].shape[:3]
-			return np.concatenate([np.array([s["ROI Size"], sx, sy, sz, calib["dz"]], dtype=float), calib["coeff"].flatten()])
+			return np.concatenate([np.array([width, sx, sy, sz, calib["dz"]], dtype=float), calib["coeff"].flatten()])
 		except Exception: raise
-
 
 # --------------------------------------------------
 if __name__ == "__main__":

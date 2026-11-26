@@ -106,8 +106,8 @@ msgid "Optimisation sur la fenêtre"
 msgstr "Optimization over the window"
 
 #: ../../algorithm/fit.rst:55
-msgid "Le cœur CPU extrait une fenêtre carrée autour de la détection selon :guilabel:`ROI Size`. Une taille paire est ramenée à l'entier impair inférieur. Le minimum de la fenêtre initialise le fond, et l'écart entre son maximum et son minimum initialise l'amplitude."
-msgstr "The CPU implementation extracts a square window around the detection according to :guilabel:`ROI Size`. An even size is rounded down to the nearest odd integer. The window minimum initializes the background, and the difference between the maximum and minimum initializes the amplitude."
+msgid "Le cœur CPU extrait une fenêtre carrée autour de la détection. Pour un :guilabel:`ROI Radius` de :math:`r` pixels, son côté mesure :math:`2r + 1` pixels. Le minimum de la fenêtre initialise le fond, et l'écart entre son maximum et son minimum initialise l'amplitude."
+msgstr "The CPU implementation extracts a square window around the detection. A :guilabel:`ROI Radius` of :math:`r` pixels gives a window :math:`2r + 1` pixels wide. The window minimum initializes the background, and the difference between the maximum and minimum initializes the amplitude."
 
 #: ../../algorithm/fit.rst:57
 msgid "Le solveur minimise la somme des carrés des résidus sur les pixels de la fenêtre. Pour les paramètres :math:`\\boldsymbol p` du modèle, le coût vaut"

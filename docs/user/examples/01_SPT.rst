@@ -87,7 +87,7 @@ Parcourez plusieurs plans pour vérifier que les points supplémentaires suivent
 - :guilabel:`Points Past` (cyan) et :guilabel:`Points Future` (orange) montrent les détections des plans précédent et suivant.
 - :guilabel:`Points Filtered` montre en rouge les détections écartées sur le plan courant.
 
-Activez :guilabel:`Watershed` pour séparer des détections voisines qui se confondent. Réglez :guilabel:`ROI Size` sur 7 pixels.
+Activez :guilabel:`Watershed` pour séparer des détections voisines qui se confondent. Réglez :guilabel:`ROI Radius` sur 3 pixels.
 La fenêtre d'ajustement de 7 × 7 pixels doit couvrir la tache lumineuse (PSF) tout en limitant le fond et les contributions voisines.
 Dans :ref:`Gaussian Fit <fit_page>`, le script utilise le mode :guilabel:`X, Y, SigmaX, SigmaY` et un :guilabel:`σ` initial de 1 pixel.
 Les largeurs peuvent ainsi varier indépendamment suivant X et Y. L'angle reste fixe et l'estimation de Z est désactivée pour ce suivi en 2D.
@@ -134,7 +134,7 @@ avec des pixels de 160 nm. Une distance trop petite coupe les trajectoires des p
 augmente le risque de relier deux particules voisines.
 
 Pour examiner les candidats, affichez le contour circulaire de :guilabel:`ROI Present` et les points des deux plans voisins.
-Avec :guilabel:`ROI Size` réglé à 7 pixels, le cercle donne un repère visuel pour une distance de l'ordre de 3 pixels.
+Avec :guilabel:`ROI Radius` réglé à 3 pixels, le cercle donne un repère visuel pour une distance de l'ordre de 3 pixels.
 Sur la capture, parmi les quatre détections du groupe au centre, celle du haut à gauche a un candidat orange mais aucun candidat cyan.
 Les trois autres ont des candidats dans les deux plans. Le suivi décide des associations à partir des distances entre détections.
 

@@ -254,9 +254,10 @@ def test_batch_get_stacks_incompatible_dimensions(qtbot):
 def test_localization(qtbot):
 	"""Vérifie la classe Localisation (constructeur, getter, setter)."""
 	g = sg.Localization()
-	group_base_test(g, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
+	group_base_test(g, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Radius", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
 					st.CheckBox, True, False)
 
+	assert g.roi_width == 7
 	assert isinstance(g.gaussian, sg.GaussianFit)
 	assert isinstance(g.spline, sg.SplineFit)
 
