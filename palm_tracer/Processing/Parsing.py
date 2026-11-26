@@ -13,7 +13,7 @@ FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 				},
 		"Localization":         {
 				"columns": ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
-							"Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z",
+							"Sigma X", "Sigma Y", "Theta", "XY Quality", "Z Quality",
 							"Intensity 0", "Intensity Offset", "Intensity", "Surface", "Circularity"],
 				"types":   ["Id", "Plane", "Index", "Surface", "Channel"]
 				},

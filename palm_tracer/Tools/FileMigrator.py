@@ -439,7 +439,7 @@ class FileMigrator:
 		s = re.sub(r"\(.*?\)", "", s)  # .	 Supprime tout ce qui est entre parenthèses
 		s = re.sub(r"\s+", "", s).strip()  # Remplacement des espaces
 
-		if s in ("mse", "msegauss", "msegaussian"): return "MSE XY"
+		if s in ("mse", "msegauss", "msegaussian"): return "XY Quality"
 		if s in ("angle", "anglerad", "angle(rad)"): return "Theta"
 
 		# Familles : centroidx/y/z, sigmax/y
@@ -464,7 +464,7 @@ class FileMigrator:
 		if s == "track": return "Track"
 
 		if s == "pairdistance": return "Pair Distance"
-		if s == "msez": return "MSE Z"
+		if s == "msez": return "Z Quality"
 		return s
 
 	# --------------------------------------------------

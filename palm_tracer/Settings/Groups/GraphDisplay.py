@@ -29,7 +29,8 @@ class GraphDisplay(BaseSettingGroup):
 	- ``Cumul`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : produit un histogramme cumulatif.
 	- ``Log Scale`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : utilise une échelle logarithmique.
 	- ``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : exprime l'axe Y en effectifs plutôt qu'en densité.
-	- ``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de classes de l'histogramme ; ``0`` active le choix automatique.
+	- ``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de classes de l'histogramme.
+	  ``-1`` impose des classes de largeur 1 pour les données entières et ``0`` sélectionne automatiquement le nombre de classes.
 	"""
 
 	label: str = "Display"
@@ -45,7 +46,8 @@ class GraphDisplay(BaseSettingGroup):
 			"Cumul":     CheckBox("Cumulative Histogram", "Show cumulative histogram instead of simple histogram."),
 			"Log Scale": CheckBox("Log Scale", "Apply a logarithmic scale to the data."),
 			"Count":     CheckBox("Count", "The data on Y is expressed in terms of count (instead of density."),
-			"Bins":      SpinInt("Bins", "The number of bins along the histogram (0 for auto).", 0, [0, 1000])
+			"Bins":      SpinInt("Bins", "Use -1 for bins of width 1 on integer data, 0 for automatic binning, or a positive number to set the bin count.",
+								 0, [-1, 1000])
 			})
 	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 	_mode: int = field(init=False, default=1)

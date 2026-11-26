@@ -126,7 +126,8 @@ Options d'affichage
 Dans :guilabel:`Display`, les options disponibles dépendent du mode.
 
 - :guilabel:`Count` affiche des effectifs. Décochez-le pour afficher une densité.
-- :guilabel:`Bins` règle le nombre de classes de l'histogramme. Saisissez ``0`` pour laisser la visionneuse le choisir automatiquement, lorsque la source le permet.
+- :guilabel:`Bins` règle les classes de l'histogramme. Saisissez ``-1`` pour obtenir des classes de largeur 1, centrées sur les entiers pour des données entières.
+  Avec ``0``, le nombre de classes est automatique. Une valeur positive fixe leur nombre. Les sources de longueur de trajectoire imposent les classes de largeur 1.
 - :guilabel:`Cumulative Histogram` cumule les valeurs de classe en classe.
 - :guilabel:`Apply Limits` restreint les valeurs tracées à trois écarts-types de part et d'autre de la moyenne. :guilabel:`Show σ` ajoute des repères à la moyenne et à un, deux et trois écarts-types de celle-ci.
 - :guilabel:`Log Scale` applique un logarithme en base 10 aux valeurs positives. Les valeurs nulles ou négatives sont écartées du tracé.
@@ -209,11 +210,11 @@ Pour reconstruire des trajectoires à partir de localisations filtrées, relance
 
 .. figure:: ../_static/img/viewer_graph/filtered.png
    :figclass: centered-caption
-   :alt: Histogramme des localisations après application des filtres Intensity et MSE XY, dont les bornes sont visibles.
+   :alt: Histogramme des localisations après application des filtres Intensity et XY Quality, dont les bornes sont visibles.
    :align: center
    :width: 75%
 
-   Localisations filtrées selon l'intensité intégrée et la qualité de l'ajustement en XY (:guilabel:`MSE XY`)
+   Localisations filtrées selon l'intensité intégrée et la qualité de l'ajustement en XY (:guilabel:`XY Quality`)
 
 Export
 ------

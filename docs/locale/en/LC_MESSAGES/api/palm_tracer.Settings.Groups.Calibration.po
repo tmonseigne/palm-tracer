@@ -31,8 +31,8 @@ msgid "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : t
 msgstr "``Pixel Size`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): pixel size; default value: ``160`` nm."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:6
-msgid "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : temps d'exposition par image ; valeur par défaut : ``0.050`` s."
-msgstr "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`): exposure time per frame; default value: ``0.050`` s."
+msgid "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : intervalle entre deux plans consécutifs ; valeur par défaut : ``0.050`` s."
+msgstr "``Exposure`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) sets the interval between consecutive planes and defaults to ``0.050`` s."
 
 #: of palm_tracer.Settings.Groups.Calibration.Calibration:7
 msgid "``Intensity`` (:class:`~palm_tracer.Settings.Types.SpinFloat.SpinFloat`) : facteur de conversion photométrique ; valeur par défaut : ``0.0120`` photon/ADU."

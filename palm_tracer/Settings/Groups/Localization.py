@@ -44,7 +44,7 @@ class Localization(BaseSettingGroup):
 			"Auto Threshold": Button("Auto Threshold", "Estimate the detection threshold automatically from the current plane."),
 			"ROI Shape":      Combo("ROI Shape", "Shape of the ROI outline in the preview.", 0, ["Circle", "Square"]),
 			"ROI Radius":     SpinInt("ROI Radius", "Number of pixels on each side of the center pixel. A radius of 3 gives a 7 × 7 pixel fitting window.",
-									 3, [1, 24], 1),
+									  3, [1, 24], 1),
 			"Watershed":      CheckBox("Watershed", "Use Watershed algorithm to separate nearby points.", True),
 			"Fit":            Combo("Fit", "Fitting method used to refine detected localizations; 'Nothing' disables fitting.",
 									0, ["Nothing", "Gaussian Fit"]),
@@ -56,13 +56,13 @@ class Localization(BaseSettingGroup):
 	# --------------------------------------------------
 	@property
 	def gaussian(self) -> GaussianFit:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
+		"""Paramètres de l'ajustement gaussien."""
 		return cast(GaussianFit, self._settings["Gaussian Fit"])
 
 	# --------------------------------------------------
 	@property
 	def spline(self) -> SplineFit:
-		"""Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."""
+		"""Paramètres de l'ajustement par spline."""
 		return cast(SplineFit, self._settings["Spline Fit"])
 
 	# --------------------------------------------------
@@ -112,19 +112,17 @@ class Localization(BaseSettingGroup):
 		"""Récupère les paramètres pour l'ajustement."""
 		s = self.settings
 		width = self.roi_width
-		# No fit
+		# Sans ajustement.
 		if s["Fit"] == 0: return np.array([width], dtype=float)
 		# Ajustement gaussien
 		if s["Fit"] == 1:
 			return np.array([width, s["Gaussian Fit Sigma"], 2 * s["Gaussian Fit Sigma"],
 							 degrees_to_radians(s["Gaussian Fit Theta"])], dtype=float)
-		# Ajustement par spline
-		# Chargement du fichier MAT
-		try:
-			calib = open_calibration_mat(s["Spline Fit File"])
-			sx, sy, sz = calib["coeff"].shape[:3]
-			return np.concatenate([np.array([width, sx, sy, sz, calib["dz"]], dtype=float), calib["coeff"].flatten()])
-		except Exception: raise
+		# Ajustement par spline à partir de la calibration MAT.
+		calib = open_calibration_mat(s["Spline Fit File"])
+		sx, sy, sz = calib["coeff"].shape[:3]
+		return np.concatenate([np.array([width, sx, sy, sz, calib["dz"]], dtype=float), calib["coeff"].flatten()])
+
 
 # --------------------------------------------------
 if __name__ == "__main__":

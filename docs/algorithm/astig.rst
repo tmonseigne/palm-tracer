@@ -71,8 +71,7 @@ Il convertit l'écart relatif quadratique moyen sur les deux axes en un score co
    \qquad Q_Z=\frac{1}{1+r^2/0.20^2}.
 
 Un accord exact donne 1, un écart relatif RMS de 20 % donne 0,5 et une largeur invalide donne 0.
-La colonne historique ``MSE Z`` contient ce score. Les anciens résultats peuvent y contenir la somme des carrés en pixels carrés,
-pour laquelle les faibles valeurs étaient les meilleures.
+La colonne ``Z Quality`` contient ce score.
 
 Le score renseigne sur l'accord avec le modèle. La précision axiale dépend aussi de la variation des largeurs avec Z. Si la courbe varie peu
 ou si deux portions de la courbe sont proches, un bon score peut correspondre à une position axiale mal déterminée.

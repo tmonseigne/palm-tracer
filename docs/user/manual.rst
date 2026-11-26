@@ -129,7 +129,7 @@ Calibration de l'acquisition
 Dans la section :guilabel:`Calibration`, renseignez :
 
 - Taille de pixel en nanomètres entiers (nm).
-- Temps d'exposition en secondes par image.
+- Intervalle entre deux plans consécutifs, en secondes par plan.
 - Intensité lumineuse en photons par unités analogique-numériques (:term:`ADU <ADU (Analog-to-Digital Unit)>`).
 
 Ces paramètres sont utilisés pour :

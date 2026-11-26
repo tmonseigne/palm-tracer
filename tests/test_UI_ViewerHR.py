@@ -1,20 +1,25 @@
 """Teste le widget Napari de visualisation haute résolution des résultats."""
 
+import shutil
 from copy import deepcopy
 from importlib import import_module
+from pathlib import Path
 from types import SimpleNamespace
+from typing import cast
 from unittest.mock import Mock
 
+import numpy as np
+import pandas as pd
 import pytest
 from napari.components import ViewerModel
 from qtpy.QtCore import QCoreApplication, QEvent, QMimeData, Qt, QUrl
 from qtpy.QtWidgets import QDockWidget, QMainWindow, QPushButton
 
+from palm_tracer import PALMTracer
 from palm_tracer.Settings.Types import BaseUIType, ButtonGroup, FileList
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI import BaseNapariWidget, PALMTracerWidget, ViewerHRWidget
-from tests.Utils import *
-from tests.Utils import send_drop_events
+from tests.Utils import INPUT_DIR, OUTPUT_DIR, DropReceiver, add_basic_file, get_fake_pt, get_lines_output, send_drop_events
 
 
 # --------------------------------------------------

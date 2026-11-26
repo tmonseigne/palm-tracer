@@ -605,7 +605,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Mise à jour du Z dans loc ---
 		points = self._loc.loc[:, _DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
-		self._loc[["Z", "MSE Z"]] = estimated_z
+		self._loc[["Z", "Z Quality"]] = estimated_z
 
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
@@ -690,7 +690,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		z_max = self._spin_z_estimate.value()
 		points = self._loc.loc[:, _DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
-		self._loc[["Z", "MSE Z"]] = estimated_z
+		self._loc[["Z", "Z Quality"]] = estimated_z
 		self._loc.to_csv(self._loc_filename, index=False)
 		self.notify_success("Localization file with estimation saved successfully.")
 

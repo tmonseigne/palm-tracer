@@ -55,8 +55,8 @@ msgid "``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`) : expr
 msgstr "``Count`` (:class:`~palm_tracer.Settings.Types.CheckBox.CheckBox`): expresses the Y-axis as counts rather than density."
 
 #: of palm_tracer.Settings.Groups.GraphDisplay.GraphDisplay:13
-msgid "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de classes de l'histogramme ; ``0`` active le choix automatique."
-msgstr "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`): number of histogram bins; ``0`` enables automatic selection."
+msgid "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) : nombre de classes de l'histogramme. ``-1`` impose des classes de largeur 1 pour les données entières et ``0`` sélectionne automatiquement le nombre de classes."
+msgstr "``Bins`` (:class:`~palm_tracer.Settings.Types.SpinInt.SpinInt`) sets the number of histogram bins. Use ``-1`` for bins of width 1 on integer data and ``0`` to select the bin count automatically."
 
 #: ../../api/palm_tracer.Settings.Groups.GraphDisplay.rst
 msgid "Paramètres"

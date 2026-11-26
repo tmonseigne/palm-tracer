@@ -39,7 +39,7 @@ class Filters(BaseSettingGroup):
 	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
 			"Save":         CheckBox("Save filtered", "Save filtered datas in _filtered.csv file.", False),
 			"Plane":        CheckRangeInt("Plane", "Limits the planes to be used, by plane number (starting at 1).", [1, 100000], [1, 100000]),
-			"ROI":          CheckInt("ROI", "ROI selected for filtering. Selected ROI appear in yellow.", 1, [1, 1]),
+			"ROI":          CheckInt("ROI Number", "ROI selected for filtering. Selected ROI appear in yellow.", 1, [1, 1]),
 			"Localization": FiltersL(),
 			"Tracks":       FiltersT()
 			})

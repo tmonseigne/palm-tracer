@@ -1,9 +1,14 @@
 """Teste la migration des anciens résultats Metamorph."""
 
+import shutil
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 import pytest
 
 from palm_tracer.Tools.FileMigrator import FileMigrator
-from tests.Utils import *
+from tests.Utils import INPUT_DIR, REF_DIR, get_lines_output
 
 INPUT_FOLDER = INPUT_DIR / "stack.PT"
 
@@ -99,7 +104,7 @@ def test_update_meta(capsys):
 	"""Vérifie update_meta."""
 	m = FileMigrator()
 
-	ref = np.zeros(6) - 1
+	ref: np.ndarray = np.zeros(6) - 1
 	assert np.allclose(m.meta, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {m.meta}"
 
 	m.update_meta("Height", 1)  # Mise à Jour
@@ -168,13 +173,14 @@ def test_column_migrator():
 	data = ["MSe", "MSE(Gauss)", "Angle(Rad)", "CentroidX", "Centroid Y", "Centroid Z (nm)", "SigmaX", "Sigma y",
 			"Intensity_0", "Intensity Offset", "Intensity", "IntegratedIntensity",
 			"Id", "Plane", "Index", "Channel", "Surface", "Circularity", "Track", "pairdistance", "MSE_Z(um)", "B l_An()k"]
-	ref = ["MSE XY", "MSE XY", "Theta", "X", "Y", "Z", "Sigma X", "Sigma Y",
+	ref = ["XY Quality", "XY Quality", "Theta", "X", "Y", "Z", "Sigma X", "Sigma Y",
 		   "Intensity 0", "Intensity Offset", "Intensity", "Integrated Intensity",
-		   "Id", "Plane", "Index", "Channel", "Surface", "Circularity", "Track", "Pair Distance", "MSE Z", "blank"]
+		   "Id", "Plane", "Index", "Channel", "Surface", "Circularity", "Track", "Pair Distance", "Z Quality", "blank"]
 
 	for i in range(len(data)):
 		res = m.column_migrator(data[i])
 		assert ref[i] == res, f"Résultat incorrect.\nAttendu : {ref[i]}\nObtenu : {res}"
+
 
 # --------------------------------------------------
 @pytest.mark.parametrize("column, expected", [
@@ -188,7 +194,6 @@ def test_migrate_axial_coordinates(column, expected):
 
 	assert result["Z"].tolist() == expected
 	assert data[column].tolist() == [0.25, -0.125, -1.0]
-
 
 # ==================================================
 # endregion Outils de conversion

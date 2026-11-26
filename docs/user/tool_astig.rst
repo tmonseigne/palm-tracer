@@ -144,7 +144,7 @@ Dans :guilabel:`Compute Z`, utilisez :guilabel:`Load Localization file (CSV)` po
 Sélectionnez le modèle avec :guilabel:`Load Model file (CSV)` ou cochez :guilabel:`Use default model` pour utiliser le modèle enregistré par défaut.
 Vérifiez :guilabel:`Pixel Size (nm/px)` et :guilabel:`Z Max (nm)`, puis cliquez sur :guilabel:`Compute Z`.
 
-Le calcul réécrit le CSV avec les colonnes ``Z`` et ``MSE Z`` mises à jour.
+Le calcul réécrit le CSV avec les colonnes ``Z`` et ``Z Quality`` mises à jour.
 Laissez :guilabel:`Save Backup` coché pour conserver une copie du CSV avant l'écriture dans un sous-dossier :file:`backup`.
 
 .. figure:: ../_static/img/tool_astig/estimate_z.png

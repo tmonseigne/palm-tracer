@@ -12,7 +12,7 @@ from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, Combo, Spin
 
 DATA_SRC: dict[str, list] = {
 		"Localization":     ["Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta",
-							 "X", "Y", "Z", "Surface", "MSE XY", "MSE Z", "Count per Plane"],
+							 "X", "Y", "Z", "Surface", "XY Quality", "Z Quality", "Count per Plane"],
 		"Tracking":         ["Length", "Length On", "Length Off", "MSD", "Instant D",
 							 "Total Intensity", "D(0) (μm²/s)", "MSD(0) (μm²)", "MSE(0)", "A (μm²/s)", "B (μm²)", "MSE",
 							 "Alpha", "Average Speed (Last-First)(μm/s)", "A (μm²)", "B (s)", "C (μm²)", "Confinement Radius (μm)"],

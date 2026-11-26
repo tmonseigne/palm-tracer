@@ -1,6 +1,7 @@
 """Teste la construction des figures Plotly."""
 
 import json
+from pathlib import Path
 
 import numpy as np
 import plotly.graph_objects as go
@@ -10,7 +11,7 @@ from scipy.stats import expon, gaussian_kde, norm, poisson
 from palm_tracer.Processing import Grapher
 from palm_tracer.Processing.Astigmatism3D import sigma_model
 from palm_tracer.Processing.GaussianMixture import GaussianMixture
-from tests.Utils import *
+from tests.Utils import OUTPUT_DIR, REF_DIR, get_light_json, save_output
 
 SIZE = 1000
 rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
@@ -250,7 +251,7 @@ def test_scatter_multiple_curves(names, expected_names):
 	assert isinstance(first_curve, go.Scatter)
 	assert isinstance(second_curve, go.Scatter)
 	assert first_curve.line.color != second_curve.line.color
-	for trace, index in zip(figure.data, [0, 2]):
+	for trace, index in zip(figure.data, [0, 2], strict=False):
 		assert isinstance(trace, go.Scatter)
 		expected_x = points[index, 0].copy()
 		expected_y = points[index, 1].copy()
@@ -475,7 +476,7 @@ def test_astigmatism3d_cross_guides(model, expected_minima):
 	figure = Grapher().astigmatism3d(model, points, pixel_size=pixel_size, z_max=z_max, mode="cross", n_points=n_points)
 
 	assert len(figure.layout.shapes) == 2
-	for shape, expected_z, name in zip(figure.layout.shapes, expected_minima, ("Min σX", "Min σY")):
+	for shape, expected_z, name in zip(figure.layout.shapes, expected_minima, ("Min σX", "Min σY"), strict=False):
 		assert shape.x0 == shape.x1 == expected_z
 		assert shape.y0 == 0 and shape.y1 == 1
 		assert shape.yref == "y domain"

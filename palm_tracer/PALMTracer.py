@@ -371,8 +371,7 @@ class PALMTracer:
 		# --- Étape à calculer ---
 		if action == StepAction.Compute:
 			self._logger.add(f"{group.label} enabled.")
-			try: step.process_func()
-			except Exception: raise
+			step.process_func()
 			pipeline_dirty = True  # Pipeline incohérent pour la suite, on évitera de réutiliser des éléments précédents, car un calcul a été fait
 
 		# --- Filtrage ---
@@ -415,16 +414,14 @@ class PALMTracer:
 	# --------------------------------------------------
 	def _localization(self):
 		"""Lance la localisation à partir des paramètres de l'interface."""
-		# Parse settings
+		# Lecture des paramètres de localisation.
 		s = self.settings.localization.settings
 		filters = self.settings.filters
 		# Filtre sur les plans
 		planes = filters["Plane"].value
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
 		fit = self.settings.localization.get_fit()
-		try: fit_params = self.settings.localization.get_fit_params()
-		except Exception: raise
-		# Run command
+		fit_params = self.settings.localization.get_fit_params()
 		self.results["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
 		# Estimation du Z.
@@ -439,7 +436,7 @@ class PALMTracer:
 				pixel_size = self.settings.calibration["Pixel Size"].value
 				points = self.results["loc"].loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
 				estimated_z = self.palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
-				self.results["loc"][["Z", "MSE Z"]] = estimated_z
+				self.results["loc"][["Z", "Z Quality"]] = estimated_z
 
 		self._logger.add(f"\tSaving the localization file ({Ui.format_number(len(self.results['loc']))} localization(s) found).")
 		self.results.save("loc", self._path, self._timestamp)
@@ -758,7 +755,7 @@ class PALMTracer:
 		"""
 		graph_data: dict[str, Any] = {"data": np.empty(0), "title": f"Localizations {src}"}
 		if mode == 1: graph_data["xlabel"], graph_data["ylabel"] = "Plane", src
-		if mode == 0 and not log_scale and src in {"Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Surface", "MSE XY", "MSE Z"}:
+		if mode == 0 and not log_scale and src in {"Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Surface", "XY Quality", "Z Quality"}:
 			graph_data["fit_limit"] = -1.0  # Les échecs à -1 sont déjà supprimés par le logarithme ; zéro reste admissible.
 
 		df = self.results.localizations

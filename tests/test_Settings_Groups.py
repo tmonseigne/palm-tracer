@@ -377,7 +377,7 @@ def test_filters(qtbot):
 def test_filters_l(qtbot):
 	"""Vérifie la classe FiltersL (constructeur, getter, setter)."""
 	g = sg.FiltersL()
-	group_base_test(g, ["Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], st.CheckRangeInt, [2, 9], [-2000, 2000])
+	group_base_test(g, ["Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "XY Quality", "Z Quality"], st.CheckRangeInt, [2, 9], [-2000, 2000])
 	g.deactivate_filters()
 
 
@@ -471,7 +471,6 @@ def test_hr_dimension_notifies_after_adaptation(dimension):
 	group["Dimension"].value = dimension
 	assert states == [(dimension, group["Type"].value, group["Source"].items)]
 	assert group["Type"].value == (1 if dimension == 3 else 0)
-
 
 # ==================================================
 # endregion HR

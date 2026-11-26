@@ -4,25 +4,27 @@ Teste l'orchestration complète des traitements par la classe :class:`PALMTracer
 .. note:: Certaines vérifications du journal portent uniquement sur le nombre de lignes, car chaque traitement en produit au moins quinze.
 """
 
+import shutil
 from contextlib import suppress
 from datetime import datetime, timedelta
 from itertools import count
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 from unittest.mock import Mock
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import pytest
 
+from palm_tracer import PALMTracer
 from palm_tracer.Processing import Parsing
 from palm_tracer.Processing.Step import Step
 from palm_tracer.Settings import Settings
 from palm_tracer.Settings.Groups.Graph import DATA_SRC
 from palm_tracer.Settings.Types import Combo
 from palm_tracer.Tools import FileIO
-from tests.Utils import *
-from tests.Utils import add_basic_file
+from tests.Utils import INPUT_DIR, OUTPUT_DIR, REF_DIR, add_basic_file, get_fake_pt, get_lines_output
 
 
 # --------------------------------------------------
@@ -651,12 +653,12 @@ def test_process_localization_z(capsys, pt, use_default, input_stack, output_fol
 
 	assert len(pt.results["loc"]) == 455
 	assert not np.allclose(pt.results["loc"]["Z"].to_numpy(), 0)
-	# Comparaison des coordonnées et erreurs axiales avec une estimation directe utilisant ce modèle.
+	# Comparaison des coordonnées et scores de qualité axiaux avec une estimation directe utilisant ce modèle.
 	model_path = FileIO.DEFAULT_ASTIGMATISM_MODEL if use_default else REF_DIR / "astigmatism_3d_model.csv"
 	model = pd.read_csv(model_path, index_col=0)
 	points = pt.results["loc"][["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
 	expected = pt.palm.astigmatism_3d_estimation(points, pt.settings.calibration["Pixel Size"].value, model.to_numpy(), s["Z max"].value)
-	np.testing.assert_allclose(pt.results["loc"][["Z", "MSE Z"]].to_numpy(), expected)
+	np.testing.assert_allclose(pt.results["loc"][["Z", "Z Quality"]].to_numpy(), expected)
 	check_output(output_folder, csv=[2], log=[1], json=[1])
 	check_capsys(capsys, 16, [5, 7, 8, 9, 10, 11, 12, 13])
 
@@ -898,7 +900,7 @@ def test_track_analysis_physical_units(pt, monkeypatch, is_3d, expected_msd, exp
 	"""Vérifie les unités de MSD et de vitesse à partir de coordonnées XY en pixels et Z en nm."""
 	planes = np.arange(1, 7)
 	tracks = pd.DataFrame({"Track": 1, "Plane": planes, "Id": planes, "X": planes.astype(float), "Y": 0.0,
-						   "Z": 120.0 * planes, "Integrated Intensity": 1.0, "Surface": 1})
+						   "Z":     120.0 * planes, "Integrated Intensity": 1.0, "Surface": 1})
 	pt.results["trc"] = tracks
 	pt.settings.track_analysis["MSD"].value = True
 	pt.settings.track_analysis["Fit"].value = 2
@@ -1134,8 +1136,8 @@ def test_filter_localization(capsys, pt, sequential_timestamps, input_stack, out
 	fl["Theta"].active = True
 	fl["Theta"].value = [-60, 60]  # .		346/391 : 45 suppression(s)
 	fl["Z"].active = True  # .				Aucune suppression
-	fl["MSE XY"].active = True
-	fl["MSE XY"].value = [0.05, 10]  # .	345/366 : 1 suppression(s)
+	fl["XY Quality"].active = True
+	fl["XY Quality"].value = [0.05, 10]  # .	345/366 : 1 suppression(s)
 	pt.process()
 	check_output(output_folder, csv=[2], log=[1], json=[1], clean=False)  # Il n'a pas enregistré le résultat du filtre
 	check_capsys(capsys, 17, [5, 8, 9, 10, 11, 12, 13, 14])

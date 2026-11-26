@@ -49,8 +49,8 @@ msgid "Batch avec les fichiers..."
 msgstr "Open the files"
 
 #: ../../user/examples/01_SPT.rst:32
-msgid "Dans :guilabel:`Calibration`, renseignez une taille de pixel de 160 nm. Vérifiez cette valeur avec la calibration du microscope. Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Exposure Time (s/frame)`. Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence."
-msgstr "In :guilabel:`Calibration`, enter a pixel size of 160 nm. Check this value against the microscope calibration. To convert durations and calculate diffusion, enter the interval between frames in :guilabel:`Exposure Time (s/frame)`. The filenames indicate a 20 ms exposure. Enter 0.020 s per frame if the metadata confirms that frame interval."
+msgid "Dans :guilabel:`Calibration`, renseignez une taille de pixel de 160 nm. Vérifiez cette valeur avec la calibration du microscope. Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Time Step (s/plane)`. Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence."
+msgstr "In :guilabel:`Calibration`, enter a pixel size of 160 nm. Check this value against the microscope calibration. To convert durations and calculate diffusion, enter the interval between planes in :guilabel:`Time Step (s/plane)`. The filenames indicate a 20 ms exposure. Enter 0.020 s per plane if the metadata confirms that interval."
 
 #: ../../user/examples/01_SPT.rst:36 ../../user/examples/01_SPT.rst:42
 msgid "Calibration Paramétré."
@@ -119,12 +119,12 @@ msgid "Filtres"
 msgstr "Filters"
 
 #: ../../user/examples/01_SPT.rst:98
-msgid "Dans :guilabel:`Filtering`, cochez :guilabel:`MSE XY`. Ce libellé historique désigne aujourd'hui un score de qualité d'ajustement compris entre 0 et 1, calculé à partir du carré de la corrélation de Pearson. Les valeurs proches de 1 correspondent à un meilleur accord avec le modèle. Pour sélectionner les meilleurs ajustements, essayez une plage de 0,80 à 1,00, puis observez les points écartés dans :guilabel:`Points Filtered`. Masquez les deux plans voisins si nécessaire. Si des signaux faibles mais bien isolés disparaissent, abaissez la borne inférieure et vérifiez l'effet sur plusieurs plans."
-msgstr "In :guilabel:`Filtering`, check :guilabel:`MSE XY`. This historical label now refers to a fit quality score from 0 to 1 based on the squared Pearson correlation. Values close to 1 indicate a better fit to the model. To select the best fits, try a range of 0.80 to 1.00 and look at the rejected detections in :guilabel:`Points Filtered`. Hide the two neighboring frames if needed. If faint but isolated signals disappear, lower the minimum and check the effect across several frames."
+msgid "Dans :guilabel:`Filtering`, cochez :guilabel:`XY Quality`. Ce score varie de 0 à 1 et correspond au carré de la corrélation de Pearson. Les valeurs proches de 1 indiquent un meilleur accord avec le modèle. Pour sélectionner les meilleurs ajustements, essayez une plage de 0,80 à 1,00, puis observez les points écartés dans :guilabel:`Points Filtered`. Masquez les deux plans voisins si nécessaire. Si des signaux faibles mais bien isolés disparaissent, abaissez la borne inférieure et vérifiez l'effet sur plusieurs plans."
+msgstr "In :guilabel:`Filtering`, check :guilabel:`XY Quality`. This score ranges from 0 to 1 and is the squared Pearson correlation. Values close to 1 indicate better agreement with the model. To select the best fits, try a range of 0.80 to 1.00 and look at the rejected detections in :guilabel:`Points Filtered`. Hide the two neighboring frames if needed. If faint but isolated signals disappear, lower the minimum and check the effect across several frames."
 
 #: ../../user/examples/01_SPT.rst:104
-msgid "Aperçu des détections et du filtre MSE XY dans une version antérieure de PALM Tracer."
-msgstr "Preview of detections and the MSE XY filter in an earlier version of PALM Tracer."
+msgid "Aperçu des détections et du filtre de qualité XY dans une version antérieure de PALM Tracer."
+msgstr "Preview of detections and the XY quality filter in an earlier version of PALM Tracer."
 
 #: ../../user/examples/01_SPT.rst:110
 msgid "Aperçu historique du filtrage. Utilisez la plage ci-dessus pour retenir les scores élevés dans la version actuelle."
@@ -195,8 +195,8 @@ msgid "Dans :guilabel:`Visualization`, ouvrez le :ref:`Graph Viewer <viewer_grap
 msgstr "In :guilabel:`Visualization`, open the :ref:`Graph Viewer <viewer_graph_page>`. Select :guilabel:`Histogram`, :guilabel:`Localization` and :guilabel:`Integrated Intensity` to display the integrated intensity distribution. Check the axis scales before comparing the two histograms and uncheck :guilabel:`Count` to compare the shapes of the distributions as densities when the sample sizes differ."
 
 #: ../../user/examples/01_SPT.rst:195
-msgid "Pour afficher toutes les localisations, cliquez sur :guilabel:`Reset` dans :guilabel:`Filters`. Réactivez ensuite la ROI ou le filtre :guilabel:`MSE XY`, puis cliquez sur :guilabel:`Update`. L'histogramme aide à voir quelles intensités sont surtout affectées par la sélection. Pour examiner la distribution des scores, changez la source en :guilabel:`MSE XY`."
-msgstr "To display all localizations, click :guilabel:`Reset` in :guilabel:`Filters`. Then re-enable the ROI or :guilabel:`MSE XY` filter and click :guilabel:`Update`. The histogram shows which intensities are most affected by the selection. To inspect the distribution of the scores themselves, change the source to :guilabel:`MSE XY`."
+msgid "Pour afficher toutes les localisations, cliquez sur :guilabel:`Reset` dans :guilabel:`Filters`. Réactivez ensuite la ROI ou le filtre :guilabel:`XY Quality`, puis cliquez sur :guilabel:`Update`. L'histogramme aide à voir quelles intensités sont surtout affectées par la sélection. Pour examiner la distribution des scores, changez la source en :guilabel:`XY Quality`."
+msgstr "To display all localizations, click :guilabel:`Reset` in :guilabel:`Filters`. Then re-enable the ROI or :guilabel:`XY Quality` filter and click :guilabel:`Update`. The histogram shows which intensities are most affected by the selection. To inspect the distribution of the scores themselves, change the source to :guilabel:`XY Quality`."
 
 #: ../../user/examples/01_SPT.rst:204
 msgid "Histogramme initial de l’intensité intégrée des localisations"
@@ -209,6 +209,10 @@ msgstr "Initial histogram of the integrated intensity of the localizations"
 #: ../../user/examples/01_SPT.rst:211 ../../user/examples/01_SPT.rst:216
 msgid "Histogramme de l'intensité intégrée des localisations filtrées"
 msgstr "Histogram of the integrated intensity of the filtered localizations"
+
+#: ../../user/examples/01_SPT.rst:218
+msgid "Pour afficher la distribution des longueurs de trajectoire, sélectionnez :guilabel:`Tracks` puis :guilabel:`Length`. La visionneuse utilise une classe par longueur entière, comme avec :guilabel:`Bins` réglé sur ``-1``."
+msgstr "To display the distribution of track lengths, select :guilabel:`Tracks` and then :guilabel:`Length`. The viewer uses one bin per integer track length, as it does when :guilabel:`Bins` is set to ``-1``."
 
 #: ../../user/examples/01_SPT.rst:220
 msgid "Reconstruction et visualisation"
@@ -267,8 +271,8 @@ msgid "Voir le code Python"
 msgstr "View Python code"
 
 #: ../../user/examples/01_SPT.rst:280
-msgid "Le script définit un rectangle X = 90–160 et Y = 20–80 pixels. Pour l'appliquer, activez aussi le filtre ROI avec ``filt_s[\"ROI\"].active = True`` après la création du rectangle. Pour retenir les meilleurs scores dans la version actuelle, remplacez la plage historique de ``MSE_FILTER`` par ``[0.8, 1.0]`` ou par la plage validée sur vos données. Réglez ``RESET_RESULT`` sur ``False`` pour conserver les résultats déjà présents lorsque vous exécutez le script."
-msgstr "The script defines a rectangle at X = 90–160 and Y = 20–80 pixels. To apply it, also enable the ROI filter with ``filt_s[\"ROI\"].active = True`` after creating the rectangle. To retain the best scores in the current version, replace the historical ``MSE_FILTER`` range with ``[0.8, 1.0]`` or the range you validated on your data. Set ``RESET_RESULT`` to ``False`` to preserve existing results when running the script."
+msgid "Le script définit un rectangle X = 90–160 et Y = 20–80 pixels. Pour l'appliquer, activez aussi le filtre ROI avec ``filt_s[\"ROI\"].active = True`` après la création du rectangle. Pour retenir les meilleurs scores, réglez ``XY_QUALITY_FILTER`` sur ``[0.8, 1.0]`` ou sur la plage validée sur vos données. Réglez ``RESET_RESULT`` sur ``False`` pour conserver les résultats déjà présents lorsque vous exécutez le script."
+msgstr "The script defines a rectangle at X = 90–160 and Y = 20–80 pixels. To apply it, also enable the ROI filter with ``filt_s[\"ROI\"].active = True`` after creating the rectangle. To retain the best scores, set ``XY_QUALITY_FILTER`` to ``[0.8, 1.0]`` or to the range you validated on your data. Set ``RESET_RESULT`` to ``False`` to preserve existing results when running the script."
 
 #~ msgid "Paramètres de Batch."
 #~ msgstr "Batch settings."

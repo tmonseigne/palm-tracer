@@ -236,8 +236,8 @@ msgid "Taille de pixel en nanomètres entiers (nm)."
 msgstr "Pixel size in whole nanometers (nm)."
 
 #: ../../user/manual.rst:137
-msgid "Temps d'exposition en secondes par image."
-msgstr "Exposure time in seconds per frame."
+msgid "Intervalle entre deux plans consécutifs, en secondes par plan."
+msgstr "Interval between consecutive planes, in seconds per plane."
 
 #: ../../user/manual.rst:138
 msgid "Intensité lumineuse en photons par unités analogique-numériques (:term:`ADU <ADU (Analog-to-Digital Unit)>`)."

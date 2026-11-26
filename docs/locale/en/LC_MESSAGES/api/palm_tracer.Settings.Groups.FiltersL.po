@@ -47,8 +47,8 @@ msgid "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRange
 msgstr "``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): angular range; default value: ``[-90.0, 90.0]`` degrees."
 
 #: of palm_tracer.Settings.Groups.FiltersL.FiltersL:14
-msgid "``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des scores de qualité ; valeur par défaut : ``[0.0, 1.0]``, plus grand = meilleur. Les noms historiques sont conservés : XY contient la corrélation de Pearson au carré, Z le score de compatibilité des sigmas défini dans :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`. Les anciens fichiers peuvent encore contenir une SSE pour Z."
-msgstr "``MSE XY`` and ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): quality score ranges; default value: ``[0.0, 1.0]``, higher = better. The historical names are retained: XY contains the squared Pearson correlation, and Z contains the sigma compatibility score defined in :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`. Existing files may still contain an SSE for Z."
+msgid "``XY Quality`` et ``Z Quality`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des scores de qualité ; valeur par défaut : ``[0.0, 1.0]``. Une valeur élevée indique un meilleur accord avec le modèle. En XY, le score est le carré de la corrélation de Pearson. En Z, il mesure la compatibilité des largeurs avec le modèle d'astigmatisme selon :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`."
+msgstr "``XY Quality`` and ``Z Quality`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`): quality score ranges; default value: ``[0.0, 1.0]``. A higher score indicates better agreement with the model. The XY score is the squared Pearson correlation. The Z score measures how well the widths agree with the astigmatism model according to :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`."
 
 #: ../../api/palm_tracer.Settings.Groups.FiltersL.rst
 msgid "Paramètres"

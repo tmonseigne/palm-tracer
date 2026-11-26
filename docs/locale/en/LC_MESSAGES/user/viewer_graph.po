@@ -172,8 +172,8 @@ msgid ":guilabel:`Count` affiche des effectifs. Décochez-le pour afficher une d
 msgstr ":guilabel:`Count` displays counts. Clear it to display density."
 
 #: ../../user/viewer_graph.rst:129
-msgid ":guilabel:`Bins` règle le nombre de classes de l'histogramme. Saisissez ``0`` pour laisser la visionneuse le choisir automatiquement, lorsque la source le permet."
-msgstr ":guilabel:`Bins` sets the number of histogram bins. Enter ``0`` to let the viewer choose it automatically when supported by the source."
+msgid ":guilabel:`Bins` règle les classes de l'histogramme. Saisissez ``-1`` pour obtenir des classes de largeur 1, centrées sur les entiers pour des données entières. Avec ``0``, le nombre de classes est automatique. Une valeur positive fixe leur nombre. Les sources de longueur de trajectoire imposent les classes de largeur 1."
+msgstr ":guilabel:`Bins` configures the histogram bins. Enter ``-1`` for bins of width 1, centered on integers for integer data. With ``0``, the bin count is selected automatically. A positive value sets the bin count. Track length sources always use bins of width 1."
 
 #: ../../user/viewer_graph.rst:130
 msgid ":guilabel:`Cumulative Histogram` cumule les valeurs de classe en classe."
@@ -284,12 +284,12 @@ msgid "Pour reconstruire des trajectoires à partir de localisations filtrées, 
 msgstr "To reconstruct tracks from filtered localizations, run processing again with the desired filters enabled in the main widget."
 
 #: ../../user/viewer_graph.rst:210
-msgid "Histogramme des localisations après application des filtres Intensity et MSE XY, dont les bornes sont visibles."
-msgstr "Localization histogram after applying the Intensity and MSE XY filters, with their bounds visible."
+msgid "Histogramme des localisations après application des filtres Intensity et XY Quality, dont les bornes sont visibles."
+msgstr "Localization histogram after applying the Intensity and XY Quality filters, with their bounds visible."
 
 #: ../../user/viewer_graph.rst:216
-msgid "Localisations filtrées selon l'intensité intégrée et la qualité de l'ajustement en XY (:guilabel:`MSE XY`)"
-msgstr "Localizations filtered by integrated intensity and XY fit quality (:guilabel:`MSE XY`)"
+msgid "Localisations filtrées selon l'intensité intégrée et la qualité de l'ajustement en XY (:guilabel:`XY Quality`)"
+msgstr "Localizations filtered by integrated intensity and XY fit quality (:guilabel:`XY Quality`)"
 
 #: ../../user/viewer_graph.rst:219
 msgid "Export"

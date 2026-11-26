@@ -27,7 +27,7 @@ TRACKING_DISTANCE: float = 3.0  # .					Distance maximale pour le suivi
 
 X_FILTER = [90, 160]  # .							Filtre sur X
 Y_FILTER = [20, 80]  # .							Filtre sur Y
-MSE_FILTER = [0, 0.8]  # .							Filtre sur MSE XY
+XY_QUALITY_FILTER = [0, 0.8]  # .					Filtre sur XY Quality
 LEN_FILTER = [10, 4000]  # .						Filtre sur la longueur des trajectoires
 
 VIZ_RATIO: int = 8  # .								Taille du rendu Haute Résolution
@@ -58,8 +58,8 @@ trc_s["Max Distance"].value = TRACKING_DISTANCE
 filt_s: Filters = pt.settings.filters  # .			Paramètres des filtres
 filt_s["Save"].value = True  # .					Enregistrement des fichiers filtrés
 pt.settings.rois.set_xy_roi(X_FILTER[0], X_FILTER[1], Y_FILTER[0], Y_FILTER[1])
-cast(CheckRangeFloat, filt_s.localization["MSE XY"]).active = True
-filt_s.localization["MSE XY"].value = MSE_FILTER
+cast(CheckRangeFloat, filt_s.localization["XY Quality"]).active = True
+filt_s.localization["XY Quality"].value = XY_QUALITY_FILTER
 cast(CheckRangeInt, filt_s.tracking["Length"]).active = True
 filt_s.tracking["Length"].value = LEN_FILTER
 

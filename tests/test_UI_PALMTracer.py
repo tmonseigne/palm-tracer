@@ -1,5 +1,6 @@
 """Teste le widget principal de PALM Tracer."""
 
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, PropertyMock
 
@@ -11,8 +12,7 @@ from qtpy.QtWidgets import QDockWidget, QMainWindow, QTabWidget
 
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI import PALMTracerWidget
-from tests.Utils import *
-from tests.Utils import add_basic_file, send_drop_events
+from tests.Utils import DropReceiver, add_basic_file, get_lines_output, send_drop_events
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))

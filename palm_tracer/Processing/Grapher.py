@@ -307,8 +307,8 @@ class Grapher:
 				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
 			if poissonnian and fit_mu_x >= 0 and fit_mu_y >= 0:
-				xg = np.arange(max(0, int(np.floor(limits_x[0]))), int(np.ceil(limits_x[1])) + 1, )
-				yg = np.arange(max(0, int(np.floor(limits_y[0]))), int(np.ceil(limits_y[1])) + 1, )
+				xg = np.arange(max(0, int(np.floor(limits_x[0]))), int(np.ceil(limits_x[1])) + 1)
+				yg = np.arange(max(0, int(np.floor(limits_y[0]))), int(np.ceil(limits_y[1])) + 1)
 
 				zx = poisson.pmf(xg, fit_mu_x)
 				zy = poisson.pmf(yg, fit_mu_y)

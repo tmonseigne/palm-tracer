@@ -1,4 +1,4 @@
-Id,Plane,Index,Channel,X,Y,Z,Integrated Intensity,Sigma X,Sigma Y,Theta,MSE XY,MSE Z,Intensity 0,Intensity Offset,Intensity,Surface,Circularity
+Id,Plane,Index,Channel,X,Y,Z,Integrated Intensity,Sigma X,Sigma Y,Theta,XY Quality,Z Quality,Intensity 0,Intensity Offset,Intensity,Surface,Circularity
 1,1,1,-1,61.525134,146.0,0.0,58954.145427,7.399628,1.999381,1.809758,0.717921,-1.0,634.20399,0.0,573.742493,5,0.2702
 2,1,2,-1,74.594079,146.0,0.0,60992.832414,7.684118,1.961348,-1.413775,0.749414,-1.0,644.095485,0.0,557.697769,5,0.255247
 3,1,3,-1,50.022024,146.273139,0.0,44447.680157,5.184372,2.017067,0.528517,0.796082,-1.0,676.476478,0.0,803.33255,7,0.389067

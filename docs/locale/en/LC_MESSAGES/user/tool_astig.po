@@ -164,8 +164,8 @@ msgid "Dans :guilabel:`Compute Z`, utilisez :guilabel:`Load Localization file (C
 msgstr "In :guilabel:`Compute Z`, use :guilabel:`Load Localization file (CSV)` to load the localizations to process. Select the model with :guilabel:`Load Model file (CSV)` or check :guilabel:`Use default model` to use the saved default model. Check :guilabel:`Pixel Size (nm/px)` and :guilabel:`Z Max (nm)`, then click :guilabel:`Compute Z`."
 
 #: ../../user/tool_astig.rst:147
-msgid "Le calcul réécrit le CSV avec les colonnes ``Z`` et ``MSE Z`` mises à jour. Laissez :guilabel:`Save Backup` coché pour conserver une copie du CSV avant l'écriture dans un sous-dossier :file:`backup`."
-msgstr "The calculation rewrites the CSV with updated ``Z`` and ``MSE Z`` columns. Keep :guilabel:`Save Backup` checked to copy the original CSV to a :file:`backup` subfolder before it is rewritten."
+msgid "Le calcul réécrit le CSV avec les colonnes ``Z`` et ``Z Quality`` mises à jour. Laissez :guilabel:`Save Backup` coché pour conserver une copie du CSV avant l'écriture dans un sous-dossier :file:`backup`."
+msgstr "The calculation rewrites the CSV with updated ``Z`` and ``Z Quality`` columns. Keep :guilabel:`Save Backup` checked to copy the original CSV to a :file:`backup` subfolder before it is rewritten."
 
 #: ../../user/tool_astig.rst:150 ../../user/tool_astig.rst:156
 msgid "Interface d'estimation de la position axiale (Z)."

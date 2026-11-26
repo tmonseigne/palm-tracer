@@ -70,6 +70,6 @@ Résultats et qualité
 Les colonnes ``X`` et ``Y`` donnent le centre en pixels. ``Sigma X`` et ``Sigma Y`` donnent les largeurs ajustées ou imposées, et ``Theta`` donne l'angle en radians.
 La colonne ``Integrated Intensity`` contient l'intégrale du profil gaussien sans le fond, calculée par :math:`2\pi A\sigma_x\sigma_y`.
 
-La colonne historique ``MSE XY`` contient le carré de la corrélation de Pearson entre les intensités observées et prédites sur la fenêtre.
+La colonne ``XY Quality`` contient le carré de la corrélation de Pearson entre les intensités observées et prédites sur la fenêtre.
 Une valeur proche de 1 indique une forte concordance de forme. Un ajustement invalide, par exemple lorsque la fenêtre déborde de l'image,
 est repérable par une valeur ``Integrated Intensity`` de −1.

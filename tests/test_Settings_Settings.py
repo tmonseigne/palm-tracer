@@ -1,14 +1,16 @@
 """Teste l'organisation et la sérialisation des paramètres."""
 
 import copy
+from typing import Any
 
+import numpy as np
 import pytest
 import tifffile as tiff
 
 from palm_tracer.Settings import Groups as sg
 from palm_tracer.Settings import Settings
 from palm_tracer.Tools import FileIO
-from tests.Utils import *
+from tests.Utils import get_lines_output
 
 
 # ==================================================
@@ -42,7 +44,7 @@ def test_settings(qtbot, capsys):
 def test_settings_batch_filter_limits(qtbot, tmp_path, mode, selected, expected):
 	"""Vérifie les bornes des filtres selon le fichier et le mode du lot."""
 	files = [tmp_path / "first.tif", tmp_path / "second.tif"]
-	for path, depth in zip(files, (3, 5)):
+	for path, depth in zip(files, (3, 5), strict=False):
 		tiff.imwrite(path, np.zeros((depth, 4, 4), dtype=np.uint16), photometric="minisblack")
 
 	settings = Settings()
@@ -57,7 +59,7 @@ def test_settings_batch_filter_limits(qtbot, tmp_path, mode, selected, expected)
 def test_settings_batch_filter_limits_after_list_change(qtbot, tmp_path):
 	"""Vérifie le re-calcul quand la liste change sans changer l'index courant."""
 	files = [tmp_path / "first.tif", tmp_path / "second.tif"]
-	for path, depth in zip(files, (3, 5)):
+	for path, depth in zip(files, (3, 5), strict=False):
 		tiff.imwrite(path, np.zeros((depth, 4, 4), dtype=np.uint16), photometric="minisblack")
 
 	settings = Settings()
@@ -77,7 +79,7 @@ def test_settings_batch_filter_limits_after_list_change(qtbot, tmp_path):
 def test_settings_batch_reuses_tif_metadata(qtbot, tmp_path, monkeypatch):
 	"""Vérifie que le changement de mode réutilise les profondeurs déjà lues."""
 	files = [tmp_path / "first.tif", tmp_path / "second.tif"]
-	for path, depth in zip(files, (3, 5)):
+	for path, depth in zip(files, (3, 5), strict=False):
 		tiff.imwrite(path, np.zeros((depth, 4, 4), dtype=np.uint16), photometric="minisblack")
 
 	read_shape = FileIO.read_tif_shape
@@ -157,7 +159,6 @@ def test_cross_group_cascade_notifies_once():
 	value = settings.tracking["Max Distance"].value + 1
 	settings.tracking["Max Distance"].value = value
 	assert states == [(value, value)]
-
 
 # ==================================================
 # endregion Signaux

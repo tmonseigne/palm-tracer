@@ -389,8 +389,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		if present is None: return
 
 		s = self.pt.settings.localization.settings
-		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
-		except Exception: raise
+		t, w, f, fp = s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params()
 		plane_number = self.viewer.dims.current_step[0] + 1
 
 		# --------------------------------------------------

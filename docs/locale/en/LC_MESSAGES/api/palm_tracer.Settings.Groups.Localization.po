@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PALM Tracer\n"
 "Report-Msgid-Bugs-To: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
-"POT-Creation-Date: 2026-11-03 09:49+0100\n"
+"POT-Creation-Date: 2026-11-27 09:42+0100\n"
 "PO-Revision-Date: 2026-11-03 10:55+0100\n"
 "Last-Translator: Thibaut Monseigne <thibaut.monseigne@u-bordeaux.fr>\n"
 "Language: en\n"
@@ -76,15 +76,22 @@ msgid "Libellé du groupe affiché dans l'interface."
 msgstr "Label of the group displayed in the interface."
 
 #: of palm_tracer.Settings.Groups.Localization.Localization.gaussian:1
-#: palm_tracer.Settings.Groups.Localization.Localization.spline:1
-msgid "Groupe de paramètres liés aux filtres sur la localization (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
-msgstr "Group of settings related to localization filters (:class:`~palm_tracer.Settings.Groups.FiltersL.FiltersL`)."
+msgid "Paramètres de l'ajustement gaussien."
+msgstr "Gaussian fitting settings."
 
-#: ../../api/palm_tracer.Settings.Groups.Localization.rst:16
+#: palm_tracer.Settings.Groups.Localization.Localization.spline:1
+msgid "Paramètres de l'ajustement par spline."
+msgstr "Spline fitting settings."
+
+#: of palm_tracer.Settings.Groups.Localization.Localization.roi_width:1
+msgid "Largeur en pixels de la fenêtre carrée, pixel central compris."
+msgstr "Width of the square window in pixels, including the center pixel."
+
+#: ../../api/palm_tracer.Settings.Groups.Localization.rst:17
 msgid "Méthodes"
 msgstr "Methods"
 
-#: ../../api/palm_tracer.Settings.Groups.Localization.rst:19
+#: ../../api/palm_tracer.Settings.Groups.Localization.rst:20
 msgid "Divers"
 msgstr "Miscellaneous"
 

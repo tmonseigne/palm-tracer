@@ -1,5 +1,7 @@
 """Teste le widget de calibration et d'estimation axiale par astigmatisme 3D."""
 
+import shutil
+from pathlib import Path
 from unittest.mock import Mock
 
 import numpy as np
@@ -11,8 +13,7 @@ from palm_tracer.Processing.Astigmatism3D import model_projection_validity, mode
 from palm_tracer.Processing.Parsing import FILES_COLUMNS, MODEL_ROWS
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI.Astigmatism3DWidget import Astigmatism3DWidget  # Classe
-from tests.Utils import *
-from tests.Utils import _FakeDownload, send_file_drop
+from tests.Utils import INPUT_DIR, REF_DIR, _FakeDownload, get_lines_output, send_file_drop
 
 LOC_FILE = INPUT_DIR / "astigmatism_3d_calibration.csv"
 MODEL_FILE = "astigmatism_3d_model.csv"
@@ -745,7 +746,7 @@ def test_estimate_default_model(qtbot, tmp_path, content):
 	else: assert w._get_estimation_model().empty
 	w._on_estimate()
 	if content == "valid":
-		actual = pd.read_csv(w._loc_filename)[["Z", "MSE Z"]].to_numpy()
+		actual = pd.read_csv(w._loc_filename)[["Z", "Z Quality"]].to_numpy()
 		np.testing.assert_allclose(actual, expected)
 	else: assert w._loc_filename.read_bytes() == original
 	w._check_default_model.setChecked(False)

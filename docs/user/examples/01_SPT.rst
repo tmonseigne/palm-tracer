@@ -30,7 +30,7 @@ puis laissez :guilabel:`Only one` sélectionné. Une seule pile suffit pour rég
    Batch avec les fichiers...
 
 Dans :guilabel:`Calibration`, renseignez une taille de pixel de 160 nm. Vérifiez cette valeur avec la calibration du microscope.
-Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Exposure Time (s/frame)`.
+Pour convertir les durées et calculer la diffusion, renseignez l'intervalle entre deux plans dans :guilabel:`Time Step (s/plane)`.
 Le nom des fichiers indique 20 ms d'exposition. Saisissez 0,020 s par plan si les métadonnées confirment cette cadence.
 
 .. figure:: ../../_static/img/WIP.png
@@ -95,15 +95,15 @@ Les largeurs peuvent ainsi varier indépendamment suivant X et Y. L'angle reste 
 Filtres
 ^^^^^^^^^^^^^^
 
-Dans :guilabel:`Filtering`, cochez :guilabel:`MSE XY`. Ce libellé historique désigne aujourd'hui un score de qualité d'ajustement
-compris entre 0 et 1, calculé à partir du carré de la corrélation de Pearson. Les valeurs proches de 1 correspondent à un meilleur accord avec le modèle.
+Dans :guilabel:`Filtering`, cochez :guilabel:`XY Quality`. Ce score varie de 0 à 1 et correspond au carré de la corrélation de Pearson.
+Les valeurs proches de 1 indiquent un meilleur accord avec le modèle.
 Pour sélectionner les meilleurs ajustements, essayez une plage de 0,80 à 1,00, puis observez les points écartés dans
 :guilabel:`Points Filtered`. Masquez les deux plans voisins si nécessaire. Si des signaux faibles mais bien isolés disparaissent,
 abaissez la borne inférieure et vérifiez l'effet sur plusieurs plans.
 
 .. figure:: ../../_static/img/examples/spt/Filter.png
    :figclass: centered-caption
-   :alt: Aperçu des détections et du filtre MSE XY dans une version antérieure de PALM Tracer.
+   :alt: Aperçu des détections et du filtre de qualité XY dans une version antérieure de PALM Tracer.
    :align: center
    :width: 80%
 
@@ -193,8 +193,8 @@ Vérifiez les échelles des axes avant de comparer les deux histogrammes et déc
 comparer la forme des distributions en densité avec des effectifs différents.
 
 Pour afficher toutes les localisations, cliquez sur :guilabel:`Reset` dans :guilabel:`Filters`. Réactivez ensuite la ROI
-ou le filtre :guilabel:`MSE XY`, puis cliquez sur :guilabel:`Update`. L'histogramme aide à voir quelles intensités sont
-surtout affectées par la sélection. Pour examiner la distribution des scores, changez la source en :guilabel:`MSE XY`.
+ou le filtre :guilabel:`XY Quality`, puis cliquez sur :guilabel:`Update`. L'histogramme aide à voir quelles intensités sont
+surtout affectées par la sélection. Pour examiner la distribution des scores, changez la source en :guilabel:`XY Quality`.
 
 .. list-table::
    :align: center
@@ -215,6 +215,8 @@ surtout affectées par la sélection. Pour examiner la distribution des scores, 
 
           Histogramme de l'intensité intégrée des localisations filtrées
 
+Pour afficher la distribution des longueurs de trajectoire, sélectionnez :guilabel:`Tracks` puis :guilabel:`Length`.
+La visionneuse utilise une classe par longueur entière, comme avec :guilabel:`Bins` réglé sur ``-1``.
 
 Reconstruction et visualisation
 ---------------------------------------------------
@@ -278,6 +280,6 @@ de fichiers et reprenez, pour reproduire un traitement précis, les valeurs du f
 
 
 Le script définit un rectangle X = 90–160 et Y = 20–80 pixels. Pour l'appliquer, activez aussi le filtre ROI
-avec ``filt_s["ROI"].active = True`` après la création du rectangle. Pour retenir les meilleurs scores dans la version actuelle,
-remplacez la plage historique de ``MSE_FILTER`` par ``[0.8, 1.0]`` ou par la plage validée sur vos données.
+avec ``filt_s["ROI"].active = True`` après la création du rectangle. Pour retenir les meilleurs scores,
+réglez ``XY_QUALITY_FILTER`` sur ``[0.8, 1.0]`` ou sur la plage validée sur vos données.
 Réglez ``RESET_RESULT`` sur ``False`` pour conserver les résultats déjà présents lorsque vous exécutez le script.
