@@ -77,7 +77,7 @@ def group_base_test(group: sg.BaseSettingGroup, names: list[str],
 # region Contrats communs
 # ==================================================
 @pytest.mark.parametrize("group_type, keys, setting_type, change, default", [
-		pytest.param(sg.Calibration, ["Pixel Size", "Exposure", "Intensity"], st.SpinFloat, 0.32, 0.16, id="calibration"),
+		pytest.param(sg.Calibration, ["Pixel Size", "Exposure", "Intensity"], st.SpinInt, 320, 160, id="calibration"),
 		pytest.param(sg.GaussianFit, ["Mode", "Sigma", "Theta", "Z", "Z max", "Model", "Default Model"], st.Combo, 2, 0, id="gaussian-fit"),
 		pytest.param(sg.SplineFit, ["Sensor", "Variance Map", "File"], st.Combo, 1, 0, id="spline-fit"),
 		pytest.param(sg.BeadsExtraction, ["Max Distance"], st.SpinFloat, 2, 1, id="beads"),
@@ -254,9 +254,10 @@ def test_batch_get_stacks_incompatible_dimensions(qtbot):
 def test_localization(qtbot):
 	"""Vérifie la classe Localisation (constructeur, getter, setter)."""
 	g = sg.Localization()
-	group_base_test(g, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Size", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
+	group_base_test(g, ["Preview", "Threshold", "Auto Threshold", "ROI Shape", "ROI Radius", "Watershed", "Fit", "Gaussian Fit", "Spline Fit"],
 					st.CheckBox, True, False)
 
+	assert g.roi_width == 7
 	assert isinstance(g.gaussian, sg.GaussianFit)
 	assert isinstance(g.spline, sg.SplineFit)
 
@@ -376,7 +377,7 @@ def test_filters(qtbot):
 def test_filters_l(qtbot):
 	"""Vérifie la classe FiltersL (constructeur, getter, setter)."""
 	g = sg.FiltersL()
-	group_base_test(g, ["Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "MSE XY", "MSE Z"], st.CheckRangeInt, [2, 9], [-2000, 2000])
+	group_base_test(g, ["Z", "Intensity", "Sigma X", "Sigma Y", "Circularity", "Theta", "XY Quality", "Z Quality"], st.CheckRangeInt, [2, 9], [-2000, 2000])
 	g.deactivate_filters()
 
 
@@ -470,7 +471,6 @@ def test_hr_dimension_notifies_after_adaptation(dimension):
 	group["Dimension"].value = dimension
 	assert states == [(dimension, group["Type"].value, group["Source"].items)]
 	assert group["Type"].value == (1 if dimension == 3 else 0)
-
 
 # ==================================================
 # endregion HR

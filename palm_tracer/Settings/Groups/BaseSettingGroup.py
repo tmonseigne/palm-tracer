@@ -83,14 +83,22 @@ class BaseSettingGroup:
 			ui.checkbox.setChecked(self.active)  # .		Active ou non la Check Box
 			ui.checkbox.toggled.connect(self.set_active)  # Connecte le changement de la checkbox
 		ui.active(self.active if mode == 0 else True)
-		body = ui.body_layout
+		self._populate_ui(ui, name)
+		self._uis[name] = ui  # Ajoute l'UI au dictionnaire
+		return ui
 
+	# --------------------------------------------------
+	def _populate_ui(self, ui: BaseUIGroup, name: str):
+		"""
+		Dispose les paramètres dans le corps de la vue.
+
+		:param ui: Interface du groupe à remplir.
+		:param name: Nom de la vue des paramètres.
+		"""
+		body = ui.body_layout
 		for setting in self._settings.values():
 			if isinstance(setting, BaseSettingGroup): body.addRow(setting.get_ui(name).widget)
 			else: setting.get_ui(name).attach_to_form(body)
-
-		self._uis[name] = ui  # Ajoute l'UI au dictionnaire
-		return ui
 
 	# --------------------------------------------------
 	def clean_ui(self, name: str = "default"):

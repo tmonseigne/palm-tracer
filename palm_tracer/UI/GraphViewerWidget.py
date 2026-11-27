@@ -6,11 +6,11 @@ from pathlib import Path
 from typing import cast
 
 from qtpy.QtCore import Qt, QTimer
-from qtpy.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QPushButton, QSpinBox, QSplitter, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QApplication, QFrame, QGroupBox, QHBoxLayout, QPushButton, QSplitter, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Settings.Groups import Graph
-from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList, SpinInt
+from palm_tracer.Settings.Types import BaseSettingType, Combo, FileList
 from palm_tracer.Tools import FileIO, Ui
 from palm_tracer.UI.BasePlotlyWidget import BasePlotlyWidget
 from palm_tracer.UI.Napari import get_current_palmtracer
@@ -114,22 +114,10 @@ class GraphViewerWidget(BasePlotlyWidget):
 				if isinstance(setting, Combo):
 					setting.get_ui(self.UI_NAME).boxes[0].setMinimumWidth(200)
 
-		# --- Bloc Affichage (2 colonnes) ---
+		# --- Bloc Affichage ---
 		display_settings = self._graph_settings.display
-		grp_display = QGroupBox("Display")
-		grid = QGridLayout(grp_display)
-		Ui.init_layout(grid)
-		for i, key in enumerate(display_settings):
-			row, col = i // 2, (i % 2) * 2
-			display_setting = cast(BaseSettingType, display_settings[key])
-			ui = display_setting.get_ui(self.UI_NAME)
-			if isinstance(display_setting, SpinInt): Ui.set_spin_buttons(cast(QSpinBox, ui.boxes[0]), False)
-			grid.addLayout(ui.layout, row, col)
-			grid.addWidget(ui.label, row, col + 1)
-
-		grid.setColumnStretch(1, 1)
-		grid.setColumnStretch(3, 1)
-		grid.setRowStretch(grid.rowCount(), 1)
+		grp_display, vbox_display = Ui.make_group(self, display_settings.label, margin=0)
+		vbox_display.addWidget(display_settings.get_ui(self.UI_NAME, mode=2).widget)
 
 		# --- Bloc Filtres ---
 		grp_filters, vbox_filters = Ui.make_group(self, "Filters")

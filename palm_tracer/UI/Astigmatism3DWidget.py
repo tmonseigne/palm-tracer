@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from qtpy.QtCore import QSignalBlocker
-from qtpy.QtWidgets import QApplication, QCheckBox, QDoubleSpinBox, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QWidget
+from qtpy.QtWidgets import QApplication, QCheckBox, QGroupBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTabWidget, QVBoxLayout, QWidget
 
 from palm_tracer.PALMTracer import PALMTracer
 from palm_tracer.Processing import Palm
@@ -92,8 +92,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 
 		self._lbl_compute = Ui.make_path_label("No file loaded", grp)
 
-		self._spin_px_compute = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
-		self._spin_px_compute.setToolTip("Pixel size in micrometers.")
+		self._spin_px_compute = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=160)
+		self._spin_px_compute.setToolTip("Pixel size in nanometers.")
 		self._spin_z_compute = QSpinBox(grp, minimum=10, maximum=2000, singleStep=10, value=500)
 		self._spin_z_compute.setToolTip("Maximum absolute value of Z.")
 		self._check_z_from_plane = QCheckBox(grp)
@@ -112,7 +112,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		compute_form = Ui.make_form(None)
 		self._compute_form = compute_form
 		Ui.add_setting_row(compute_form, "Only one bead:", self._check_only_one, tooltip=self._check_only_one.toolTip())
-		Ui.add_setting_row(compute_form, "Pixel Size (µm/px):", self._spin_px_compute, tooltip=self._spin_px_compute.toolTip())
+		Ui.add_setting_row(compute_form, "Pixel Size (nm/px):", self._spin_px_compute, tooltip=self._spin_px_compute.toolTip())
 		Ui.add_setting_row(compute_form, "Z Max (nm):", self._spin_z_compute, tooltip=self._spin_z_compute.toolTip())
 		Ui.add_setting_row(compute_form, "Get Z from plane:", self._check_z_from_plane, tooltip=self._check_z_from_plane.toolTip())
 		self._z_interval_row = compute_form.rowCount()
@@ -197,8 +197,8 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._lbl_loc_estimate = Ui.make_path_label("No file loaded", grp)
 		self._lbl_model_estimate = Ui.make_path_label("No Model file loaded", grp)
 
-		self._spin_px_estimate = QDoubleSpinBox(grp, decimals=3, minimum=0.001, maximum=1, singleStep=0.010, value=0.160)
-		self._spin_px_estimate.setToolTip("Pixel size in micrometers.")
+		self._spin_px_estimate = QSpinBox(grp, minimum=1, maximum=1000, singleStep=10, value=160)
+		self._spin_px_estimate.setToolTip("Pixel size in nanometers.")
 
 		self._spin_z_estimate = QSpinBox(grp, minimum=10, maximum=2000, singleStep=10, value=500)
 		self._spin_z_estimate.setToolTip("Maximum absolute value of Z.")
@@ -208,7 +208,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._check_b_estimate.setToolTip("Save original localisation file in backup folder.")
 
 		form = Ui.make_form(None)
-		Ui.add_setting_row(form, "Pixel Size (µm/px):", self._spin_px_estimate, tooltip=self._spin_px_estimate.toolTip())
+		Ui.add_setting_row(form, "Pixel Size (nm/px):", self._spin_px_estimate, tooltip=self._spin_px_estimate.toolTip())
 		Ui.add_setting_row(form, "Z Max (nm):", self._spin_z_estimate, tooltip=self._spin_z_estimate.toolTip())
 		Ui.add_setting_row(form, "Save Backup:", self._check_b_estimate, tooltip=self._check_b_estimate.toolTip())
 
@@ -237,7 +237,16 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._tabs.addTab(tab_compute, "Compute Model")
 		self._tabs.addTab(tab_estimate, "Compute Z")
 
-		main_layout.addWidget(self._tabs)
+		actions_row = QHBoxLayout()
+		self._btn_export = QPushButton("Export figure")
+		self._btn_export.setToolTip("Opens a dialog box and exports the figure according to the selected extension.")
+		actions_row.addStretch(1)
+		actions_row.addWidget(self._btn_export)
+
+		left_layout = QVBoxLayout()
+		left_layout.addWidget(self._tabs, stretch=1)
+		left_layout.addLayout(actions_row)
+		main_layout.addLayout(left_layout)
 		main_layout.addWidget(self._web, stretch=1)
 
 	# --------------------------------------------------
@@ -275,6 +284,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		self._btn_load_loc_estimate.clicked.connect(self._on_load_loc)
 		self._btn_load_model_estimate.clicked.connect(self._on_load_model)
 		self._btn_estimate.clicked.connect(self._on_estimate)
+		self._btn_export.clicked.connect(self._on_export)
 
 		# --- Lien entre les spins et les groupes de boutons ---
 		self._spin_px_compute.valueChanged.connect(lambda v: Ui.sync_spin(self._spin_px_estimate, v))
@@ -335,7 +345,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 	def _update_plot(self):
 		"""Construit la figure Plotly courante en fonction du domaine et de la source."""
 		try:
-			pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
+			pixel_size = self._spin_px_compute.value()
 			z_max = self._spin_z_estimate.value()
 			data = None if self._loc.empty or self._loc["Z"].nunique() <= 1 else self._loc[_DLL_REQUIRED_COLS].to_numpy()
 			mode = self._btg_type_compute.checkedId()
@@ -546,7 +556,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			return
 
 		z_max = self._spin_z_compute.value()
-		pixel_size = self._spin_px_compute.value() * 1000  # Passage en nanomètres
+		pixel_size = self._spin_px_compute.value()
 
 		work = self._loc.copy()
 		work["Z"] = self._calibration_z
@@ -595,7 +605,7 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 		# --- Mise à jour du Z dans loc ---
 		points = self._loc.loc[:, _DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, self._model.to_numpy(), z_max)
-		self._loc[["Z", "MSE Z"]] = estimated_z
+		self._loc[["Z", "Z Quality"]] = estimated_z
 
 		# --- Fichier de sortie ---
 		self._mod_filename = self._loc_filename.with_name("astigmatism_3d_model.csv")
@@ -676,11 +686,11 @@ class Astigmatism3DWidget(BasePlotlyWidget):
 			print(f"Backup done at {backup_filename}")
 
 		# --- Estimation ---
-		pixel_size = self._spin_px_estimate.value() * 1000  # Passage en nanomètres
+		pixel_size = self._spin_px_estimate.value()
 		z_max = self._spin_z_estimate.value()
 		points = self._loc.loc[:, _DLL_REQUIRED_COLS[:-1]].to_numpy(dtype=float, copy=True)
 		estimated_z = self._palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
-		self._loc[["Z", "MSE Z"]] = estimated_z
+		self._loc[["Z", "Z Quality"]] = estimated_z
 		self._loc.to_csv(self._loc_filename, index=False)
 		self.notify_success("Localization file with estimation saved successfully.")
 

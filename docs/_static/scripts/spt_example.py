@@ -16,7 +16,7 @@ FILES_PATH: list[Path] = [DATA_PATH / "spt.stk"]  # Nom du/des fichiers à charg
 RESET_RESULT: bool = True  # .						Supprime les précédents résultats
 
 THRESHOLD: float = 60  # .							Seuil pour la détection
-ROI_SIZE: int = 7  # .								Taille de la zone d'intérêt
+ROI_RADIUS: int = 3  # .							Rayon de la zone d'intérêt
 WATERSHED: bool = True  # .							Activation du Watershed
 FIT: int = 1  # .									Activation du Fit Gaussien
 GAUSSIAN: int = 2  # .								Activation Mode d'ajustement
@@ -27,7 +27,7 @@ TRACKING_DISTANCE: float = 3.0  # .					Distance maximale pour le suivi
 
 X_FILTER = [90, 160]  # .							Filtre sur X
 Y_FILTER = [20, 80]  # .							Filtre sur Y
-MSE_FILTER = [0, 0.8]  # .							Filtre sur MSE XY
+XY_QUALITY_FILTER = [0, 0.8]  # .					Filtre sur XY Quality
 LEN_FILTER = [10, 4000]  # .						Filtre sur la longueur des trajectoires
 
 VIZ_RATIO: int = 8  # .								Taille du rendu Haute Résolution
@@ -44,7 +44,7 @@ file_list.items = [str(p) for p in FILES_PATH]  # .	Ajout des fichiers
 loc_s: Localization = pt.settings.localization  # .	Paramètres de la localisation
 loc_s.active = True  # .							Activation de la localisation
 loc_s["Threshold"].value = THRESHOLD
-loc_s["ROI Size"].value = ROI_SIZE
+loc_s["ROI Radius"].value = ROI_RADIUS
 loc_s["Watershed"].value = WATERSHED
 loc_s["Fit"].value = FIT
 loc_s.gaussian["Mode"].value = GAUSSIAN
@@ -58,8 +58,8 @@ trc_s["Max Distance"].value = TRACKING_DISTANCE
 filt_s: Filters = pt.settings.filters  # .			Paramètres des filtres
 filt_s["Save"].value = True  # .					Enregistrement des fichiers filtrés
 pt.settings.rois.set_xy_roi(X_FILTER[0], X_FILTER[1], Y_FILTER[0], Y_FILTER[1])
-cast(CheckRangeFloat, filt_s.localization["MSE XY"]).active = True
-filt_s.localization["MSE XY"].value = MSE_FILTER
+cast(CheckRangeFloat, filt_s.localization["XY Quality"]).active = True
+filt_s.localization["XY Quality"].value = XY_QUALITY_FILTER
 cast(CheckRangeInt, filt_s.tracking["Length"]).active = True
 filt_s.tracking["Length"].value = LEN_FILTER
 

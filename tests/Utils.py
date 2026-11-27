@@ -83,7 +83,7 @@ def get_fake_pt(input_stack: Path):
 	pt.results["MSD"] = pd.read_csv(INPUT_DIR / "tracking_MSD.csv")
 	pt.results["InD"] = pd.read_csv(INPUT_DIR / "tracking_InstantD.csv")
 	pt.results["Fit"] = pd.read_csv(INPUT_DIR / "tracking_Fit.csv")
-	pt.settings.calibration["Pixel Size"].value = 0.001  # 1nm/pixel simplifie la vérification des calculs sur ces fausses données.
+	pt.settings.calibration["Pixel Size"].value = 1  # 1nm/pixel simplifie la vérification des calculs sur ces fausses données.
 	return pt
 
 
@@ -154,7 +154,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 	Laisser par défaut les colonnes pour des fichiers de localisation issues de plan-tracer python.
 
 	Changer les colonnes à comparer si la localisation vient de Metamorph.
-	        ["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z", "Pair Distance"]
+	        ["X", "Y", "Integrated Intensity", "Sigma X", "Sigma Y", "Theta", "XY Quality", "Z Quality", "Pair Distance"]
 
 	Changer les colonnes pour le Tracking
 	        sort = ["Track"]
@@ -192,16 +192,18 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		# Si group_cols contient une seule colonne, group_values sera un scalaire, sinon un tuple
 		group_values = (group_values,) if isinstance(group_values, (int, float, str)) else group_values
 		# Construire un masque dynamique pour filtrer b
-		mask = (b[col] == val for col, val in zip(group_cols, group_values))
+		mask = (b[col] == val for col, val in zip(group_cols, group_values, strict=False))
 		group_b = b.loc[pd.concat(mask, axis=1).all(axis=1)]  # Conserver les lignes où toutes les conditions sont vraies.
 		group_a = group_a.reset_index(drop=True)
 		group_b = group_b.reset_index(drop=True)
 		if len(group_a) != len(group_b):
-			Ui.print_warning(f"{len(group_a)} points in A, {len(group_b)} points in B pour { {col: int(val) for col, val in zip(group_cols, group_values)} }.")
+			Ui.print_warning(
+					f"{len(group_a)} points in A, {len(group_b)} points in B pour "
+					f"{ {col: int(val) for col, val in zip(group_cols, group_values, strict=False)} }.")
 			res = False
 
 		if group_b.empty:
-			Ui.print_warning(f"Pas de correspondance pour {dict(zip(group_cols, group_values))} dans B.")
+			Ui.print_warning(f"Pas de correspondance pour {dict(zip(group_cols, group_values, strict=False))} dans B.")
 			res = False
 			continue
 
@@ -221,7 +223,7 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 			unique_matches.append((i, idx))
 			used_indices.add(idx)
 
-		matched_a_indices, matched_b_indices = zip(*unique_matches) if unique_matches else ([], [])
+		matched_a_indices, matched_b_indices = zip(*unique_matches, strict=False) if unique_matches else ([], [])
 		matched_a_indices, matched_b_indices = list(matched_a_indices), list(matched_b_indices)
 		# Création des DataFrames correspondants
 		matched_a = group_a.iloc[matched_a_indices].reset_index(drop=True)
@@ -255,12 +257,12 @@ def compare_points(a: pd.DataFrame, b: pd.DataFrame, tol: float = 1e-5,
 		if not non_matched_a.empty or not non_matched_b.empty: res = False
 
 		if not non_matched_a.empty:
-			Ui.print_warning(f"Points supplémentaires dans A pour { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
+			Ui.print_warning(f"Points supplémentaires dans A pour { {col: int(val) for col, val in zip(group_cols, group_values, strict=False)} } :")
 			for _, row in non_matched_a.iterrows():
 				Ui.print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
 
 		if not non_matched_b.empty:
-			Ui.print_warning(f"Points supplémentaires dans B pour  { {col: int(val) for col, val in zip(group_cols, group_values)} } :")
+			Ui.print_warning(f"Points supplémentaires dans B pour  { {col: int(val) for col, val in zip(group_cols, group_values, strict=False)} } :")
 			for _, row in non_matched_b.iterrows():
 				Ui.print_warning(f"({row['X']:.2f}, {row['Y']:.2f}, {row['Z']:.2f}) : {row['Integrated Intensity']:.2f}")
 

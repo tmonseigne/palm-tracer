@@ -347,9 +347,9 @@ class PALMTracerWidget(BaseNapariWidget):
 
 			# ROIs seulement pour le present
 			if state != "Present": continue
-			roi_size = self.pt.settings.localization["ROI Size"].value
-			roi_shape = self.pt.settings.localization["ROI Shape"].value
-			half_size = roi_size / 2
+			localization = self.pt.settings.localization
+			roi_shape = localization["ROI Shape"].value
+			half_size = localization.roi_width / 2
 			if roi_shape == 0:  # Ellipses : [[y_center, x_center], [y_radius, x_radius]]
 				rois = np.array([[[y, x], [half_size, half_size]] for y, x in points], dtype=float)
 				s_type = "ellipse"
@@ -389,8 +389,7 @@ class PALMTracerWidget(BaseNapariWidget):
 		if present is None: return
 
 		s = self.pt.settings.localization.settings
-		try: t, w, f, fp = (s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params())
-		except Exception: raise
+		t, w, f, fp = s["Threshold"], s["Watershed"], self.pt.settings.localization.get_fit(), self.pt.settings.localization.get_fit_params()
 		plane_number = self.viewer.dims.current_step[0] + 1
 
 		# --------------------------------------------------

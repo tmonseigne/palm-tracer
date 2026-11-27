@@ -85,6 +85,7 @@ class Grapher:
 		fig = go.Figure()
 
 		# Limite des données avec la règle des 3 Sigmas
+		unfiltered_size = x.size
 		x, limits, mu, sigma = self._get_range(x, limit)
 
 		# Récupération du nombre de classes
@@ -101,10 +102,10 @@ class Grapher:
 						  cumulative={"enabled": cumulative}, marker={"color": _SEABORN_DEEP[0], "line": {"width": 0}},
 						  opacity=0.75, name="Histogram", hovertemplate="(%{x:.2f}, %{y:.2f})<extra></extra>")
 
-		# Les distributions utilisent les valeurs admissibles ; les statistiques de l'histogramme restent inchangées.
+		# Réutilise les statistiques initiales seulement si aucun des deux filtres n'a retiré de valeur.
 		fit_data = x[x > fit_limit]
 		fit_mu, fit_sigma = mu, sigma
-		if 0 < fit_data.size < x.size: fit_mu, fit_sigma = float(np.mean(fit_data)), float(np.std(fit_data))
+		if 0 < fit_data.size < unfiltered_size: fit_mu, fit_sigma = float(np.mean(fit_data)), float(np.std(fit_data))
 		# La densité reste normalisée sur l'effectif total de l'histogramme, y compris les valeurs exclues de l'ajustement.
 		fit_weight = fit_data.size / x.size if density else 1.0
 
@@ -133,19 +134,22 @@ class Grapher:
 				component_pdfs = mixture.component_probability_densities(x_mixture)
 				component_curves = self._scale_curve(x_mixture, component_pdfs, fit_data.size, bin_width, density, cumulative) * fit_weight
 				for component_id in range(component_curves.shape[1]):
+					name = (f"{component_id + 1} (μ={mixture.means[component_id]:.2f}, "
+							f"σ={mixture.sigmas[component_id]:.2f}, p={mixture.weights[component_id]:.0%})")
 					fig.add_trace(go.Scatter(x=x_mixture, y=component_curves[:, component_id], mode="lines",
 											 line={"dash": "dot", "color": _SEABORN_DEEP[3 + component_id]},
-											 name=f"Gaussian component {component_id + 1}", hoverinfo="skip", hovertemplate=None))
+											 name=name, hoverinfo="skip", hovertemplate=None))
 				y = self._scale_curve(x_mixture, y_pdf, fit_data.size, bin_width, density, cumulative) * fit_weight
 				fig.add_trace(go.Scatter(x=x_mixture, y=y, mode="lines", line={"dash": "dash", "color": _SEABORN_DEEP[5]},
 										 name="Gaussian mixture", hoverinfo="skip", hovertemplate=None))
 
 			# Loi de Poisson
 			if poissonnian and fit_mu >= 0:
-				x_poisson = np.arange(max(0, int(np.floor(limits[0]))), int(np.ceil(limits[1])) + 1)
-				y_pdf = poisson.pmf(x_poisson, fit_mu)
-				y = self._scale_curve(x_poisson, y_pdf, fit_data.size, bin_width, density, cumulative, discrete=True) * fit_weight
-				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode="lines", line={"dash": "dash", "color": _SEABORN_DEEP[6]},
+				x_poisson, masses = self._poisson_bins(limits, bin_width, fit_mu)
+				y = self._scale_curve(x_poisson, masses, fit_data.size, bin_width, density, cumulative, discrete=True) * fit_weight
+				if density and not cumulative: y /= bin_width
+				mode = "markers" if x_poisson.size == 1 else "lines"
+				fig.add_trace(go.Scatter(x=x_poisson, y=y, mode=mode, line={"dash": "dash", "color": _SEABORN_DEEP[6]},
 										 name="Poisson", hoverinfo="skip", hovertemplate=None))
 
 			# Exponentielle
@@ -235,7 +239,7 @@ class Grapher:
 		:param title: Titre du graphe.
 		:param xlabel: Label optionnel pour l'axe X. Si la chaîne est vide, ne change rien.
 		:param ylabel: Label optionnel pour l'axe Y. Si la chaîne est vide, ne change rien.
-		:param limit: Si ``True``, applique la règle des 3 sigmas pour limiter les données (trim des outliers).
+		:param limit: Si ``True``, limite les axes à ±3σ et ajuste les distributions sur les couples retenus sur les deux axes.
 		:param show_sigma: Si ``True``, superpose la moyenne, ±1,±2,±3 sigmas.
 		:param kde: Si ``True``, superpose la KDE gaussienne 2D.
 		:param gaussian: Si ``True``, superpose la gaussienne 2D.
@@ -268,20 +272,32 @@ class Grapher:
 		_, limits_x, mu_x, sigma_x = self._get_range(x, limit)
 		_, limits_y, mu_y, sigma_y = self._get_range(y, limit)
 
-		if x.size > 1 and sigma_x > 0 and sigma_y > 0:
-			if kde:
+		fit_data = data
+		fit_mu_x, fit_mu_y = mu_x, mu_y
+		fit_sigma_x, fit_sigma_y = sigma_x, sigma_y
+		# Écarte les points hors champ pour éviter qu'ils ne faussent les ajustements.
+		if limit and (kde or gaussian or poissonnian or exponential):
+			retained = (x >= limits_x[0]) & (x <= limits_x[1]) & (y >= limits_y[0]) & (y <= limits_y[1])
+			if not retained.all():
+				fit_data = data[:, retained]
+				fit_mu_x, fit_mu_y = np.mean(fit_data, axis=1)
+				fit_sigma_x, fit_sigma_y = np.std(fit_data, axis=1)
+
+		if fit_data.shape[1] > 1 and fit_sigma_x > 0 and fit_sigma_y > 0:
+			if kde and fit_data.shape[1] > 2:
 				xg, yg = np.linspace(limits_x[0], limits_x[1], MESH_SIZE), np.linspace(limits_y[0], limits_y[1], MESH_SIZE)
 				xm: np.ndarray
 				ym: np.ndarray
 				xm, ym = np.meshgrid(xg, yg)
 
-				k = gaussian_kde(np.vstack([x, y]))  # 2D KDE
-				z = k(np.vstack([xm.ravel(), ym.ravel()])).reshape(MESH_SIZE, MESH_SIZE)
-
-				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="KDE", hoverinfo="skip", hovertemplate=None))
+				try: k = gaussian_kde(fit_data)
+				except np.linalg.LinAlgError: pass
+				else:
+					z = k(np.vstack([xm.ravel(), ym.ravel()])).reshape(MESH_SIZE, MESH_SIZE)
+					fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="KDE", hoverinfo="skip", hovertemplate=None))
 
 			if gaussian:
-				mu, cov = np.array([mu_x, mu_y]), np.cov(np.vstack([x, y]))
+				mu, cov = np.array([fit_mu_x, fit_mu_y]), np.cov(fit_data)
 				xg, yg = np.linspace(limits_x[0], limits_x[1], MESH_SIZE), np.linspace(limits_y[0], limits_y[1], MESH_SIZE)
 				xm, ym = np.meshgrid(xg, yg)
 
@@ -290,22 +306,22 @@ class Grapher:
 
 				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Gaussian", hoverinfo="skip", hovertemplate=None))
 
-			if poissonnian and mu_x >= 0 and mu_y >= 0:
-				xg = np.arange(max(0, int(np.floor(limits_x[0]))), int(np.ceil(limits_x[1])) + 1, )
-				yg = np.arange(max(0, int(np.floor(limits_y[0]))), int(np.ceil(limits_y[1])) + 1, )
+			if poissonnian and fit_mu_x >= 0 and fit_mu_y >= 0:
+				xg = np.arange(max(0, int(np.floor(limits_x[0]))), int(np.ceil(limits_x[1])) + 1)
+				yg = np.arange(max(0, int(np.floor(limits_y[0]))), int(np.ceil(limits_y[1])) + 1)
 
-				zx = poisson.pmf(xg, mu_x)
-				zy = poisson.pmf(yg, mu_y)
+				zx = poisson.pmf(xg, fit_mu_x)
+				zy = poisson.pmf(yg, fit_mu_y)
 				z = np.outer(zy, zx)
 
 				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Poisson", hoverinfo="skip", hovertemplate=None))
 
-			if exponential and mu_x > 0 and mu_y > 0:
+			if exponential and fit_mu_x > 0 and fit_mu_y > 0:
 				xg = np.linspace(max(0.0, limits_x[0]), limits_x[1], MESH_SIZE)
 				yg = np.linspace(max(0.0, limits_y[0]), limits_y[1], MESH_SIZE)
 
-				zx = expon.pdf(xg, scale=mu_x)
-				zy = expon.pdf(yg, scale=mu_y)
+				zx = expon.pdf(xg, scale=fit_mu_x)
+				zy = expon.pdf(yg, scale=fit_mu_y)
 				z = np.outer(zy, zx)
 
 				fig.add_trace(go.Heatmap(x=xg, y=yg, z=z, colorscale="Viridis", opacity=0.5, name="Exponential", hoverinfo="skip", hovertemplate=None))
@@ -440,6 +456,28 @@ class Grapher:
 		else:
 			limits = [float(np.min(data)), float(np.max(data))]
 		return data, limits, mu, sigma
+
+	# --------------------------------------------------
+	@staticmethod
+	def _poisson_bins(limits: list[float], bin_width: float, mu: float) -> tuple[np.ndarray, np.ndarray]:
+		"""
+		Calcule la masse de Poisson et l'abscisse au centre de chaque classe de l'histogramme Plotly.
+
+		:param limits: Bornes de début et de fin des classes.
+		:param bin_width: Largeur d'une classe.
+		:param mu: Moyenne de la loi de Poisson.
+		:return: Centres des classes et masses de probabilité correspondantes.
+		"""
+		start, end = limits
+		# Plotly avance par classes entières et applique une tolérance relative à leur largeur.
+		bin_count = min(1_000_000, int(np.ceil((end - start) / bin_width - 1e-6)))
+		edges = start + bin_width * np.arange(bin_count + 1, dtype=float)
+		# Les classes sont fermées à gauche. La CDF s'évalue au dernier entier strictement sous chaque borne.
+		last_integer = np.ceil(edges - bin_width * 1e-9) - 1
+		cdf = poisson.cdf(last_integer, mu)
+		# Dans la queue droite, la survie préserve les faibles masses perdues par soustraction de deux CDF proches de 1.
+		masses = np.asarray(np.where(cdf[:-1] < 0.5, np.diff(cdf), -np.diff(poisson.sf(last_integer, mu))), dtype=float)
+		return edges[:-1] + 0.5 * bin_width, masses
 
 	# --------------------------------------------------
 	@staticmethod

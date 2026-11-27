@@ -1,12 +1,16 @@
 """Teste le filtrage des localisations et des trajectoires."""
 
+from typing import cast
+
+import numpy as np
+import pandas as pd
 import pytest
 
 from palm_tracer.Processing import Filtering
 from palm_tracer.Settings import ROIManager
 from palm_tracer.Settings.Groups import Filters
 from palm_tracer.Settings.Types import CheckInt, SpinInt
-from tests.Utils import *
+from tests.Utils import INPUT_DIR
 
 
 # --------------------------------------------------
@@ -57,18 +61,19 @@ def test_localization(qtbot, f):
 	fl["Theta"].active = True
 	fl["Theta"].value = [-60, 60]
 	fl["Z"].active = True  # .				Aucune suppression
-	fl["MSE XY"].active = True
-	fl["MSE XY"].value = [0.05, 10]
-	# fl["MSE Z"].active = True # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
+	fl["XY Quality"].active = True
+	fl["XY Quality"].value = [0.05, 10]
+	# fl["Z Quality"].active = True # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
 	f.rois.set_xy_roi(0, 128, 0, 128)
 	f.filters["ROI"].active = True
 	f.filters["ROI"].value = 1
 
 	res = f.localization(src)
 
-	ref = [["Plane", 1, 9], ["X", 0, 128], ["Y", 0, 128], ["Integrated Intensity", 100, 20000], ["MSE XY", 0.05, 10],
-		   ["Sigma X", 0, 10], ["Sigma Y", 0, 10], ["Theta", -60, 60],
-		   ["Circularity", 0, 1], ["Z", -1, 1]]
+	ref: list[tuple[str, float, float]] = [
+			("Plane", 1, 9), ("X", 0, 128), ("Y", 0, 128), ("Integrated Intensity", 100, 20000), ("XY Quality", 0.05, 10),
+			("Sigma X", 0, 10), ("Sigma Y", 0, 10), ("Theta", -60, 60), ("Circularity", 0, 1), ("Z", -1, 1),
+			]
 	for r in ref:
 		assert res[r[0]].between(r[1], r[2]).all(), f"Le DataFrame contient des valeurs hors [{r[1]}:{r[2]}] dans la colonne {r[0]}."
 
@@ -78,14 +83,14 @@ def test_localization(qtbot, f):
 		expected = expected[expected[column].between(lower, upper)]
 	pd.testing.assert_frame_equal(res, expected)
 
-	fl["MSE Z"].active = True  # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
+	fl["Z Quality"].active = True  # .			La colonne est à -1 le filtre est forcément sur un nombre positif donc on passerait à 0 éléments
 	res = f.localization(src)
 	assert res.empty, "Un dataframe vide doit être retourné."
 
 	f.filters.active = False
 	res = f.localization(src)
-	res, ref = len(res), len(src)
-	assert res == ref, f"Résultat incorrect.\tAttendu : {ref}\tObtenu : {res}"
+	actual_count, expected_count = len(res), len(src)
+	assert actual_count == expected_count, f"Résultat incorrect.\tAttendu : {expected_count}\tObtenu : {actual_count}"
 
 
 # ==================================================

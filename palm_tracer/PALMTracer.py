@@ -371,8 +371,7 @@ class PALMTracer:
 		# --- Étape à calculer ---
 		if action == StepAction.Compute:
 			self._logger.add(f"{group.label} enabled.")
-			try: step.process_func()
-			except Exception: raise
+			step.process_func()
 			pipeline_dirty = True  # Pipeline incohérent pour la suite, on évitera de réutiliser des éléments précédents, car un calcul a été fait
 
 		# --- Filtrage ---
@@ -415,16 +414,14 @@ class PALMTracer:
 	# --------------------------------------------------
 	def _localization(self):
 		"""Lance la localisation à partir des paramètres de l'interface."""
-		# Parse settings
+		# Lecture des paramètres de localisation.
 		s = self.settings.localization.settings
 		filters = self.settings.filters
 		# Filtre sur les plans
 		planes = filters["Plane"].value
 		planes = list(range(planes[0] - 1, planes[1])) if filters["Plane"].active else None
 		fit = self.settings.localization.get_fit()
-		try: fit_params = self.settings.localization.get_fit_params()
-		except Exception: raise
-		# Run command
+		fit_params = self.settings.localization.get_fit_params()
 		self.results["loc"] = self.palm.localization(self._stack, s["Threshold"], s["Watershed"], fit, fit_params, planes)
 
 		# Estimation du Z.
@@ -436,10 +433,10 @@ class PALMTracer:
 								 "(by default, file must be in output folder or in same folder as the stack).")
 			else:
 				z_max = s["Gaussian Fit Z max"]
-				pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en nanomètres
+				pixel_size = self.settings.calibration["Pixel Size"].value
 				points = self.results["loc"].loc[:, ["Sigma X", "Sigma Y"]].to_numpy(dtype=float, copy=True)
 				estimated_z = self.palm.astigmatism_3d_estimation(points, pixel_size, model.to_numpy(), z_max)
-				self.results["loc"][["Z", "MSE Z"]] = estimated_z
+				self.results["loc"][["Z", "Z Quality"]] = estimated_z
 
 		self._logger.add(f"\tSaving the localization file ({Ui.format_number(len(self.results['loc']))} localization(s) found).")
 		self.results.save("loc", self._path, self._timestamp)
@@ -557,8 +554,11 @@ class PALMTracer:
 
 		if s["MSD"] and s["Fit"] == 0: s["Fit"] = 1  # Si le MSD est sélectionné et pas d'ajustement, on fait un ajustement minimal.
 
-		# Run command (pixel size doit rester en micromètre cette fois, car toutes les mesures seront en micromètres carré)
-		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"], sc["Pixel Size"],
+		# La DLL met X et Y à l'échelle, mais lit Z directement dans l'unité physique des calculs.
+		if s["3D"] and "Z" in df:
+			df = df.copy(deep=False)
+			df["Z"] = df["Z"] / 1000
+		res = self.palm.track_analysis(df, s["MSD"], s["Instant Diffusion"], s["3D"], sc["Pixel Size"] / 1000,
 									   sc["Exposure"], s["Fit"], np.array([s["Fit Length"]], dtype=float))
 		for key in res: self.results[key] = res[key]
 
@@ -755,7 +755,7 @@ class PALMTracer:
 		"""
 		graph_data: dict[str, Any] = {"data": np.empty(0), "title": f"Localizations {src}"}
 		if mode == 1: graph_data["xlabel"], graph_data["ylabel"] = "Plane", src
-		if mode == 0 and not log_scale and src in {"Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Surface", "MSE XY", "MSE Z"}:
+		if mode == 0 and not log_scale and src in {"Integrated Intensity", "Sigma X", "Sigma Y", "Circularity", "Surface", "XY Quality", "Z Quality"}:
 			graph_data["fit_limit"] = -1.0  # Les échecs à -1 sont déjà supprimés par le logarithme ; zéro reste admissible.
 
 		df = self.results.localizations
@@ -1225,7 +1225,7 @@ class PALMTracer:
 
 		:return: Pas sur Z identique au pas sur X et Y.
 		"""
-		pixel_size = self.settings.calibration["Pixel Size"].value * 1000  # Passage en Nanomètres
+		pixel_size = self.settings.calibration["Pixel Size"].value
 		upscale = self.settings.hr["Ratio"].value
 		return pixel_size / upscale
 

@@ -55,7 +55,7 @@ Détection et localisation
       Fonction d'étalement du point. Elle décrit l'image produite par une source ponctuelle à travers le système optique. Sa forme, qui peut varier avec la mise au point, sert de base au modèle utilisé pour estimer la position de l'émetteur.
 
    ROI (Region Of Interest)
-      Région d'intérêt sélectionnée dans l'image. Pour l'ajustement, PALM-Tracer extrait une fenêtre carrée autour de chaque détection, dont la taille est réglée par :guilabel:`ROI Size`. Dans l'aperçu, la forme du marqueur est un réglage d'affichage.
+      Région d'intérêt sélectionnée dans l'image. Pour l'ajustement, PALM-Tracer extrait une fenêtre carrée autour de chaque détection, avec autant de pixels que le :guilabel:`ROI Radius` de chaque côté du pixel central. Dans l'aperçu, la forme du marqueur est un réglage d'affichage.
 
    Seuil (Threshold)
       Valeur utilisée par le détecteur pour retenir les candidats dont la réponse est suffisamment forte. Le seuil peut être réglé manuellement ou estimé à partir des pixels situés hors des régions détectées, selon le :ref:`seuillage automatique <auto_threshold_page>`.

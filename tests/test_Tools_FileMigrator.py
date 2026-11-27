@@ -1,9 +1,14 @@
 """Teste la migration des anciens résultats Metamorph."""
 
+import shutil
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 import pytest
 
 from palm_tracer.Tools.FileMigrator import FileMigrator
-from tests.Utils import *
+from tests.Utils import INPUT_DIR, REF_DIR, get_lines_output
 
 INPUT_FOLDER = INPUT_DIR / "stack.PT"
 
@@ -73,6 +78,10 @@ def test_migrate(capsys, copy_input):
 	for ref_file in sorted((REF_DIR / "stack_PALM_Tracer").glob("*.csv")):
 		res_file = sorted(output_folder.glob(f"{ref_file.stem}-*.csv"))[0]
 		ref, res = pd.read_csv(ref_file), pd.read_csv(res_file)
+		if ref_file.stem == "meta":
+			# La référence historique contient la taille du pixel en micromètres.
+			ref["Pixel Size (μm)"] *= 1000
+			ref = ref.rename(columns={"Pixel Size (μm)": "Pixel Size (nm)"})
 		ref, res = ref.apply(pd.to_numeric, errors="coerce"), res.apply(pd.to_numeric, errors="coerce")
 		pd.testing.assert_frame_equal(ref, res, check_dtype=False)
 
@@ -95,7 +104,7 @@ def test_update_meta(capsys):
 	"""Vérifie update_meta."""
 	m = FileMigrator()
 
-	ref = np.zeros(6) - 1
+	ref: np.ndarray = np.zeros(6) - 1
 	assert np.allclose(m.meta, ref, atol=0, rtol=0), f"Résultat incorrect.\nAttendu : {ref}\nObtenu : {m.meta}"
 
 	m.update_meta("Height", 1)  # Mise à Jour
@@ -164,13 +173,27 @@ def test_column_migrator():
 	data = ["MSe", "MSE(Gauss)", "Angle(Rad)", "CentroidX", "Centroid Y", "Centroid Z (nm)", "SigmaX", "Sigma y",
 			"Intensity_0", "Intensity Offset", "Intensity", "IntegratedIntensity",
 			"Id", "Plane", "Index", "Channel", "Surface", "Circularity", "Track", "pairdistance", "MSE_Z(um)", "B l_An()k"]
-	ref = ["MSE XY", "MSE XY", "Theta", "X", "Y", "Z", "Sigma X", "Sigma Y",
+	ref = ["XY Quality", "XY Quality", "Theta", "X", "Y", "Z", "Sigma X", "Sigma Y",
 		   "Intensity 0", "Intensity Offset", "Intensity", "Integrated Intensity",
-		   "Id", "Plane", "Index", "Channel", "Surface", "Circularity", "Track", "Pair Distance", "MSE Z", "blank"]
+		   "Id", "Plane", "Index", "Channel", "Surface", "Circularity", "Track", "Pair Distance", "Z Quality", "blank"]
 
 	for i in range(len(data)):
 		res = m.column_migrator(data[i])
 		assert ref[i] == res, f"Résultat incorrect.\nAttendu : {ref[i]}\nObtenu : {res}"
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("column, expected", [
+		pytest.param("CentroidZ(um)", [250.0, -125.0, -1.0], id="legacy-micrometers"),
+		pytest.param("Centroid Z (nm)", [0.25, -0.125, -1.0], id="nanometers")])
+def test_migrate_axial_coordinates(column, expected):
+	"""Convertit les coordonnées axiales historiques en conservant la sentinelle."""
+	data = pd.DataFrame({column: [0.25, -0.125, -1.0]})
+
+	result = FileMigrator().dataframe_migrator(data, ["Z"])
+
+	assert result["Z"].tolist() == expected
+	assert data[column].tolist() == [0.25, -0.125, -1.0]
 
 # ==================================================
 # endregion Outils de conversion

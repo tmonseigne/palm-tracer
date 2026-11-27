@@ -270,12 +270,13 @@ class Palm:
 		if points.empty: return pd.DataFrame()  # .									En cas de DataFrame qui a été vidé après le masquage des mauvais points.
 		n = len(points)  # .														Nombre de points
 		track_size = n * 2  # .														Taille du tableau final
-		tracks: np.ndarray = np.empty((track_size,), dtype=np.uint64, order="C")  # Tableau final
+		track_buffer: np.ndarray = np.empty((track_size,), dtype=np.uint64, order="C")
 
 		p = self._as_c_contig(points.to_numpy(), np.dtype(float), writeable=False)  # Assurance de contiguïté
-		self._dll.Tracking(p.ctypes.data_as(C_TAB_DBL), tracks.ctypes.data_as(C_TAB_UINT), C_UINT(n), C_DBL(max_distance))
+		self._dll.Tracking(p.ctypes.data_as(C_TAB_DBL), track_buffer.ctypes.data_as(C_TAB_UINT), C_UINT(n), C_DBL(max_distance))
 
-		tracks = pd.DataFrame(tracks.reshape(-1, 2), columns=["Id", "Track"])  # Passage en DataFrame.
+		tracks = pd.DataFrame(track_buffer.reshape(-1, 2), columns=["Id", "Track"])
+		del track_buffer
 		# Ajout et remplissage de la colonne de trajectoire aux localisations.
 		localizations.insert(0, "Track", localizations["Id"].map(tracks.set_index("Id")["Track"]).fillna(-1).astype(int))
 		res = localizations.loc[localizations["Track"] > 0, Parsing.FILES_COLUMNS["Tracking"]["columns"]]  # On ne conserve qu'une partie des colonnes
@@ -331,10 +332,11 @@ class Palm:
 		res: dict[str, pd.DataFrame] = {"MSD": pd.DataFrame(), "InD": pd.DataFrame(), "Fit": pd.DataFrame()}
 		required = Parsing.FILES_COLUMNS["Tracking"]["columns"]
 		if tracks.empty or not set(required).issubset(tracks.columns): return res
-		in_tracks = tracks[required].copy()
-		if not is_3d: in_tracks["Z"] = 0  # On simplifie, la suite les calculs se font toujours en 3D, mais la dernière dimension sera nulle
+		track_points = tracks[required].copy()
+		if not is_3d: track_points["Z"] = 0  # Les calculs utilisent trois coordonnées, avec Z nul en 2D.
 
-		in_tracks = in_tracks.to_numpy(dtype=float, copy=False)  # .				  Passage en tableau NumPy
+		in_tracks = track_points.to_numpy(dtype=float, copy=False)
+		del track_points
 		in_tracks = self._as_c_contig(in_tracks, np.dtype(float), writeable=False)  # Assurance de contiguïté
 		params = self._as_c_contig(fit_params, np.dtype(float), writeable=False)  # . Assurance de contiguïté
 		n_row = len(tracks)  # .													  Nombre de points pour les trajectoires
@@ -357,8 +359,8 @@ class Palm:
 		fit_size = 1 + lengths.size * {2: 11, 3: N_TRC_CP_FIT}.get(fit_mode, 10)
 
 		# Sorties : buffer réel si demandé, sinon buffer dummy (évite pointeurs NULL)
-		o_msd = np.empty((msd_size,), dtype=float, order="C")
-		o_ind = np.empty((ind_size,), dtype=float, order="C")
+		o_msd: np.ndarray = np.empty((msd_size,), dtype=float, order="C")
+		o_ind: np.ndarray = np.empty((ind_size,), dtype=float, order="C")
 		o_fit = np.empty((fit_size if fit_mode != 0 else 1,), dtype=float, order="C")
 
 		self._dll.TrackAnalysis(in_tracks.ctypes.data_as(C_TAB_DBL), o_msd.ctypes.data_as(C_TAB_DBL), o_ind.ctypes.data_as(C_TAB_DBL),
@@ -452,12 +454,8 @@ class Palm:
 		Il ne pénalise pas explicitement une saturation à la borne et ne détecte pas les Z ambigus.
 		La plage de recherche peut changer le Z retenu, mais ne normalise pas le score.
 
-		.. warning::
-
-		   La seconde valeur remplace l'ancienne SSE en pixels carrés (0 = meilleur).
-		   La colonne historique ``MSE Z`` conserve son nom mais contient ce score (1 = meilleur).
-		   Les anciens fichiers et seuils ne sont pas convertis ; utiliser un cœur compatible
-		   et recalculer l'estimation pour obtenir des valeurs homogènes.
+		La seconde valeur est enregistrée dans la colonne ``Z Quality``. Elle atteint 1 lorsque les largeurs mesurées concordent
+		exactement avec le modèle à la position estimée.
 		"""
 
 		n = len(sigmas)

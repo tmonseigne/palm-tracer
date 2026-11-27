@@ -91,8 +91,8 @@ msgid "r^2=\\frac12\\sum_{a\\in\\{x,y\\}}\n"
 msgstr "r^2=\\frac12\\sum_{a\\in\\{x,y\\}}\n     \\left(\\frac{s_a-\\widehat\\sigma_a(\\widehat z)}{\\widehat\\sigma_a(\\widehat z)}\\right)^2,\n\\qquad Q_Z=\\frac{1}{1+r^2/0.20^2}."
 
 #: ../../algorithm/astig.rst:73
-msgid "Un accord exact donne 1, un écart relatif RMS de 20 % donne 0,5 et une largeur invalide donne 0. La colonne historique ``MSE Z`` contient ce score. Les anciens résultats peuvent y contenir la somme des carrés en pixels carrés, pour laquelle les faibles valeurs étaient les meilleures."
-msgstr "Exact agreement gives 1, an RMS relative error of 20% gives 0.5, and an invalid width gives 0. The historical ``MSE Z`` column contains this score. Older results may contain the sum of squared errors in square pixels, for which lower values were better."
+msgid "Un accord exact donne 1, un écart relatif RMS de 20 % donne 0,5 et une largeur invalide donne 0. La colonne ``Z Quality`` contient ce score."
+msgstr "Exact agreement gives 1, an RMS relative error of 20% gives 0.5, and an invalid width gives 0. The ``Z Quality`` column contains this score."
 
 #: ../../algorithm/astig.rst:77
 msgid "Le score renseigne sur l'accord avec le modèle. La précision axiale dépend aussi de la variation des largeurs avec Z. Si la courbe varie peu ou si deux portions de la courbe sont proches, un bon score peut correspondre à une position axiale mal déterminée. Utilisez un domaine de recherche cohérent avec la calibration et conservez les mêmes conventions de largeur et d'angle pour la calibration et les mesures."

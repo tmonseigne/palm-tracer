@@ -1,6 +1,7 @@
 """Teste la construction des figures Plotly."""
 
 import json
+from pathlib import Path
 
 import numpy as np
 import plotly.graph_objects as go
@@ -10,13 +11,15 @@ from scipy.stats import expon, gaussian_kde, norm, poisson
 from palm_tracer.Processing import Grapher
 from palm_tracer.Processing.Astigmatism3D import sigma_model
 from palm_tracer.Processing.GaussianMixture import GaussianMixture
-from tests.Utils import *
+from tests.Utils import OUTPUT_DIR, REF_DIR, get_light_json, save_output
 
 SIZE = 1000
 rng = np.random.default_rng(42)  # Générateur propre au jeu de données de ce module.
 POINTS = rng.normal(loc=1.0, scale=1.0, size=SIZE).astype(float)
 POINTS_2 = rng.normal(loc=2.0, scale=1.0, size=SIZE).astype(float)
 IDX = np.arange(1, SIZE + 1, dtype=POINTS.dtype)
+HISTOGRAM_MODE_POINTS = np.array([0.0, 1.0, 1.0, 2.0, 3.0, 4.0])
+HISTOGRAM_DISTRIBUTIONS = {"kde": True, "gaussian": True, "gaussian_mixture": True, "poissonnian": True, "exponential": True}
 
 BLANK_FIG = json.loads((REF_DIR / "grapher_blank.json").read_text(encoding="utf-8"))
 
@@ -49,63 +52,58 @@ def test_blank():
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("args, kwargs, filename, reference", [
-		pytest.param((np.empty(0), 'blank',), {}, 'grapher_Histogram_0.json', 'grapher_blank.json', id="empty"),
-		pytest.param((POINTS, 'Histogram', '', '', False, False, False, False, False, False, False, False,), {'bins': 20}, 'grapher_Histogram_1.json',
-					 'grapher_Histogram_1.json', id="fixed-bins"),
-		pytest.param((np.array([1, 2, 2, 4]),), {'bins': -1}, 'grapher_Histogram_integer.json', 'grapher_Histogram_integer.json', id="integer-values"),
-		pytest.param((np.stack((IDX, POINTS), axis=0), 'Histogram',), {'limit': True}, 'grapher_Histogram_4.json', 'grapher_Histogram_4.json',
-					 id="two-rows"),
-		pytest.param((np.stack((IDX, POINTS), axis=1), 'Histogram',), {'limit': True}, 'grapher_Histogram_4b.json', 'grapher_Histogram_4.json',
-					 id="two-columns"),
-		pytest.param((np.zeros((3, 3)), 'Histogram',), {}, 'grapher_Histogram_5.json', 'grapher_Histogram_5.json', id="flattened-matrix"),
-		pytest.param((np.zeros((3, 3, 3)), 'Histogram',), {}, 'grapher_Histogram_6.json', 'grapher_Histogram_6.json', id="flattened-volume")])
-def test_histogram(args, kwargs, filename, reference):
+@pytest.mark.parametrize("args, kwargs, filename", [
+		pytest.param((np.empty(0), 'blank',), {}, 'grapher_blank.json', id="empty"),
+		pytest.param((POINTS, 'Histogram',), {'bins': 20, 'density': False}, 'grapher_Histogram_fixed_bins.json', id="fixed-bins"),
+		pytest.param((np.array([1, 2, 2, 4]),), {'bins': -1}, 'grapher_Histogram_integer.json', id="integer-values"),
+		pytest.param((HISTOGRAM_MODE_POINTS,), {'bins': 2}, 'grapher_Histogram_density.json', id="density"),
+		pytest.param((HISTOGRAM_MODE_POINTS,), {'bins': 2, 'cumulative': True}, 'grapher_Histogram_cumulative_density.json', id="cumulative-density"),
+		pytest.param((HISTOGRAM_MODE_POINTS,), {'bins': 2, 'density': False, 'cumulative': True}, 'grapher_Histogram_cumulative_counts.json',
+					 id="cumulative-counts"),
+		pytest.param((np.array([0.0, 1.0, 2.0, 3.0] * 4 + [100.0]),), {'limit': True, 'bins': 3}, 'grapher_Histogram_limit.json', id="three-sigma-limit"),
+		pytest.param((np.array([-1.0, -1.0, 1.0, 1.0]),), {'show_sigma': True, 'bins': 2}, 'grapher_Histogram_sigma_guides.json', id="sigma-guides"),
+		pytest.param((np.array([-1.0, 0.0, 1.0]),), {'fit_limit': np.inf, **HISTOGRAM_DISTRIBUTIONS}, 'grapher_Histogram_no_admissible_values.json',
+					 id="no-admissible-values"),
+		pytest.param((np.stack((IDX, POINTS), axis=0), 'Histogram',), {'limit': True}, 'grapher_Histogram_two_rows.json', id="two-rows"),
+		pytest.param((np.stack((IDX, POINTS), axis=1), 'Histogram',), {'limit': True}, 'grapher_Histogram_two_columns.json', id="two-columns"),
+		pytest.param((np.zeros((3, 3)), 'Histogram',), {}, 'grapher_Histogram_flattened_matrix.json', id="flattened-matrix"),
+		pytest.param((np.zeros((3, 3, 3)), 'Histogram',), {}, 'grapher_Histogram_flattened_volume.json', id="flattened-volume")])
+def test_histogram(args, kwargs, filename):
 	"""Vérifie chaque configuration du graphique indépendamment."""
 	figure = Grapher().histogram(*args, **kwargs)
 	res = _save_output(figure, OUTPUT_DIR / filename)
-	ref = json.loads((REF_DIR / reference).read_text(encoding="utf-8"))
+	ref = json.loads((REF_DIR / filename).read_text(encoding="utf-8"))
 	assert res == ref
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("args, kwargs, filename", [
-		pytest.param((POINTS, 'Histogram', '', '', True, True, True, True, True, True, True, True, True,), {}, 'grapher_Histogram_2.json',
-					 id="all-options"),
-		pytest.param((POINTS, 'Histogram', '', '',), {'kde': True}, 'grapher_Histogram_3_kde.json', id="kde"),
-		pytest.param((POINTS, 'Histogram', '', '',), {'gaussian': True}, 'grapher_Histogram_3_gaussian.json', id="gaussian"),
-		pytest.param((np.concatenate((POINTS - 2.0, POINTS + 2.0)), 'Histogram',), {'gaussian_mixture': True}, 'grapher_Histogram_3_gaussian_mix.json',
-					 id="gaussian-mixture"),
-		pytest.param((POINTS, 'Histogram', '', '',), {'poissonnian': True}, 'grapher_Histogram_3_poissonnian.json', id="poisson"),
-		pytest.param((POINTS, 'Histogram', '', '',), {'exponential': True}, 'grapher_Histogram_3_exponential.json', id="exponential"),
-		pytest.param((POINTS, 'Histogram', '', '',), {'gaussian': True, 'density': False}, 'grapher_Histogram_3_count.json', id="gaussian-counts")])
-def test_histogram_curves(args, kwargs, filename):
-	"""Vérifie la présence et la validité des distributions demandées."""
-	figure = Grapher().histogram(*args, **kwargs)
-	# Les courbes ajustées peuvent varier selon les versions de SciPy et le système.
-	assert isinstance(figure, go.Figure)
-	options = dict(zip(("limit", "show_sigma", "kde", "gaussian", "poissonnian", "exponential"), args[4:10]))
-	options.update(kwargs)
-	expected_names = ["Histogram"]
-	if options.get("kde"): expected_names.append("KDE")
-	if options.get("gaussian"): expected_names.append("Gaussian")
-	if options.get("gaussian_mixture"): expected_names.extend(["Gaussian component 1", "Gaussian component 2", "Gaussian mixture"])
-	if options.get("poissonnian"): expected_names.append("Poisson")
-	if options.get("exponential"): expected_names.append("Exponential")
-	assert [trace.name for trace in figure.data] == expected_names
-	for trace in figure.data[1:]:
-		assert isinstance(trace, go.Scatter)
-		assert len(trace.x) == len(trace.y) > 1
-		assert np.isfinite(trace.y).all()
-		assert (np.asarray(trace.y) >= 0).all()
-	_save_output(figure, OUTPUT_DIR / filename)
+def test_histogram_combines_distributions():
+	"""Vérifie que toutes les distributions coexistent et que la classe de Poisson reste visible."""
+	figure = Grapher().histogram(POINTS, "Histogram", limit=True, show_sigma=True, cumulative=True, bins=1, **HISTOGRAM_DISTRIBUTIONS)
+	assert [trace.name.partition(" (")[0] for trace in figure.data] == [
+			"Histogram", "KDE", "Gaussian", "1", "2", "Gaussian mixture", "Poisson", "Exponential"]
+	poisson_curve = next(trace for trace in figure.data if trace.name == "Poisson")
+	assert len(poisson_curve.x) == len(poisson_curve.y) == 1
+	assert poisson_curve.mode == "markers"
+	_save_output(figure, OUTPUT_DIR / "grapher_Histogram_all_options.json")
+
+
+# --------------------------------------------------
+def test_histogram_gaussian_after_three_sigma_limit():
+	"""Vérifie les paramètres et l'échelle en comptes de la gaussienne après rejet des valeurs extrêmes."""
+	retained = np.tile([40.0, 45.0, 50.0, 45.0], 8)
+	points = np.concatenate((retained, [350.0, 400.0]))
+	figure = Grapher().histogram(points, limit=True, gaussian=True, density=False, bins=10)
+	histogram, curve = figure.data
+	np.testing.assert_array_equal(histogram.x, retained)
+	expected = norm.pdf(curve.x, loc=retained.mean(), scale=retained.std()) * retained.size * histogram.xbins.size
+	np.testing.assert_allclose(curve.y, expected, rtol=1e-12, atol=0)
 
 
 # --------------------------------------------------
 @pytest.mark.parametrize("distribution, name", [
 		pytest.param("kde", "KDE", id="kde"),
 		pytest.param("gaussian", "Gaussian", id="gaussian"),
-		pytest.param("poissonnian", "Poisson", id="poisson"),
 		pytest.param("exponential", "Exponential", id="exponential")])
 @pytest.mark.parametrize("density, cumulative", [
 		pytest.param(True, False, id="density"),
@@ -128,26 +126,51 @@ def test_histogram_fit_limit(distribution, name, density, cumulative, fit_limit)
 	# SciPy fournit une référence indépendante pour les paramètres estimés sur les seules valeurs admissibles.
 	if distribution == "kde": expected = gaussian_kde(valid)(x)
 	elif distribution == "gaussian": expected = norm.pdf(x, loc=valid.mean(), scale=valid.std())
-	elif distribution == "poissonnian": expected = poisson.pmf(x, mu=valid.mean())
 	else: expected = expon.pdf(x, scale=valid.mean())
 	if cumulative:
 		expected = np.cumsum(expected)
 		expected /= expected[-1]
 		expected *= valid.size / len(histogram.x) if density else valid.size
 	elif density: expected *= valid.size / len(histogram.x)
-	else: expected *= valid.size * (1.0 if distribution == "poissonnian" else histogram.xbins.size)
+	else: expected *= valid.size * histogram.xbins.size
 	np.testing.assert_allclose(curve.y, expected)
 	if cumulative: assert curve.y[-1] == pytest.approx(valid.size / len(histogram.x) if density else valid.size)
 
 
 # --------------------------------------------------
+@pytest.mark.parametrize("bins, width, centers, groups", [
+		pytest.param(3, 2.0, [1, 3, 5], [[0, 1], [2, 3], [4, 5]], id="wide-bins"),
+		pytest.param(12, 0.5, np.arange(0.25, 6, 0.5), [group for k in range(6) for group in ([k], [])], id="fractional-bins"),
+		pytest.param(-1, 1.0, np.arange(7), [[k] for k in range(7)], id="integer-bins")])
+@pytest.mark.parametrize("density, cumulative", [
+		pytest.param(True, False, id="density"),
+		pytest.param(False, False, id="counts"),
+		pytest.param(True, True, id="cumulative-density"),
+		pytest.param(False, True, id="cumulative-counts")])
+def test_histogram_poisson_bin_masses(bins, width, centers, groups, density, cumulative):
+	"""Vérifie la position et la masse de chaque classe dans les quatre modes, avec un seuil d'ajustement."""
+	points = np.arange(7)
+	valid = points[points > 0]
+	figure = Grapher().histogram(points, poissonnian=True, bins=bins, fit_limit=0, density=density, cumulative=cumulative)
+	histogram, curve = figure.data
+	assert histogram.xbins.size == width
+	np.testing.assert_array_equal(histogram.x, points)
+	np.testing.assert_allclose(curve.x, centers, rtol=0, atol=1e-14)
+
+	masses = np.array([poisson.pmf(group, valid.mean()).sum() for group in groups])
+	if cumulative: masses = np.cumsum(masses) / masses.sum()
+	elif density: masses /= width
+	scale = valid.size / points.size if density else valid.size
+	np.testing.assert_allclose(curve.y, masses * scale, rtol=1e-12, atol=1e-15)
+
+
+# --------------------------------------------------
 @pytest.mark.parametrize("points, fit_limit", [
-		pytest.param(np.array([-1.0, 0.0, 1.0]), np.inf, id="all-excluded"),
 		pytest.param(np.array([-1.0, 0.0, 1.0]), 0.0, id="one-admissible-value"),
 		pytest.param(np.array([-1.0, 0.0, 1.0, 1.0]), 0.0, id="constant-admissible-values")])
 def test_histogram_fit_limit_without_distribution(points, fit_limit):
 	"""Conserve l'histogramme seul quand les données admissibles ne permettent aucun ajustement."""
-	figure = Grapher().histogram(points, fit_limit=fit_limit, kde=True, gaussian=True, gaussian_mixture=True, poissonnian=True, exponential=True)
+	figure = Grapher().histogram(points, fit_limit=fit_limit, **HISTOGRAM_DISTRIBUTIONS)
 	assert len(figure.data) == 1
 	histogram = figure.data[0]
 	assert isinstance(histogram, go.Histogram)
@@ -158,16 +181,19 @@ def test_histogram_fit_limit_without_distribution(points, fit_limit):
 @pytest.mark.parametrize("cumulative", [pytest.param(False, id="density"), pytest.param(True, id="cumulative")])
 @pytest.mark.parametrize("fit_limit", [pytest.param(-np.inf, id="all-values"), pytest.param(0.0, id="positive-values")])
 def test_histogram_gaussian_mixture_components(cumulative, fit_limit, monkeypatch):
-	"""Vérifie le tracé séparé et additif des deux composantes gaussiennes."""
+	"""Vérifie le tracé additif et la légende des deux composantes gaussiennes."""
 	points = np.concatenate((POINTS - 2.0, POINTS + 2.0))
 	fit = GaussianMixture.fit
 	fit_inputs = []
+	fit_results = []
 
 	# --------------------------------------------------
 	def capture_fit(data, n_component):
-		"""Conserve les données transmises à l'ajustement réel."""
+		"""Conserve les données et les paramètres de l'ajustement réel."""
 		fit_inputs.append(data.copy())
-		return fit(data, n_component=n_component)
+		result = fit(data, n_component=n_component)
+		fit_results.append(result)
+		return result
 
 	monkeypatch.setattr(GaussianMixture, "fit", capture_fit)
 	figure = Grapher().histogram(points, gaussian_mixture=True, density=True, cumulative=cumulative, fit_limit=fit_limit)
@@ -181,26 +207,27 @@ def test_histogram_gaussian_mixture_components(cumulative, fit_limit, monkeypatc
 	assert len(fit_inputs) == 1
 	np.testing.assert_array_equal(fit_inputs[0], points[points > fit_limit])
 	np.testing.assert_array_equal(histogram.x, points)
-	assert [trace.name for trace in figure.data[1:]] == ["Gaussian component 1", "Gaussian component 2", "Gaussian mixture"]
+	model, = fit_results
+	assert component_1.name == f"1 (μ={model.means[0]:.2f}, σ={model.sigmas[0]:.2f}, p={100 * model.weights[0]:.0f}%)"
+	assert component_2.name == f"2 (μ={model.means[1]:.2f}, σ={model.sigmas[1]:.2f}, p={100 * model.weights[1]:.0f}%)"
+	assert mixture.name == "Gaussian mixture"
 	assert np.allclose(np.asarray(component_1.y) + np.asarray(component_2.y), np.asarray(mixture.y))
 	if cumulative: assert mixture.y[-1] == pytest.approx(fit_inputs[0].size / points.size)
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("args, kwargs, filename, reference", [
-		pytest.param((np.empty(0), 'blank',), {}, 'grapher_scatter_0.json', 'grapher_blank.json', id="empty"),
-		pytest.param((np.full((2, 2, 3), np.nan), 'blank',), {}, 'grapher_scatter_invalid_values.json', 'grapher_blank.json', id="no-valid-points"),
-		pytest.param((POINTS, 'scatter',), {}, 'grapher_scatter_1.json', 'grapher_scatter_1.json', id="1d-data"),
-		pytest.param((np.stack((IDX, POINTS), axis=0), 'scatter',), {}, 'grapher_scatter_2.json', 'grapher_scatter_2.json', id="two-rows"),
-		pytest.param((np.stack((IDX, POINTS), axis=1), 'scatter',), {'limit': True}, 'grapher_scatter_3.json', 'grapher_scatter_3.json',
-					 id="two-columns-with-limits"),
-		pytest.param((np.stack((IDX, POINTS), axis=1), 'scatter',), {'show_sigma': True}, 'grapher_scatter_4.json', 'grapher_scatter_4.json',
-					 id="mean-and-sigma")])
-def test_scatter(args, kwargs, filename, reference):
+@pytest.mark.parametrize("args, kwargs, filename", [
+		pytest.param((np.empty(0), 'blank',), {}, 'grapher_blank.json', id="empty"),
+		pytest.param((np.full((2, 2, 3), np.nan), 'blank',), {}, 'grapher_blank.json', id="no-valid-points"),
+		pytest.param((POINTS, 'scatter',), {}, 'grapher_scatter_1.json', id="1d-data"),
+		pytest.param((np.stack((IDX, POINTS), axis=0), 'scatter',), {}, 'grapher_scatter_2.json', id="two-rows"),
+		pytest.param((np.stack((IDX, POINTS), axis=1), 'scatter',), {'limit': True}, 'grapher_scatter_3.json', id="two-columns-with-limits"),
+		pytest.param((np.stack((IDX, POINTS), axis=1), 'scatter',), {'show_sigma': True}, 'grapher_scatter_4.json', id="mean-and-sigma")])
+def test_scatter(args, kwargs, filename):
 	"""Vérifie chaque configuration du graphique indépendamment."""
 	figure = Grapher().scatter(*args, **kwargs)
 	res = _save_output(figure, OUTPUT_DIR / filename)
-	ref = json.loads((REF_DIR / reference).read_text(encoding="utf-8"))
+	ref = json.loads((REF_DIR / filename).read_text(encoding="utf-8"))
 	assert res == ref
 
 
@@ -224,7 +251,7 @@ def test_scatter_multiple_curves(names, expected_names):
 	assert isinstance(first_curve, go.Scatter)
 	assert isinstance(second_curve, go.Scatter)
 	assert first_curve.line.color != second_curve.line.color
-	for trace, index in zip(figure.data, [0, 2]):
+	for trace, index in zip(figure.data, [0, 2], strict=False):
 		assert isinstance(trace, go.Scatter)
 		expected_x = points[index, 0].copy()
 		expected_y = points[index, 1].copy()
@@ -249,21 +276,18 @@ def test_scatter_invalid(args, kwargs):
 
 
 # --------------------------------------------------
-@pytest.mark.parametrize("args, kwargs, filename, reference", [
-		pytest.param((np.empty(0), 'blank',), {}, 'grapher_cloud_0.json', 'grapher_blank.json', id="empty"),
-		pytest.param((np.zeros((2, 2)) + np.inf, 'blank',), {}, 'grapher_cloud_1.json', 'grapher_blank.json', id="infinite-values"),
-		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {}, 'grapher_cloud_2.json', 'grapher_cloud_2.json', id="two-rows"),
-		pytest.param((np.stack((POINTS, POINTS_2), axis=1), 'cloud',), {'limit': True}, 'grapher_cloud_3.json', 'grapher_cloud_3.json',
-					 id="two-columns-with-limits"),
-		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'show_sigma': True}, 'grapher_cloud_4_sigma.json', 'grapher_cloud_4_sigma.json',
-					 id="mean-and-sigma"),
-		pytest.param((np.ones((2, 2)), 'cloud',), {'show_sigma': True, 'kde': True, 'gaussian': True}, 'grapher_cloud_5.json', 'grapher_cloud_5.json',
-					 id="constant-data")])
-def test_cloud(args, kwargs, filename, reference):
+@pytest.mark.parametrize("args, kwargs, filename", [
+		pytest.param((np.empty(0), 'blank',), {}, 'grapher_blank.json', id="empty"),
+		pytest.param((np.zeros((2, 2)) + np.inf, 'blank',), {}, 'grapher_blank.json', id="infinite-values"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {}, 'grapher_cloud_2.json', id="two-rows"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=1), 'cloud',), {'limit': True}, 'grapher_cloud_3.json', id="two-columns-with-limits"),
+		pytest.param((np.stack((POINTS, POINTS_2), axis=0), 'cloud',), {'show_sigma': True}, 'grapher_cloud_4_sigma.json', id="mean-and-sigma"),
+		pytest.param((np.ones((2, 2)), 'cloud',), {'show_sigma': True, 'kde': True, 'gaussian': True}, 'grapher_cloud_5.json', id="constant-data")])
+def test_cloud(args, kwargs, filename):
 	"""Vérifie chaque configuration du graphique indépendamment."""
 	figure = Grapher().cloud(*args, **kwargs)
 	res = _save_output(figure, OUTPUT_DIR / filename)
-	ref = json.loads((REF_DIR / reference).read_text(encoding="utf-8"))
+	ref = json.loads((REF_DIR / filename).read_text(encoding="utf-8"))
 	assert res == ref
 
 
@@ -279,6 +303,50 @@ def test_cloud_curves(args, kwargs, filename):
 	# Les courbes ajustées peuvent varier selon les versions de SciPy et le système.
 	assert isinstance(figure, go.Figure)
 	_save_output(figure, OUTPUT_DIR / filename)
+
+
+# --------------------------------------------------
+@pytest.mark.parametrize("distribution", [
+		pytest.param("kde", id="kde"), pytest.param("gaussian", id="gaussian"),
+		pytest.param("poissonnian", id="poisson"), pytest.param("exponential", id="exponential")])
+def test_cloud_fits_retained_pairs(distribution):
+	"""Vérifie qu'une valeur extrême sur un axe retire le couple complet de l'ajustement."""
+	retained = np.tile([[2.0, 3.0, 4.0, 5.0], [3.0, 5.0, 4.0, 6.0]], (1, 8))
+	points = np.column_stack((retained, [[100.0, 3.0], [4.0, 120.0]]))
+	options = {distribution: True}
+	grapher = Grapher()
+	actual, _ = grapher.cloud(points, limit=True, **options).data
+	expected, _ = grapher.cloud(retained, **options).data
+	np.testing.assert_array_equal(actual.x, expected.x)
+	np.testing.assert_array_equal(actual.y, expected.y)
+	np.testing.assert_allclose(actual.z, expected.z, rtol=1e-12, atol=1e-15)
+
+
+# --------------------------------------------------
+def test_cloud_fits_all_pairs_within_limits():
+	"""Vérifie que les limites laissent l'ajustement intact quand tous les couples sont retenus."""
+	points = np.array([[2.0, 3.0, 4.0, 5.0], [3.0, 5.0, 4.0, 6.0]])
+	grapher = Grapher()
+	actual, _ = grapher.cloud(points, limit=True, gaussian=True).data
+	expected, _ = grapher.cloud(points, gaussian=True).data
+	np.testing.assert_allclose(actual.z, expected.z, rtol=1e-12, atol=1e-15)
+
+
+# --------------------------------------------------
+def test_cloud_without_fit_on_constant_retained_axis():
+	"""Vérifie que le nuage reste disponible quand un axe devient constant après filtrage."""
+	retained = np.tile([[3.0, 3.0, 3.0], [3.0, 4.0, 6.0]], (1, 12))
+	points = np.column_stack((retained, [100.0, 4.0]))
+	figure = Grapher().cloud(points, limit=True, kde=True, gaussian=True, poissonnian=True, exponential=True)
+	assert [trace.name for trace in figure.data] == ["Data"]
+
+
+# --------------------------------------------------
+def test_cloud_skips_kde_for_collinear_points():
+	"""Vérifie que la gaussienne et le nuage restent visibles quand la covariance de la KDE est singulière."""
+	points = np.array([[-1.0, 0.0, 1.0], [-1.0, 0.0, 1.0]])
+	figure = Grapher().cloud(points, kde=True, gaussian=True)
+	assert [trace.name for trace in figure.data] == ["Gaussian", "Data"]
 
 
 # --------------------------------------------------
@@ -408,7 +476,7 @@ def test_astigmatism3d_cross_guides(model, expected_minima):
 	figure = Grapher().astigmatism3d(model, points, pixel_size=pixel_size, z_max=z_max, mode="cross", n_points=n_points)
 
 	assert len(figure.layout.shapes) == 2
-	for shape, expected_z, name in zip(figure.layout.shapes, expected_minima, ("Min σX", "Min σY")):
+	for shape, expected_z, name in zip(figure.layout.shapes, expected_minima, ("Min σX", "Min σY"), strict=False):
 		assert shape.x0 == shape.x1 == expected_z
 		assert shape.y0 == 0 and shape.y1 == 1
 		assert shape.yref == "y domain"

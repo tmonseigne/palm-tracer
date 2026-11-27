@@ -48,7 +48,7 @@ Calcul du modèle
 ----------------
 
 Dans :guilabel:`Compute Model`, utilisez :guilabel:`Load Localization file (CSV)` pour ouvrir le fichier de calibration.
-Le fichier doit contenir les colonnes ``Sigma X``, ``Sigma Y`` et ``Z``. Renseignez :guilabel:`Pixel Size (µm/px)` et :guilabel:`Z Max (nm)`.
+Le fichier doit contenir les colonnes ``Sigma X``, ``Sigma Y`` et ``Z``. Renseignez :guilabel:`Pixel Size (nm/px)` et :guilabel:`Z Max (nm)`.
 
 .. figure:: ../_static/img/tool_astig/tooltip_1.png
    :figclass: centered-caption
@@ -142,9 +142,9 @@ Estimation de la position axiale (Z)
 
 Dans :guilabel:`Compute Z`, utilisez :guilabel:`Load Localization file (CSV)` pour charger les localisations à traiter.
 Sélectionnez le modèle avec :guilabel:`Load Model file (CSV)` ou cochez :guilabel:`Use default model` pour utiliser le modèle enregistré par défaut.
-Vérifiez :guilabel:`Pixel Size (µm/px)` et :guilabel:`Z Max (nm)`, puis cliquez sur :guilabel:`Compute Z`.
+Vérifiez :guilabel:`Pixel Size (nm/px)` et :guilabel:`Z Max (nm)`, puis cliquez sur :guilabel:`Compute Z`.
 
-Le calcul réécrit le CSV avec les colonnes ``Z`` et ``MSE Z`` mises à jour.
+Le calcul réécrit le CSV avec les colonnes ``Z`` et ``Z Quality`` mises à jour.
 Laissez :guilabel:`Save Backup` coché pour conserver une copie du CSV avant l'écriture dans un sous-dossier :file:`backup`.
 
 .. figure:: ../_static/img/tool_astig/estimate_z.png

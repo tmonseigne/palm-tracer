@@ -1,5 +1,6 @@
 """Teste le widget principal de PALM Tracer."""
 
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, PropertyMock
 
@@ -11,8 +12,7 @@ from qtpy.QtWidgets import QDockWidget, QMainWindow, QTabWidget
 
 from palm_tracer.Tools import FileIO
 from palm_tracer.UI import PALMTracerWidget
-from tests.Utils import *
-from tests.Utils import add_basic_file, send_drop_events
+from tests.Utils import DropReceiver, add_basic_file, get_lines_output, send_drop_events
 
 SIZE_X, SIZE_Y, INTENSITY, RATIO = 100, 50, 1000, 10
 SIZE = int(SIZE_X * np.sqrt(SIZE_Y))
@@ -192,15 +192,15 @@ def test_load_setting_restores_values(callback_widget, tmp_path, monkeypatch):
 	monkeypatch.setattr(w.pt.settings.rois, "update_main", update_rois)
 
 	# Enregistre une configuration distincte de l'état courant, avec des options à désactiver au chargement.
-	w.pt.settings.calibration["Pixel Size"].value = 0.32
+	w.pt.settings.calibration["Pixel Size"].value = 320
 	w.pt.settings.localization["Preview"].value = True
 	w.pt.settings.filters["Plane"].active = True
 	path = tmp_path / "settings.json"
 	FileIO.save_json(path, w.pt.settings.to_compact_dict())
-	w.pt.settings.calibration["Pixel Size"].value = 0.16
+	w.pt.settings.calibration["Pixel Size"].value = 160
 
 	w._load_setting(path)
-	assert w.pt.settings.calibration["Pixel Size"].value == 0.32
+	assert w.pt.settings.calibration["Pixel Size"].value == 320
 	assert not w.pt.settings.localization["Preview"].value
 	assert not w.pt.settings.filters["Plane"].active
 	update_rois.assert_called_once_with()

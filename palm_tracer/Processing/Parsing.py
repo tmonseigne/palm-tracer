@@ -8,12 +8,12 @@ import pandas as pd
 # Titre des colonnes selon les fichiers et indications des colonnes entières
 FILES_COLUMNS: dict[str, dict[str, list[str]]] = {
 		"Meta":                 {
-				"columns": ["Height", "Width", "Plane Number", "Pixel Size (μm)", "Exposure Time (s/frame)", "Intensity (photon/ADU)"],
+				"columns": ["Height", "Width", "Plane Number", "Pixel Size (nm)", "Exposure Time (s/frame)", "Intensity (photon/ADU)"],
 				"types":   ["Height", "Width", "Plane Number"]
 				},
 		"Localization":         {
 				"columns": ["Id", "Plane", "Index", "Channel", "X", "Y", "Z", "Integrated Intensity",
-							"Sigma X", "Sigma Y", "Theta", "MSE XY", "MSE Z",
+							"Sigma X", "Sigma Y", "Theta", "XY Quality", "Z Quality",
 							"Intensity 0", "Intensity Offset", "Intensity", "Surface", "Circularity"],
 				"types":   ["Id", "Plane", "Index", "Surface", "Channel"]
 				},

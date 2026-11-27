@@ -25,10 +25,10 @@ class FiltersL(BaseSettingGroup):
 	  ``[0.0, 1.0]``.
 	- ``Theta`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalle angulaire ; valeur par défaut :
 	  ``[-90.0, 90.0]`` degrés.
-	- ``MSE XY`` et ``MSE Z`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des scores de qualité ;
-	  valeur par défaut : ``[0.0, 1.0]``, plus grand = meilleur. Les noms historiques sont conservés :
-	  XY contient la corrélation de Pearson au carré, Z le score de compatibilité des sigmas défini dans
-	  :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`. Les anciens fichiers peuvent encore contenir une SSE pour Z.
+	- ``XY Quality`` et ``Z Quality`` (:class:`~palm_tracer.Settings.Types.CheckRangeFloat.CheckRangeFloat`) : intervalles des scores de qualité ;
+	  valeur par défaut : ``[0.0, 1.0]``. Une valeur élevée indique un meilleur accord avec le modèle. En XY, le score est le carré de la
+	  corrélation de Pearson. En Z, il mesure la compatibilité des largeurs avec le modèle d'astigmatisme selon
+	  :meth:`palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation`.
 	"""
 
 	label: str = "Localization"
@@ -41,9 +41,10 @@ class FiltersL(BaseSettingGroup):
 			"Circularity": CheckRangeFloat("Circularity", "Circularity range, from 0 to 1 (dimensionless); 1 corresponds to equal X and Y sigmas.",
 										   [0, 1], [0, 1]),
 			"Theta":       CheckRangeFloat("Theta", "Orientation angle range, in degrees (°).", [-90, 90], [-90, 90]),
-			"MSE XY":      CheckRangeFloat("MSE XY", "Squared Pearson correlation range for the XY fit, from 0 to 1; higher is better.", [0, 1], [0, 1]),
-			"MSE Z":       CheckRangeFloat("MSE Z", ("Sigma compatibility score range for the astigmatism model, from 0 to 1; higher is better. "
-													 "Legacy files may contain a sum of squared errors instead."), [0, 1], [0, 1])
+			"XY Quality":  CheckRangeFloat("XY Quality", "How well the fitted spot matches the observed spot shape. From 0 to 1, higher is better.",
+										   [0, 1], [0, 1]),
+			"Z Quality":   CheckRangeFloat("Z Quality", "How well the measured spot widths match the calibration model at the estimated Z. "
+														"From 0 to 1, higher is better.", [0, 1], [0, 1])
 			})
 	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 	_mode: int = field(init=False, default=1)

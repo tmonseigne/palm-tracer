@@ -432,6 +432,7 @@ def test_interfaces(results, qtbot):
 	qtbot.addWidget(replacement_ui.widget)
 	assert replacement_ui is not first_ui, "Une interface nettoyée doit être recréée."
 
+
 # ==================================================
 # endregion Interface
 # ==================================================
@@ -530,7 +531,6 @@ def test_metadata_changes_do_not_notify_data(results, tmp_path):
 	results.results_folder = tmp_path
 	results.update_uis()
 	assert notifications == []
-
 
 # ==================================================
 # endregion Signaux

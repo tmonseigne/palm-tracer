@@ -456,7 +456,3 @@ class Results:
 		"""
 		# Les compteurs sont synchronisés avant de notifier les observateurs des données.
 		with self._signal.blocked(emit_last), self._ui_signal.blocked(): yield
-
-	# ==================================================
-	# endregion Signaux
-	# ==================================================

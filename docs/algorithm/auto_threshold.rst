@@ -29,8 +29,8 @@ Détection et estimation du fond
    dont le coefficient dans ce plan est strictement supérieur à :math:`T_k`. Le cœur CPU autorise la fusion des bassins du watershed
    et utilise les positions issues de la segmentation, sans ajustement de :term:`PSF <PSF (Point Spread Function)>`.
 #. **Reconstruire le masque.** À chaque itération, le masque est remis à zéro. Pour chaque détection, on marque les pixels d'une
-   fenêtre carrée centrée sur sa position et rognée aux bords de l'image. La demi-taille de la fenêtre vaut la moitié de
-   :guilabel:`ROI Size`. Le masque est l'union de ces fenêtres.
+   fenêtre carrée centrée sur sa position et rognée aux bords de l'image. Le réglage :guilabel:`ROI Radius` donne le nombre de
+   pixels de chaque côté du pixel central. Le masque est l'union de ces fenêtres.
 #. **Réestimer le seuil.** On prend pour :math:`B` les pixels hors masque. On recalcule :math:`\sigma_B`
    à partir de leurs intensités brutes et on l'utilise comme seuil de l'itération suivante.
 

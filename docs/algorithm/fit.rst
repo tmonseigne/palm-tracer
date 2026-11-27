@@ -52,7 +52,7 @@ Le calcul de Z par :ref:`astigmatisme <astig_page>` utilise les deux modes à la
 Optimisation sur la fenêtre
 ---------------------------
 
-#. Le cœur CPU extrait une fenêtre carrée autour de la détection selon :guilabel:`ROI Size`. Une taille paire est ramenée à l'entier impair inférieur.
+#. Le cœur CPU extrait une fenêtre carrée autour de la détection. Pour un :guilabel:`ROI Radius` de :math:`r` pixels, son côté mesure :math:`2r + 1` pixels.
    Le minimum de la fenêtre initialise le fond, et l'écart entre son maximum et son minimum initialise l'amplitude.
 #. Le solveur minimise la somme des carrés des résidus sur les pixels de la fenêtre. Pour les paramètres :math:`\boldsymbol p` du modèle, le coût vaut
 
@@ -70,6 +70,6 @@ Résultats et qualité
 Les colonnes ``X`` et ``Y`` donnent le centre en pixels. ``Sigma X`` et ``Sigma Y`` donnent les largeurs ajustées ou imposées, et ``Theta`` donne l'angle en radians.
 La colonne ``Integrated Intensity`` contient l'intégrale du profil gaussien sans le fond, calculée par :math:`2\pi A\sigma_x\sigma_y`.
 
-La colonne historique ``MSE XY`` contient le carré de la corrélation de Pearson entre les intensités observées et prédites sur la fenêtre.
+La colonne ``XY Quality`` contient le carré de la corrélation de Pearson entre les intensités observées et prédites sur la fenêtre.
 Une valeur proche de 1 indique une forte concordance de forme. Un ajustement invalide, par exemple lorsque la fenêtre déborde de l'image,
 est repérable par une valeur ``Integrated Intensity`` de −1.

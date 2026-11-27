@@ -302,5 +302,5 @@ msgid "Un écart relatif RMS de 20 % donne 0.5 ; une largeur non finie ou non po
 msgstr "A relative RMS deviation of 20 percent gives 0.5; a non-finite or non-positive width gives 0. This score is neither an R², a probability, nor an axial precision in nanometers. It does not explicitly penalize a solution at a search boundary and does not detect ambiguous Z values. The search range may change the selected Z, but does not normalize the score."
 
 #: of palm_tracer.Processing.Palm.Palm.astigmatism_3d_estimation:25
-msgid "La seconde valeur remplace l'ancienne SSE en pixels carrés (0 = meilleur). La colonne historique ``MSE Z`` conserve son nom mais contient ce score (1 = meilleur). Les anciens fichiers et seuils ne sont pas convertis ; utiliser un cœur compatible et recalculer l'estimation pour obtenir des valeurs homogènes."
-msgstr "The second value replaces the previous SSE in square pixels (0 = best). The historical ``MSE Z`` column retains its name but contains this score (1 = best). Existing files and thresholds are not converted; use a compatible core and recompute the estimation to obtain consistent values."
+msgid "La seconde valeur est enregistrée dans la colonne ``Z Quality``. Elle atteint 1 lorsque les largeurs mesurées concordent exactement avec le modèle à la position estimée."
+msgstr "The second value is stored in the ``Z Quality`` column. It reaches 1 when the measured widths agree exactly with the model at the estimated position."

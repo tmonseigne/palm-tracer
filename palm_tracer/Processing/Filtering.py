@@ -52,7 +52,7 @@ class Filtering:
 				   [f["Intensity"], "Integrated Intensity"],
 				   [f["Sigma X"], "Sigma X"], [f["Sigma Y"], "Sigma Y"],
 				   [f["Theta"], "Theta"], [f["Circularity"], "Circularity"],
-				   [f["MSE XY"], "MSE XY"], [f["MSE Z"], "MSE Z"]]
+				   [f["XY Quality"], "XY Quality"], [f["Z Quality"], "Z Quality"]]
 
 		for filt, col in filters:
 			if isinstance(filt, (CheckRangeFloat, CheckRangeInt)) and filt.active:

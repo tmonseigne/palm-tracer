@@ -29,7 +29,7 @@ class BlinkingReconnection(BaseSettingGroup):
 	_settings: dict[str, BaseSettingGroup | BaseSettingType] = field(init=False, default_factory=lambda: {
 			"Mode":         Combo("Mode", "Expected type of movement of points.", 0, ["Immobile", "Diffuse", "Linear"]),
 			"Max Duration": SpinInt("Max Duration (plane)", "Maximum number of missing planes between two track segments.", 1, [1, 1000], 1),
-			"Max Distance": SpinFloat("Max Distance", "Maximum distance between two planes for a point, in pixels.", 1.0, [0.0, 20.0], 1.0, 2)
+			"Max Distance": SpinFloat("Max Distance", "Maximum distance between two planes for a point, in pixels.", 1.0, [0.01, 20.0], 1.0, 2)
 			})
 	"""Paramètres du groupe, créés indépendamment pour chaque instance."""
 

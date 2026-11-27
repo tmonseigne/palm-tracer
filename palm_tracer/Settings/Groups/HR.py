@@ -14,7 +14,7 @@ from palm_tracer.Settings.Types import BaseSettingType, ButtonGroup, CheckBox, C
 
 DATA_SRC: dict[str, list] = {
 		"Localization": ["Count", "Integrated Intensity", "Z", "Sigma X", "Sigma Y", "Circularity", "Theta",
-						 "Surface", "MSE XY", "MSE Z"],
+						 "Surface", "XY Quality", "Z Quality"],
 		"Tracking":     ["Track ID", "Plane Number", "Track Intensity", "Relative Plane", "Track Duration", "Track Length"]
 		}
 
